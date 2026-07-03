@@ -1,5 +1,7 @@
 # Research Compass for Robotics
 
+> 🚀 **在线体验**：[https://asandstar.github.io/Research-Compass-for-Robotics/](https://asandstar.github.io/Research-Compass-for-Robotics/)
+
 面向机器人领域科研人员的研究工作流管理工具，帮助你从论文阅读到 Idea 孵化再到实验验证，形成完整的科研闭环。
 
 > 🎯 **定位**：不是文献管理工具，而是你的「科研决策辅助工作台」——帮你把读过的论文转化为可验证的研究 Idea。
