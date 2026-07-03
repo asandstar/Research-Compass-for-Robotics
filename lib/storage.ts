@@ -1,7 +1,7 @@
 import { Observation, IdeaCard, MVE, ResearchArea, Paper, LEGACY_STATUS_MAP } from './types';
 import { mockObservations, mockIdeaCards, mockMVEs, mockResearchAreas, mockPapers } from './mockData';
 
-const STORAGE_KEY = 'research-compass-data-v10';
+const STORAGE_KEY = 'research-compass-data-v11';
 
 interface StoredData {
   observations: Observation[];

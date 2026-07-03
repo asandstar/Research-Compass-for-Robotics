@@ -11,6 +11,9 @@ import {
   mockGenerateIdeaFromPaper,
   mockGenerateRoboticsMVE,
   mockFetchArxivPaper,
+  mockExtractAssumptions,
+  mockExtractGaps,
+  mockEvaluateIdea,
 } from '../lib/mockAI';
 
 interface AppState {
@@ -242,7 +245,50 @@ interface AppContextType {
     pdfUrl: string;
     methodKeywords: string[];
     oneSentenceSummary: string;
+    problem: string;
+    coreContribution: string;
+    methodSketch: string;
+    evidence: {
+      tasks: string[];
+      baselines: string[];
+      metrics: string[];
+      keyResults: string[];
+    };
+    assumptions: string[];
+    limitations: string[];
+    questionsToVerify: string[];
   } | null>;
+  extractAssumptions: (paper: Paper) => Promise<{
+    taskAssumptions: string[];
+    sensingAssumptions: string[];
+    dataAssumptions: string[];
+    robotAssumptions: string[];
+    evaluationAssumptions: string[];
+    verificationQuestions: string[];
+  }>;
+  extractGaps: (paper: Paper) => Promise<{
+    gaps: {
+      description: string;
+      evidenceFor: string;
+      whyWeak: string;
+    }[];
+  }>;
+  evaluateIdea: (idea: {
+    title: string;
+    researchQuestion: string;
+    coreHypothesis: string;
+    roboticsTask?: string;
+    baseline?: string;
+  }) => Promise<{
+    scores: {
+      criterion: string;
+      score: number;
+      notes: string;
+    }[];
+    recommendation: 'proceed' | 'revise' | 'drop';
+    recommendationReason: string;
+    revisedHypothesis?: string;
+  }>;
   resetAllData: () => void;
 }
 
@@ -487,7 +533,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       readingStatus: paperData.readingStatus || 'to_read',
       methodKeywords: paperData.methodKeywords || [],
       oneSentenceSummary: paperData.oneSentenceSummary || '',
+      problem: paperData.problem || '',
+      coreContribution: paperData.coreContribution || '',
+      methodSketch: paperData.methodSketch || '',
+      evidence: paperData.evidence || { tasks: [], baselines: [], metrics: [], keyResults: [] },
+      assumptions: paperData.assumptions || [],
+      limitations: paperData.limitations || [],
       relevanceToMyResearch: paperData.relevanceToMyResearch || '',
+      questionsToVerify: paperData.questionsToVerify || [],
       limitationsOrQuestions: paperData.limitationsOrQuestions || '',
       judgementLevel: paperData.judgementLevel || 'background',
       inspiredIdeaIds: paperData.inspiredIdeaIds || [],
@@ -585,6 +638,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const extractAssumptions = async (paper: Paper) => {
+    return await mockExtractAssumptions(paper);
+  };
+
+  const extractGaps = async (paper: Paper) => {
+    return await mockExtractGaps(paper);
+  };
+
+  const evaluateIdea = async (idea: {
+    title: string;
+    researchQuestion: string;
+    coreHypothesis: string;
+    roboticsTask?: string;
+    baseline?: string;
+  }) => {
+    return await mockEvaluateIdea(idea);
+  };
+
   const resetAllData = () => {
     const freshData = resetDemoData();
     dispatch({
@@ -631,6 +702,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         generateOneSentenceSummary,
         createIdeaFromPaper,
         fetchArxivPaper,
+        extractAssumptions,
+        extractGaps,
+        evaluateIdea,
         resetAllData,
       }}
     >

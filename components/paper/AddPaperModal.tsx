@@ -30,10 +30,21 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
     readingStatus: 'to_read' as Paper['readingStatus'],
     methodKeywords: '',
     oneSentenceSummary: '',
+    problem: '',
+    coreContribution: '',
+    methodSketch: '',
+    evidenceTasks: '',
+    evidenceBaselines: '',
+    evidenceMetrics: '',
+    evidenceKeyResults: '',
+    assumptions: '',
+    limitations: '',
     relevanceToMyResearch: '',
+    questionsToVerify: '',
     limitationsOrQuestions: '',
     judgementLevel: 'background' as Paper['judgementLevel'],
   });
+  const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -52,7 +63,17 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
           readingStatus: editingPaper.readingStatus,
           methodKeywords: editingPaper.methodKeywords.join(', '),
           oneSentenceSummary: editingPaper.oneSentenceSummary,
+          problem: editingPaper.problem || '',
+          coreContribution: editingPaper.coreContribution || '',
+          methodSketch: editingPaper.methodSketch || '',
+          evidenceTasks: (editingPaper.evidence?.tasks || []).join(', '),
+          evidenceBaselines: (editingPaper.evidence?.baselines || []).join(', '),
+          evidenceMetrics: (editingPaper.evidence?.metrics || []).join(', '),
+          evidenceKeyResults: (editingPaper.evidence?.keyResults || []).join(', '),
+          assumptions: (editingPaper.assumptions || []).join(', '),
+          limitations: (editingPaper.limitations || []).join(', '),
           relevanceToMyResearch: editingPaper.relevanceToMyResearch,
+          questionsToVerify: (editingPaper.questionsToVerify || []).join(', '),
           limitationsOrQuestions: editingPaper.limitationsOrQuestions,
           judgementLevel: editingPaper.judgementLevel,
         });
@@ -71,7 +92,17 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
           readingStatus: 'to_read',
           methodKeywords: '',
           oneSentenceSummary: '',
+          problem: '',
+          coreContribution: '',
+          methodSketch: '',
+          evidenceTasks: '',
+          evidenceBaselines: '',
+          evidenceMetrics: '',
+          evidenceKeyResults: '',
+          assumptions: '',
+          limitations: '',
           relevanceToMyResearch: '',
+          questionsToVerify: '',
           limitationsOrQuestions: '',
           judgementLevel: 'background',
         });
@@ -111,6 +142,16 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
         pdfUrl: result.pdfUrl,
         methodKeywords: result.methodKeywords.join(', '),
         oneSentenceSummary: result.oneSentenceSummary,
+        problem: result.problem,
+        coreContribution: result.coreContribution,
+        methodSketch: result.methodSketch,
+        evidenceTasks: result.evidence.tasks.join(', '),
+        evidenceBaselines: result.evidence.baselines.join(', '),
+        evidenceMetrics: result.evidence.metrics.join(', '),
+        evidenceKeyResults: result.evidence.keyResults.join(', '),
+        assumptions: result.assumptions.join(', '),
+        limitations: result.limitations.join(', '),
+        questionsToVerify: result.questionsToVerify.join(', '),
       }));
     }
   };
@@ -138,6 +179,15 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
     const paperData = {
       ...formData,
       methodKeywords: formData.methodKeywords.split(',').map(k => k.trim()).filter(Boolean),
+      evidence: {
+        tasks: formData.evidenceTasks.split(',').map(k => k.trim()).filter(Boolean),
+        baselines: formData.evidenceBaselines.split(',').map(k => k.trim()).filter(Boolean),
+        metrics: formData.evidenceMetrics.split(',').map(k => k.trim()).filter(Boolean),
+        keyResults: formData.evidenceKeyResults.split(',').map(k => k.trim()).filter(Boolean),
+      },
+      assumptions: formData.assumptions.split(',').map(k => k.trim()).filter(Boolean),
+      limitations: formData.limitations.split(',').map(k => k.trim()).filter(Boolean),
+      questionsToVerify: formData.questionsToVerify.split(',').map(k => k.trim()).filter(Boolean),
     };
     
     if (editingPaper) {
@@ -385,6 +435,132 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="这篇论文的问题、局限，或者你没想清楚的地方"
             />
+          </div>
+
+          <div className="border-t border-gray-100 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowAdvancedFields(!showAdvancedFields)}
+              className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+            >
+              {showAdvancedFields ? '收起' : '展开'} 结构化论文卡片字段
+            </button>
+            
+            {showAdvancedFields && (
+              <div className="space-y-4 mt-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">问题定义</label>
+                  <textarea
+                    value={formData.problem}
+                    onChange={(e) => setFormData({ ...formData, problem: e.target.value })}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    placeholder="这篇论文试图解决什么问题？"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">核心贡献</label>
+                  <textarea
+                    value={formData.coreContribution}
+                    onChange={(e) => setFormData({ ...formData, coreContribution: e.target.value })}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    placeholder="这篇论文的主要贡献是什么？"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">方法概述</label>
+                  <textarea
+                    value={formData.methodSketch}
+                    onChange={(e) => setFormData({ ...formData, methodSketch: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    placeholder="简述方法的主要步骤"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">证据信息</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">测试任务（逗号分隔）</label>
+                      <input
+                        type="text"
+                        value={formData.evidenceTasks}
+                        onChange={(e) => setFormData({ ...formData, evidenceTasks: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        placeholder="Pick-and-place, Navigation"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">基线方法（逗号分隔）</label>
+                      <input
+                        type="text"
+                        value={formData.evidenceBaselines}
+                        onChange={(e) => setFormData({ ...formData, evidenceBaselines: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        placeholder="RT-1, BC"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">评估指标（逗号分隔）</label>
+                      <input
+                        type="text"
+                        value={formData.evidenceMetrics}
+                        onChange={(e) => setFormData({ ...formData, evidenceMetrics: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        placeholder="Task success rate, ATE"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">关键结果（逗号分隔）</label>
+                      <input
+                        type="text"
+                        value={formData.evidenceKeyResults}
+                        onChange={(e) => setFormData({ ...formData, evidenceKeyResults: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        placeholder="成功率提升30%"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">假设前提（逗号分隔）</label>
+                  <textarea
+                    value={formData.assumptions}
+                    onChange={(e) => setFormData({ ...formData, assumptions: e.target.value })}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    placeholder="任务环境满足特定结构假设"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">局限性（逗号分隔）</label>
+                  <textarea
+                    value={formData.limitations}
+                    onChange={(e) => setFormData({ ...formData, limitations: e.target.value })}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    placeholder="在极端场景下性能下降"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">待验证问题（逗号分隔）</label>
+                  <textarea
+                    value={formData.questionsToVerify}
+                    onChange={(e) => setFormData({ ...formData, questionsToVerify: e.target.value })}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    placeholder="这些假设在真实场景中是否成立？"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </form>
 

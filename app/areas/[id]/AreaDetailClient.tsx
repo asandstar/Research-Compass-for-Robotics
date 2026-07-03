@@ -7,8 +7,9 @@ import { useApp } from '../../../context/AppContext';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { Tag } from '../../../components/ui/Tag';
-import { IDEA_STATUS_LABELS, READING_STATUS_LABELS, JUDGEMENT_LABELS } from '../../../lib/types';
-import { ArrowLeft, Plus, FileText, Lightbulb, FlaskConical, ExternalLink, BookOpen } from 'lucide-react';
+import { IDEA_STATUS_LABELS } from '../../../lib/types';
+import { PaperCard } from '../../../components/paper/PaperCard';
+import { ArrowLeft, Plus, FileText, Lightbulb, FlaskConical, BookOpen } from 'lucide-react';
 
 export default function AreaDetailClient() {
   const params = useParams();
@@ -130,77 +131,15 @@ export default function AreaDetailClient() {
           ) : (
             <div className="space-y-3">
               {papers.slice(0, 5).map((paper) => (
-                <Card key={paper.id} className="p-4 hover:shadow-sm transition-shadow">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 truncate">{paper.title}</h4>
-                      <p className="text-sm text-gray-500 mt-0.5">
-                        {paper.authors.split(',')[0]} et al. · {paper.year} · {paper.venue}
-                      </p>
-                      {paper.oneSentenceSummary && (
-                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                          {paper.oneSentenceSummary}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                      <Tag
-                        size="sm"
-                        color={READING_STATUS_LABELS[paper.readingStatus].color}
-                        bgColor={READING_STATUS_LABELS[paper.readingStatus].bgColor}
-                      >
-                        {READING_STATUS_LABELS[paper.readingStatus].label}
-                      </Tag>
-                      <Tag
-                        size="sm"
-                        color={JUDGEMENT_LABELS[paper.judgementLevel].color}
-                        bgColor={JUDGEMENT_LABELS[paper.judgementLevel].bgColor}
-                      >
-                        {JUDGEMENT_LABELS[paper.judgementLevel].label}
-                      </Tag>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50">
-                    {paper.arxivUrl && (
-                      <a
-                        href={paper.arxivUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        arXiv
-                      </a>
-                    )}
-                    {paper.feishuNoteUrl && (
-                      <a
-                        href={paper.feishuNoteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        飞书笔记
-                      </a>
-                    )}
-                    {paper.codeUrl && (
-                      <a
-                        href={paper.codeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        代码
-                      </a>
-                    )}
-                    {paper.inspiredIdeaIds.length > 0 && (
-                      <span className="text-xs text-gray-400 ml-auto">
-                        关联 {paper.inspiredIdeaIds.length} 个 Idea
-                      </span>
-                    )}
-                  </div>
-                </Card>
+                <PaperCard
+                  key={paper.id}
+                  paper={paper}
+                  getAreaName={(areaId) => {
+                    const area = state.researchAreas.find(a => a.id === areaId);
+                    return area ? area.name.split('｜')[0] : areaId;
+                  }}
+                  compact
+                />
               ))}
             </div>
           )}

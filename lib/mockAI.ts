@@ -707,6 +707,18 @@ export async function mockFetchArxivPaper(arxivUrl: string): Promise<{
   pdfUrl: string;
   methodKeywords: string[];
   oneSentenceSummary: string;
+  problem: string;
+  coreContribution: string;
+  methodSketch: string;
+  evidence: {
+    tasks: string[];
+    baselines: string[];
+    metrics: string[];
+    keyResults: string[];
+  };
+  assumptions: string[];
+  limitations: string[];
+  questionsToVerify: string[];
 } | null> {
   const parsed = parseArxivUrl(arxivUrl);
   if (!parsed.arxivId) return null;
@@ -728,6 +740,9 @@ export async function mockFetchArxivPaper(arxivUrl: string): Promise<{
 
   const venueIdx = hash % template.venues.length;
 
+  const summary = template.summaries[paperIdx];
+  const keywords = template.keywords[paperIdx].slice(0, 3).join('、');
+
   return {
     title: template.titles[paperIdx],
     authors: template.authors[paperIdx % template.authors.length],
@@ -736,6 +751,222 @@ export async function mockFetchArxivPaper(arxivUrl: string): Promise<{
     arxivUrl: parsed.arxivUrl!,
     pdfUrl: parsed.pdfUrl!,
     methodKeywords: template.keywords[paperIdx],
-    oneSentenceSummary: template.summaries[paperIdx],
+    oneSentenceSummary: summary,
+    problem: `${keywords}在实际应用中面临性能瓶颈或泛化能力不足的问题。`,
+    coreContribution: `提出了一种基于${keywords}的新方法，通过${['分层设计', '优化算法', '数据增强', '模型蒸馏'][hash % 4]}策略，在相关任务上实现了性能提升。`,
+    methodSketch: `1) ${['数据预处理', '特征提取', '模型训练', '推理优化'][hash % 4]}；2) ${['关键模块设计', '损失函数优化', '架构调整', '训练策略改进'][hash % 4]}；3) ${['实验验证', '结果分析', '对比实验', '消融实验'][hash % 4]}；4) ${['性能评估', '泛化测试', '鲁棒性验证', '效率分析'][hash % 4]}。`,
+    evidence: {
+      tasks: ['标准基准任务', '复杂场景任务', '泛化测试任务'],
+      baselines: ['传统方法', 'SOTA方法', '简化方法'],
+      metrics: ['准确率/成功率', '推理速度', '内存占用'],
+      keyResults: ['性能提升15-20%', '推理速度提升2-3倍', '泛化能力增强'],
+    },
+    assumptions: ['训练数据分布与测试数据一致', '传感器噪声在可接受范围内', '计算资源充足'],
+    limitations: ['在极端场景下性能下降', '计算开销较大', '需要进一步验证泛化能力'],
+    questionsToVerify: ['在真实机器人环境中表现如何？', '与其他方法的对比如何？', '长期运行的稳定性？'],
+  };
+}
+
+export async function mockExtractAssumptions(paper: Paper): Promise<{
+  taskAssumptions: string[];
+  sensingAssumptions: string[];
+  dataAssumptions: string[];
+  robotAssumptions: string[];
+  evaluationAssumptions: string[];
+  verificationQuestions: string[];
+}> {
+  await delay(600 + Math.random() * 400);
+
+  const keywords = paper.methodKeywords || [];
+  const hasSensor = keywords.some(k => k.toLowerCase().includes('lidar') || k.toLowerCase().includes('camera') || k.toLowerCase().includes('imu') || k.toLowerCase().includes('sensor'));
+  const hasVision = keywords.some(k => k.toLowerCase().includes('visual') || k.toLowerCase().includes('vision') || k.toLowerCase().includes('rgb'));
+  const hasLearning = keywords.some(k => k.toLowerCase().includes('learning') || k.toLowerCase().includes('rl') || k.toLowerCase().includes('diffusion'));
+
+  return {
+    taskAssumptions: [
+      '任务环境满足特定结构假设',
+      '机器人能够稳定执行基础动作',
+      '任务目标明确且可量化',
+    ],
+    sensingAssumptions: hasSensor ? [
+      '传感器标定参数准确',
+      '传感器噪声服从已知分布',
+      '传感器数据同步准确',
+    ] : [],
+    dataAssumptions: hasLearning ? [
+      '训练数据与测试数据分布一致',
+      '数据标注质量足够高',
+      '数据量足以支撑模型学习',
+    ] : [],
+    robotAssumptions: [
+      '机器人运动模型已知且准确',
+      '执行器响应延迟可忽略',
+      '机器人状态可观测',
+    ],
+    evaluationAssumptions: [
+      '评估指标能够反映真实性能',
+      '测试集具有代表性',
+      '实验设置可重复',
+    ],
+    verificationQuestions: [
+      '这些假设在真实场景中是否成立？',
+      '如何验证假设的有效性？',
+      '违反假设会导致什么后果？',
+    ],
+  };
+}
+
+export async function mockExtractGaps(paper: Paper): Promise<{
+  gaps: {
+    description: string;
+    evidenceFor: string;
+    whyWeak: string;
+  }[];
+}> {
+  await delay(800 + Math.random() * 500);
+
+  const gapTemplates = [
+    {
+      description: '未见任务的泛化能力',
+      evidenceFor: '论文仅在有限的测试任务上验证了方法，未见任务的泛化能力尚未充分验证',
+      whyWeak: '真实世界中的任务多样性远超测试集，泛化能力可能被高估',
+    },
+    {
+      description: '极端条件下的鲁棒性',
+      evidenceFor: '实验设置相对理想，未测试极端光照、遮挡或传感器故障等情况',
+      whyWeak: '实际应用中这些极端条件很常见，鲁棒性不足可能导致系统失效',
+    },
+    {
+      description: '计算效率与实时性',
+      evidenceFor: '论文未充分讨论推理时间和计算资源需求，可能无法满足实时控制要求',
+      whyWeak: '许多机器人应用对实时性要求严格，计算效率是关键限制因素',
+    },
+    {
+      description: '数据依赖性',
+      evidenceFor: '方法可能依赖大量特定类型的数据，数据收集成本高',
+      whyWeak: '数据可用性是实际部署的重要瓶颈，数据依赖性强会限制方法的适用性',
+    },
+    {
+      description: '长期稳定性',
+      evidenceFor: '实验通常在较短时间内完成，未验证长期运行的稳定性和漂移特性',
+      whyWeak: '长期稳定性是实际应用的基本要求，短期实验无法充分验证',
+    },
+  ];
+
+  const shuffled = gapTemplates.sort(() => Math.random() - 0.5);
+  return {
+    gaps: shuffled.slice(0, 3),
+  };
+}
+
+export async function mockEvaluateIdea(idea: {
+  title: string;
+  researchQuestion: string;
+  coreHypothesis: string;
+  roboticsTask?: string;
+  baseline?: string;
+}): Promise<{
+  scores: {
+    criterion: string;
+    score: number;
+    notes: string;
+  }[];
+  recommendation: 'proceed' | 'revise' | 'drop';
+  recommendationReason: string;
+  revisedHypothesis?: string;
+}> {
+  await delay(1000 + Math.random() * 600);
+
+  const scoreCriteria = [
+    {
+      criterion: '重要性',
+      score: 3 + Math.floor(Math.random() * 3),
+      notes: [
+        '该问题在机器人领域具有一定的研究价值',
+        '解决该问题可能带来实际应用价值',
+        '与当前研究趋势相符',
+      ][Math.floor(Math.random() * 3)],
+    },
+    {
+      criterion: '新颖性',
+      score: 2 + Math.floor(Math.random() * 3),
+      notes: [
+        '该方向已有一些相关工作',
+        '需要进一步挖掘创新点',
+        '与现有方法有一定区别',
+      ][Math.floor(Math.random() * 3)],
+    },
+    {
+      criterion: '可测试性',
+      score: 3 + Math.floor(Math.random() * 3),
+      notes: [
+        '可以通过实验验证假设',
+        '有明确的评估指标',
+        '实验设置相对简单',
+      ][Math.floor(Math.random() * 3)],
+    },
+    {
+      criterion: '可行性',
+      score: 3 + Math.floor(Math.random() * 3),
+      notes: [
+        '所需资源和技术条件具备',
+        '有成熟的工具和框架可利用',
+        '时间成本在可接受范围内',
+      ][Math.floor(Math.random() * 3)],
+    },
+    {
+      criterion: '基线清晰度',
+      score: idea.baseline ? 4 + Math.floor(Math.random() * 2) : 2 + Math.floor(Math.random() * 2),
+      notes: idea.baseline ? '基线方法明确，可以进行有效对比' : '基线方法需要进一步明确',
+    },
+    {
+      criterion: '证据质量',
+      score: 3 + Math.floor(Math.random() * 2),
+      notes: [
+        '有一定的文献支撑',
+        '需要更多实验证据',
+        '理论基础相对扎实',
+      ][Math.floor(Math.random() * 3)],
+    },
+    {
+      criterion: '风险意识',
+      score: 3 + Math.floor(Math.random() * 2),
+      notes: [
+        '已识别主要风险因素',
+        '需要制定风险应对策略',
+        '风险可控',
+      ][Math.floor(Math.random() * 3)],
+    },
+    {
+      criterion: '长期价值',
+      score: 2 + Math.floor(Math.random() * 3),
+      notes: [
+        '可能产生有影响力的成果',
+        '可以为后续研究奠定基础',
+        '有潜力扩展到其他领域',
+      ][Math.floor(Math.random() * 3)],
+    },
+  ];
+
+  const avgScore = scoreCriteria.reduce((sum, s) => sum + s.score, 0) / scoreCriteria.length;
+  let recommendation: 'proceed' | 'revise' | 'drop' = 'revise';
+  let recommendationReason = '';
+
+  if (avgScore >= 4) {
+    recommendation = 'proceed';
+    recommendationReason = '该想法在重要性、新颖性和可行性方面表现良好，可以继续推进。建议尽快设计MVE进行验证。';
+  } else if (avgScore >= 3) {
+    recommendation = 'revise';
+    recommendationReason = '该想法有一定潜力，但在某些方面需要改进。建议先完善假设和基线，再进行实验验证。';
+  } else {
+    recommendation = 'drop';
+    recommendationReason = '该想法在新颖性或可行性方面存在明显不足。建议重新审视研究方向或问题定义。';
+  }
+
+  return {
+    scores: scoreCriteria,
+    recommendation,
+    recommendationReason,
+    revisedHypothesis: recommendation === 'revise' ? `${idea.coreHypothesis} 需要在${scoreCriteria.sort((a, b) => a.score - b.score)[0].criterion}方面进一步细化。` : undefined,
   };
 }

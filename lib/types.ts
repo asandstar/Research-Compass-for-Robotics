@@ -29,6 +29,13 @@ export interface ResearchArea {
   updatedAt: string;
 }
 
+export interface PaperEvidence {
+  tasks: string[];
+  baselines: string[];
+  metrics: string[];
+  keyResults: string[];
+}
+
 export interface Paper {
   id: string;
   title: string;
@@ -44,7 +51,14 @@ export interface Paper {
   readingStatus: 'to_read' | 'skimmed' | 'deep_reading' | 'reviewed' | 'paused';
   methodKeywords: string[];
   oneSentenceSummary: string;
+  problem: string;
+  coreContribution: string;
+  methodSketch: string;
+  evidence: PaperEvidence;
+  assumptions: string[];
+  limitations: string[];
   relevanceToMyResearch: string;
+  questionsToVerify: string[];
   limitationsOrQuestions: string;
   judgementLevel: 'background' | 'useful' | 'idea_source' | 'must_review';
   inspiredIdeaIds: string[];
