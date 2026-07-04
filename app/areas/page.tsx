@@ -83,7 +83,7 @@ export default function ResearchAreasPage() {
           const readPapers = papers.filter(p => p.readingStatus === 'reviewed' || p.readingStatus === 'deep_reading');
 
           return (
-            <Link key={area.id} href={`/areas/${area.id}`} className="block group">
+            <Link key={area.id} href={`/areas/${area.id}`} className="block group no-underline hover:no-underline">
               <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
                 <div className="p-4 space-y-3">
                   <div className="flex items-start justify-between">

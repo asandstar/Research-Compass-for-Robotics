@@ -4,15 +4,18 @@ import { useApp } from '../context/AppContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Tag } from '../components/ui/Tag';
+import { AddPaperModal } from '../components/paper/AddPaperModal';
 import { IDEA_STATUS_LABELS, READING_STATUS_LABELS } from '../lib/types';
 import {
-  Brain, FlaskConical, BookOpen, Cpu, PlusCircle, ArrowRight,
+  Brain, FlaskConical, BookOpen, Cpu, PlusCircle, ArrowRight, Plus,
   Lightbulb, FileText, TrendingUp, AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function Dashboard() {
   const { state } = useApp();
+  const [showAddPaper, setShowAddPaper] = useState(false);
 
   const activeAreas = state.researchAreas.filter(a => !a.isHidden);
   const paperCount = state.papers.length;
@@ -129,7 +132,7 @@ export default function Dashboard() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {topAreas.map(area => (
-                <Link key={area.id} href={`/areas/${area.id}`}>
+                <Link key={area.id} href={`/areas/${area.id}`} className="no-underline hover:no-underline">
                   <div className="p-4 border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50/50 transition-colors cursor-pointer">
                     <div className="font-medium text-gray-900 mb-1">
                       {area.name.split('｜')[0]}
@@ -208,7 +211,7 @@ export default function Dashboard() {
             </h2>
             <div className="space-y-3">
               {activeIdeaCards.map(idea => (
-                <Link key={idea.id} href={`/idea/${idea.id}`}>
+                <Link key={idea.id} href={`/idea/${idea.id}`} className="no-underline hover:no-underline block">
                   <div className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer">
                     <div className="flex justify-between items-start gap-2 mb-1">
                       <div className="font-medium text-gray-900 text-sm line-clamp-2">{idea.title}</div>
@@ -248,10 +251,19 @@ export default function Dashboard() {
                 <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-xs font-bold">1</span>
                 探索机器人子领域
               </Link>
-              <Link href="/papers" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700">
-                <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-xs font-bold">2</span>
-                添加论文并写总结
-              </Link>
+              <div className="flex items-center gap-2 text-indigo-600">
+                <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+                <Link href="/papers" className="hover:text-indigo-700">
+                  添加论文并写总结
+                </Link>
+                <button
+                  onClick={(e) => { e.preventDefault(); setShowAddPaper(true); }}
+                  className="ml-auto w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center hover:bg-indigo-600 transition-colors flex-shrink-0"
+                  title="直接添加论文"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
               <div className="flex items-center gap-2 text-gray-500">
                 <span className="w-5 h-5 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold">3</span>
                 从论文生成 Idea
@@ -292,6 +304,12 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
+      {showAddPaper && (
+        <AddPaperModal
+          isOpen={showAddPaper}
+          onClose={() => setShowAddPaper(false)}
+        />
+      )}
     </div>
   );
 }

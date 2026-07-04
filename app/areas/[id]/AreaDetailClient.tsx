@@ -167,7 +167,7 @@ export default function AreaDetailClient() {
           ) : (
             <div className="space-y-3">
               {ideas.map((idea) => (
-                <Link key={idea.id} href={`/idea/${idea.id}`} className="block">
+                <Link key={idea.id} href={`/idea/${idea.id}`} className="block no-underline hover:no-underline">
                   <Card className="p-4 hover:shadow-sm transition-shadow cursor-pointer">
                     <div className="flex items-start justify-between gap-2">
                       <h4 className="font-medium text-gray-900 text-sm line-clamp-2">{idea.title}</h4>
@@ -196,7 +196,7 @@ export default function AreaDetailClient() {
                 {activeMves.map((mve) => {
                   const idea = ideas.find(i => i.id === mve.ideaCardId);
                   return (
-                    <Link key={mve.id} href={`/mve/${mve.id}`} className="block">
+                    <Link key={mve.id} href={`/mve/${mve.id}`} className="block no-underline hover:no-underline">
                       <Card className="p-4 hover:shadow-sm transition-shadow cursor-pointer border-l-4 border-l-amber-400">
                         <h4 className="font-medium text-gray-900 text-sm line-clamp-2">
                           {idea?.title || 'Unknown Idea'}
