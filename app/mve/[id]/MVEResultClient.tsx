@@ -59,6 +59,16 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isDirty, mve, resultStatus, resultNotes, updateMVEResult]);
 
+  // 确认更新 modal Escape 关闭
+  useEffect(() => {
+    if (!showConfirm) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowConfirm(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showConfirm]);
+
   if (!state.isInitialized) {
     return <div className="text-center py-20 text-gray-500">加载中...</div>;
   }
@@ -120,7 +130,7 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
             <h1 className="text-xl font-bold text-gray-900">最小可行实验方案</h1>
             {ideaCard && (
               <div className="flex items-center gap-2 mt-1">
-                <Link href={`/idea/${ideaCard.id}`} className="text-sm text-indigo-600 hover:underline">
+                <Link href={`/detail/idea/${ideaCard.id}`} className="text-sm text-indigo-600 hover:underline">
                   来自: {ideaCard.title}
                 </Link>
                 <Tag color={IDEA_STATUS_LABELS[ideaCard.status].color} bgColor={IDEA_STATUS_LABELS[ideaCard.status].bgColor} size="sm">
@@ -335,7 +345,7 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
         <div className="flex gap-3">
           <Button onClick={handleSaveResult}>保存结果</Button>
           {ideaCard && (
-            <Button variant="secondary" onClick={() => router.push(`/idea/${ideaCard.id}`)}>
+            <Button variant="secondary" onClick={() => router.push(`/detail/idea/${ideaCard.id}`)}>
               返回 Idea Card
             </Button>
           )}
@@ -343,11 +353,20 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
       </Card>
 
       {showConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-sm mx-4">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mve-confirm-modal-title"
+          onClick={() => setShowConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-full max-w-sm mx-4"
+            onClick={e => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 mb-4">
               <AlertCircle className="w-6 h-6 text-amber-500" />
-              <h3 className="text-lg font-semibold text-gray-800">确认更新状态</h3>
+              <h3 id="mve-confirm-modal-title" className="text-lg font-semibold text-gray-800">确认更新状态</h3>
             </div>
             <p className="text-sm text-gray-700 mb-4">
               确定将关联的 Idea Card 状态更新为 "{resultStatus === 'passed' ? '值得推进' : '已放弃'}" 吗？

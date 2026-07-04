@@ -57,6 +57,16 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isDirty, ideaCard, updateIdeaCard]);
 
+  // 补充观察 modal Escape 关闭
+  useEffect(() => {
+    if (!showAddObservation) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowAddObservation(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showAddObservation]);
+
   if (!state.isInitialized) {
     return <div className="text-center py-20 text-gray-500">加载中...</div>;
   }
@@ -101,7 +111,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
         setIsDirty(false);
       }
       const mve = await generateMVE(ideaCard.id);
-      router.push(`/mve/${mve.id}`);
+      router.push(`/detail/mve/${mve.id}`);
     } catch (error) {
       console.error('Failed to generate MVE:', error);
       setErrorMessage('生成 MVE 失败,请重试');
@@ -485,9 +495,18 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
       </div>
 
       {showAddObservation && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">补充观察</h3>
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-observation-modal-title"
+          onClick={() => setShowAddObservation(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-full max-w-md mx-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 id="add-observation-modal-title" className="text-lg font-semibold text-gray-800 mb-4">补充观察</h3>
             <textarea
               value={newObservation}
               onChange={(e) => setNewObservation(e.target.value)}

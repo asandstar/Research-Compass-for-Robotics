@@ -100,7 +100,7 @@ export default function Dashboard() {
             </div>
           </Card>
         </Link>
-        <Link href={firstActiveIdea ? `/idea/${firstActiveIdea.id}` : '/papers'} className="no-underline hover:no-underline">
+        <Link href={firstActiveIdea ? `/detail/idea/${firstActiveIdea.id}` : '/papers'} className="no-underline hover:no-underline">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
@@ -113,7 +113,7 @@ export default function Dashboard() {
             </div>
           </Card>
         </Link>
-        <Link href={firstPendingMVE ? `/mve/${firstPendingMVE.id}` : '#'} className={`no-underline hover:no-underline ${!firstPendingMVE ? 'pointer-events-none' : ''}`}>
+        <Link href={firstPendingMVE ? `/detail/mve/${firstPendingMVE.id}` : '#'} className={`no-underline hover:no-underline ${!firstPendingMVE ? 'pointer-events-none' : ''}`}>
           <Card className={`h-full ${firstPendingMVE ? 'hover:shadow-lg transition-shadow cursor-pointer' : ''}`}>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-rose-100 flex items-center justify-center">
@@ -286,7 +286,7 @@ export default function Dashboard() {
                 </Link>
               )}
               {pendingMVEs > 0 && firstPendingMVE && (
-                <Link href={`/mve/${firstPendingMVE.id}`} className="no-underline hover:no-underline">
+                <Link href={`/detail/mve/${firstPendingMVE.id}`} className="no-underline hover:no-underline">
                   <div className="flex justify-between items-center text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 -mx-2 px-2 py-1 rounded transition-colors">
                     <span>待验证 MVE</span>
                     <span className="font-medium text-rose-600">

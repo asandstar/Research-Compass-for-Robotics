@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Microscope, Search, X, Loader2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 
@@ -38,18 +39,36 @@ const ASSUMPTION_CATEGORIES: { key: keyof AssumptionResult; label: string; icon:
 ];
 
 export function AnalysisResultModal({ isOpen, onClose, type, loading, assumptions, gaps }: AnalysisResultModalProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const title = type === 'assumptions' ? '假设提取结果' : '研究缺口分析';
   const Icon = type === 'assumptions' ? Microscope : Search;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="analysis-result-modal-title"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="p-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
           <div className="flex items-center gap-2">
             <Icon className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <h2 id="analysis-result-modal-title" className="text-lg font-semibold text-gray-900">{title}</h2>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
             <X className="w-5 h-5" />

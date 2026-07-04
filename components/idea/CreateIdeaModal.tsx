@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../ui/Button';
 import { X, Loader2 } from 'lucide-react';
@@ -46,11 +46,31 @@ export function CreateIdeaModal({ isOpen, onClose, preselectedAreaId, onCreated 
 
   const canSubmit = formData.title.trim() && formData.researchQuestion.trim() && formData.coreHypothesis.trim() && formData.whyItMatters.trim();
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="create-idea-modal-title"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">新增 Idea</h2>
+          <h2 id="create-idea-modal-title" className="text-lg font-semibold text-gray-900">新增 Idea</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
             <X className="w-5 h-5" />
           </button>

@@ -82,7 +82,7 @@ function PaperLibraryContent() {
   const handleGenerateIdea = async (paperId: string) => {
     try {
       const idea = await createIdeaFromPaper(paperId);
-      router.push(`/idea/${idea.id}`);
+      router.push(`/detail/idea/${idea.id}`);
     } catch (error) {
       console.error('Failed to generate idea:', error);
       alert('生成 Idea 失败,请重试');

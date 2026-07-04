@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../../components/ui/Button';
@@ -13,6 +13,15 @@ export default function ResearchAreasPage() {
   const { state, getPapersByAreaId, getIdeasByAreaId, getMvesByAreaId, addResearchArea, updateResearchArea } = useApp();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingArea, setEditingArea] = useState<any>(null);
+
+  useEffect(() => {
+    if (!showAddModal) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowAddModal(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showAddModal]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -154,10 +163,19 @@ export default function ResearchAreasPage() {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="area-modal-title"
+          onClick={() => setShowAddModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
             <div className="p-6 border-b border-gray-100">
-              <h2 className="text-lg font-semibold">
+              <h2 id="area-modal-title" className="text-lg font-semibold">
                 {editingArea ? '编辑子领域' : '新增子领域'}
               </h2>
             </div>

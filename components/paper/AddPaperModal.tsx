@@ -219,15 +219,33 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
     onClose();
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const visibleAreas = state.researchAreas.filter(a => !a.isHidden);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-paper-modal-title"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between p-5 border-b border-gray-100 flex-shrink-0">
-          <h2 className="text-lg font-semibold">
+          <h2 id="add-paper-modal-title" className="text-lg font-semibold">
             {editingPaper ? '编辑论文' : '添加论文'}
           </h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">

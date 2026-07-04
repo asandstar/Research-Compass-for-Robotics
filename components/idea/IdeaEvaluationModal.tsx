@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { ClipboardCheck, X, Loader2, Check, AlertTriangle, XCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 
@@ -58,20 +59,38 @@ function getScoreColor(score: number): string {
 }
 
 export function IdeaEvaluationModal({ isOpen, onClose, loading, result, onAdoptHypothesis }: IdeaEvaluationModalProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const config = result ? RECOMMENDATION_CONFIG[result.recommendation] : null;
   const RecIcon = config?.icon;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="idea-evaluation-modal-title"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="p-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
           <div className="flex items-center gap-2">
             <ClipboardCheck className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Idea AI 评估</h2>
+            <h2 id="idea-evaluation-modal-title" className="text-lg font-semibold text-gray-900">Idea AI 评估</h2>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
             <X className="w-5 h-5" />
           </button>
         </div>

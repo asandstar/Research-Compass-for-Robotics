@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
@@ -22,10 +22,19 @@ export default function AreaDetailClient() {
   const [showCreateIdea, setShowCreateIdea] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  useEffect(() => {
+    if (!showDeleteConfirm) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowDeleteConfirm(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showDeleteConfirm]);
+
   const handleGenerateIdea = async (paperId: string) => {
     try {
       const idea = await createIdeaFromPaper(paperId);
-      router.push(`/idea/${idea.id}`);
+      router.push(`/detail/idea/${idea.id}`);
     } catch (error) {
       console.error('Failed to generate idea:', error);
       alert('生成 Idea 失败,请重试');
@@ -180,7 +189,7 @@ export default function AreaDetailClient() {
           ) : (
             <div className="space-y-3">
               {ideas.map((idea) => (
-                <Link key={idea.id} href={`/idea/${idea.id}`} className="block no-underline hover:no-underline">
+                <Link key={idea.id} href={`/detail/idea/${idea.id}`} className="block no-underline hover:no-underline">
                   <Card className="p-4 hover:shadow-sm transition-shadow cursor-pointer">
                     <div className="flex items-start justify-between gap-2">
                       <h4 className="font-medium text-gray-900 text-sm line-clamp-2">{idea.title}</h4>
@@ -209,7 +218,7 @@ export default function AreaDetailClient() {
                 {activeMves.map((mve) => {
                   const idea = ideas.find(i => i.id === mve.ideaCardId);
                   return (
-                    <Link key={mve.id} href={`/mve/${mve.id}`} className="block no-underline hover:no-underline">
+                    <Link key={mve.id} href={`/detail/mve/${mve.id}`} className="block no-underline hover:no-underline">
                       <Card className="p-4 hover:shadow-sm transition-shadow cursor-pointer border-l-4 border-l-amber-400">
                         <h4 className="font-medium text-gray-900 text-sm line-clamp-2">
                           {idea?.title || 'Unknown Idea'}
@@ -226,9 +235,18 @@ export default function AreaDetailClient() {
       </div>
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-sm mx-4">
-            <h3 className="text-lg font-semibold mb-2">确认删除</h3>
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-area-modal-title"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-full max-w-sm mx-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 id="delete-area-modal-title" className="text-lg font-semibold mb-2">确认删除</h3>
             <p className="text-sm text-gray-600 mb-4">
               删除后子领域将被隐藏,关联的论文和 Idea 不会被删除。此操作不可撤销。
             </p>
@@ -250,7 +268,7 @@ export default function AreaDetailClient() {
         isOpen={showCreateIdea}
         onClose={() => setShowCreateIdea(false)}
         preselectedAreaId={areaId}
-        onCreated={(ideaId) => router.push(`/idea/${ideaId}`)}
+        onCreated={(ideaId) => router.push(`/detail/idea/${ideaId}`)}
       />
     </div>
   );
