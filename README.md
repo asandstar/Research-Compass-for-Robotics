@@ -19,11 +19,15 @@
 - 结构化字段：问题定义、核心贡献、方法概述、实验证据、假设前提、局限性、待验证问题
 - 阅读状态 + 判断级别双维度标记
 - 关联飞书笔记、代码仓库等外部链接
+- **AI 假设提取**：一键提取论文中的任务/感知/数据/机器人/评估五类假设
+- **AI 缺口分析**：自动分析论文的研究空白与潜在机会
 
 ### 💡 Idea 孵化
 - 从论文一键生成 Idea 草稿
 - 结构化 Idea 卡片：研究问题、核心假设、为什么重要、正反证据、缺失证据、最大风险
 - 支持机器人领域专属字段：任务类型、数据集/场景、基线方法、评估指标
+- **AI Idea 评估**：8 维度评分（重要性/新颖性/可测试性/可行性等）+ 推进/修订/放弃建议
+- **手动补充证据**：支持在三栏证据（支持/反对/缺失）中手动添加新证据
 
 ### 🧪 MVE（Minimum Viable Experiment）
 - 从 Idea 一键生成最小可行实验设计
@@ -162,13 +166,14 @@ npm run start
 
 ### GitHub Pages
 
-项目已配置好 GitHub Actions 自动部署工作流（`.github/workflows/deploy.yml`）。
+项目已配置好 GitHub Actions 自动部署工作流（`.github/workflows/deploy.yml`），使用 `peaceiris/actions-gh-pages` 将构建产物推送到 `gh-pages` 分支。
 
 启用方式：
 1. 推送代码到 GitHub
 2. 进入仓库 Settings → Pages
-3. Source 选择「GitHub Actions」
-4. 每次 push 到 main 分支会自动构建部署
+3. Source 选择「Deploy from branch」
+4. Branch 选择「gh-pages / (root)」
+5. 每次 push 到 main 分支会自动构建并部署
 
 ### Cloudflare Pages
 
