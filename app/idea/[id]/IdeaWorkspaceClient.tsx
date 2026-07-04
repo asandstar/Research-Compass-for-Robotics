@@ -25,10 +25,41 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [evaluating, setEvaluating] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
 
+  // 只在 id 变化或初始化完成时同步,避免其他 dispatch 覆盖本地编辑内容
   useEffect(() => {
-    setIdeaCard(getIdeaCardById(id));
-  }, [id, state.ideaCards]);
+    if (state.isInitialized) {
+      setIdeaCard(getIdeaCardById(id));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, state.isInitialized]);
+
+  // 防抖自动保存:2 秒无操作后保存
+  useEffect(() => {
+    if (!isDirty || !ideaCard) return;
+    const timer = setTimeout(() => {
+      updateIdeaCard(ideaCard);
+      setIsDirty(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [isDirty, ideaCard, updateIdeaCard]);
+
+  // 路由离开前保存
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (isDirty && ideaCard) {
+        updateIdeaCard(ideaCard);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty, ideaCard, updateIdeaCard]);
+
+  if (!state.isInitialized) {
+    return <div className="text-center py-20 text-gray-500">加载中...</div>;
+  }
 
   if (!ideaCard) {
     return (
@@ -49,16 +80,31 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
 
   const canGenerateMVE = ideaCard.researchQuestion && ideaCard.coreHypothesis && ideaCard.whyItMatters;
 
+  const handleFieldChange = (
+    field: 'title' | 'researchQuestion' | 'coreHypothesis' | 'whyItMatters' | 'roboticsTask' | 'datasetOrScenario' | 'baseline' | 'evaluationMetric',
+    value: string
+  ) => {
+    setIdeaCard(prev => prev ? { ...prev, [field]: value } : prev);
+    setIsDirty(true);
+  };
+
   const handleSave = () => {
     updateIdeaCard(ideaCard);
   };
 
   const handleGenerateMVE = async () => {
     try {
+      setErrorMessage('');
+      // 自动保存未保存的编辑
+      if (isDirty) {
+        updateIdeaCard(ideaCard);
+        setIsDirty(false);
+      }
       const mve = await generateMVE(ideaCard.id);
       router.push(`/mve/${mve.id}`);
     } catch (error) {
       console.error('Failed to generate MVE:', error);
+      setErrorMessage('生成 MVE 失败,请重试');
     }
   };
 
@@ -66,6 +112,12 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
     setShowEvaluation(true);
     setEvaluating(true);
     setEvaluationResult(null);
+    setErrorMessage('');
+    // 自动保存未保存的编辑
+    if (isDirty) {
+      updateIdeaCard(ideaCard);
+      setIsDirty(false);
+    }
     try {
       const result = await evaluateIdea({
         title: ideaCard.title,
@@ -77,60 +129,81 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
       setEvaluationResult(result);
     } catch (error) {
       console.error('Failed to evaluate idea:', error);
+      setErrorMessage('评估失败,请重试');
     } finally {
       setEvaluating(false);
     }
   };
 
   const handleAdoptHypothesis = (hypothesis: string) => {
-    setIdeaCard({ ...ideaCard, coreHypothesis: hypothesis });
-    updateIdeaCard({ ...ideaCard, coreHypothesis: hypothesis });
+    const updated = { ...ideaCard, coreHypothesis: hypothesis };
+    setIdeaCard(updated);
+    updateIdeaCard(updated);
   };
 
   const handleRemoveSupportingEvidence = (eid: string) => {
-    setIdeaCard({
+    const updated = {
       ...ideaCard,
       supportingEvidence: ideaCard.supportingEvidence.filter(e => e.id !== eid),
-    });
+    };
+    setIdeaCard(updated);
+    updateIdeaCard(updated);
   };
 
   const handleRemoveOpposingEvidence = (eid: string) => {
-    setIdeaCard({
+    const updated = {
       ...ideaCard,
       opposingEvidence: ideaCard.opposingEvidence.filter(e => e.id !== eid),
-    });
+    };
+    setIdeaCard(updated);
+    updateIdeaCard(updated);
   };
 
   const handleRemoveMissingEvidence = (eid: string) => {
-    setIdeaCard({
+    const updated = {
       ...ideaCard,
       missingEvidence: ideaCard.missingEvidence.filter(e => e.id !== eid),
-    });
+    };
+    setIdeaCard(updated);
+    updateIdeaCard(updated);
   };
 
   const handleAddObservation = async () => {
     if (!newObservation.trim()) return;
-    const obs = await addObservation(newObservation.trim());
-    setIdeaCard({
-      ...ideaCard,
-      sourceObservations: [...ideaCard.sourceObservations, obs.id],
-    });
-    setNewObservation('');
-    setShowAddObservation(false);
+    try {
+      const obs = await addObservation(newObservation.trim());
+      const updated = {
+        ...ideaCard,
+        sourceObservations: [...ideaCard.sourceObservations, obs.id],
+      };
+      setIdeaCard(updated);
+      updateIdeaCard(updated);
+      setNewObservation('');
+      setShowAddObservation(false);
+    } catch (error) {
+      console.error('Failed to add observation:', error);
+      setErrorMessage('添加观察失败,请重试');
+    }
   };
 
   return (
     <div className="space-y-6">
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-2 flex items-center justify-between">
+          <span>{errorMessage}</span>
+          <button onClick={() => setErrorMessage('')} className="text-red-500 hover:text-red-700" aria-label="关闭错误提示">×</button>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700">
+          <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700" aria-label="返回">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
             <input
               type="text"
               value={ideaCard.title}
-              onChange={(e) => setIdeaCard({ ...ideaCard, title: e.target.value })}
+              onChange={(e) => handleFieldChange('title', e.target.value)}
               className="text-xl font-bold text-gray-900 bg-transparent border-none focus:outline-none focus:underline"
             />
             <div className="flex items-center gap-2 mt-1">
@@ -155,6 +228,9 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
             <ClipboardCheck className="w-4 h-4 mr-1" />
             AI 评估
           </Button>
+          {isDirty && (
+            <span className="text-xs text-amber-600 self-center">未保存</span>
+          )}
           <Button onClick={handleSave}>保存</Button>
         </div>
       </div>
@@ -170,7 +246,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
                 </label>
                 <textarea
                   value={ideaCard.researchQuestion}
-                  onChange={(e) => setIdeaCard({ ...ideaCard, researchQuestion: e.target.value })}
+                  onChange={(e) => handleFieldChange('researchQuestion', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 resize-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
                   rows={3}
                   placeholder="你想回答什么研究问题？"
@@ -182,7 +258,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
                 </label>
                 <textarea
                   value={ideaCard.coreHypothesis}
-                  onChange={(e) => setIdeaCard({ ...ideaCard, coreHypothesis: e.target.value })}
+                  onChange={(e) => handleFieldChange('coreHypothesis', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 resize-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
                   rows={3}
                   placeholder="用'如果...那么...'表达"
@@ -194,7 +270,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
                 </label>
                 <textarea
                   value={ideaCard.whyItMatters}
-                  onChange={(e) => setIdeaCard({ ...ideaCard, whyItMatters: e.target.value })}
+                  onChange={(e) => handleFieldChange('whyItMatters', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 resize-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
                   rows={3}
                   placeholder="这个问题为什么值得研究？"
@@ -217,7 +293,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
                 <input
                   type="text"
                   value={ideaCard.roboticsTask}
-                  onChange={(e) => setIdeaCard({ ...ideaCard, roboticsTask: e.target.value })}
+                  onChange={(e) => handleFieldChange('roboticsTask', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="如：桌面操作、视觉SLAM"
                 />
@@ -230,7 +306,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
                 <input
                   type="text"
                   value={ideaCard.datasetOrScenario}
-                  onChange={(e) => setIdeaCard({ ...ideaCard, datasetOrScenario: e.target.value })}
+                  onChange={(e) => handleFieldChange('datasetOrScenario', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="如：TUM数据集、自建模拟场景"
                 />
@@ -240,7 +316,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
                 <input
                   type="text"
                   value={ideaCard.baseline}
-                  onChange={(e) => setIdeaCard({ ...ideaCard, baseline: e.target.value })}
+                  onChange={(e) => handleFieldChange('baseline', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="对比的基线方法"
                 />
@@ -253,7 +329,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
                 <input
                   type="text"
                   value={ideaCard.evaluationMetric}
-                  onChange={(e) => setIdeaCard({ ...ideaCard, evaluationMetric: e.target.value })}
+                  onChange={(e) => handleFieldChange('evaluationMetric', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="如：ATE、成功率、F1"
                 />

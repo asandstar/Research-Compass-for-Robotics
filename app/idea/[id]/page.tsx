@@ -1,6 +1,8 @@
 import IdeaWorkspaceClient from './IdeaWorkspaceClient';
 import { mockIdeaCards } from '../../../lib/mockData';
 
+export const dynamicParams = true;
+
 export function generateStaticParams() {
   return mockIdeaCards.map(idea => ({ id: idea.id }));
 }

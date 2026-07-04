@@ -5,6 +5,9 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Tag } from '../components/ui/Tag';
 import { AddPaperModal } from '../components/paper/AddPaperModal';
+import { IdeaCardMini } from '../components/idea/IdeaCardMini';
+import { ObservationInput } from '../components/observation/ObservationInput';
+import { ObservationCard } from '../components/observation/ObservationCard';
 import { IDEA_STATUS_LABELS, READING_STATUS_LABELS } from '../lib/types';
 import {
   Brain, FlaskConical, BookOpen, Cpu, PlusCircle, ArrowRight, Plus,
@@ -23,14 +26,17 @@ export default function Dashboard() {
     card.status !== 'abandoned' && card.status !== 'promising'
   ).length;
   const pendingMVEs = state.mves.filter(mve => mve.resultStatus === 'pending').length;
-
-  const recentPapers = [...state.papers]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
+  const firstPendingMVE = state.mves.find(mve => mve.resultStatus === 'pending');
 
   const activeIdeaCards = state.ideaCards.filter(card =>
     card.status !== 'abandoned'
   ).slice(0, 5);
+  const firstActiveIdea = activeIdeaCards[0];
+  const toReadCount = state.papers.filter(p => p.readingStatus === 'to_read').length;
+
+  const recentPapers = [...state.papers]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
 
   const getAreaName = (areaId: string) => {
     const area = state.researchAreas.find(a => a.id === areaId);
@@ -68,7 +74,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-4 gap-4">
-        <Link href="/areas">
+        <Link href="/areas" className="no-underline hover:no-underline">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
@@ -81,7 +87,7 @@ export default function Dashboard() {
             </div>
           </Card>
         </Link>
-        <Link href="/papers">
+        <Link href="/papers" className="no-underline hover:no-underline">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
@@ -94,29 +100,35 @@ export default function Dashboard() {
             </div>
           </Card>
         </Link>
-        <Card>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-              <Lightbulb className="w-6 h-6 text-amber-600" />
+        <Link href={firstActiveIdea ? `/idea/${firstActiveIdea.id}` : '/papers'} className="no-underline hover:no-underline">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                <Lightbulb className="w-6 h-6 text-amber-600" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900">{activeIdeas}</div>
+                <div className="text-sm text-gray-500">活跃 Idea</div>
+              </div>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{activeIdeas}</div>
-              <div className="text-sm text-gray-500">活跃 Idea</div>
+          </Card>
+        </Link>
+        <Link href={firstPendingMVE ? `/mve/${firstPendingMVE.id}` : '#'} className={`no-underline hover:no-underline ${!firstPendingMVE ? 'pointer-events-none' : ''}`}>
+          <Card className={`h-full ${firstPendingMVE ? 'hover:shadow-lg transition-shadow cursor-pointer' : ''}`}>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-rose-100 flex items-center justify-center">
+                <FlaskConical className="w-6 h-6 text-rose-600" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900">{pendingMVEs}</div>
+                <div className="text-sm text-gray-500">待验证 MVE</div>
+              </div>
             </div>
-          </div>
-        </Card>
-        <Card>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-rose-100 flex items-center justify-center">
-              <FlaskConical className="w-6 h-6 text-rose-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{pendingMVEs}</div>
-              <div className="text-sm text-gray-500">待验证 MVE</div>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </Link>
       </div>
+
+      <ObservationInput />
 
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 space-y-6">
@@ -167,14 +179,15 @@ export default function Dashboard() {
             </div>
             <div className="space-y-3">
               {recentPapers.map(paper => (
-                <div key={paper.id} className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-                  <div className="flex justify-between items-start gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 text-sm truncate">{paper.title}</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {paper.authors} · {paper.year} · {paper.venue}
+                <Link key={paper.id} href="/papers" className="no-underline hover:no-underline block">
+                  <div className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-indigo-300 transition-colors">
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 text-sm truncate">{paper.title}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {paper.authors} · {paper.year} · {paper.venue}
+                        </div>
                       </div>
-                    </div>
                     <Tag
                       color={READING_STATUS_LABELS[paper.readingStatus].color}
                       bgColor={READING_STATUS_LABELS[paper.readingStatus].bgColor}
@@ -193,6 +206,7 @@ export default function Dashboard() {
                     </div>
                   )}
                 </div>
+                </Link>
               ))}
               {recentPapers.length === 0 && (
                 <div className="text-center py-8 text-gray-500 text-sm">
@@ -211,27 +225,7 @@ export default function Dashboard() {
             </h2>
             <div className="space-y-3">
               {activeIdeaCards.map(idea => (
-                <Link key={idea.id} href={`/idea/${idea.id}`} className="no-underline hover:no-underline block">
-                  <div className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer">
-                    <div className="flex justify-between items-start gap-2 mb-1">
-                      <div className="font-medium text-gray-900 text-sm line-clamp-2">{idea.title}</div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Tag
-                        color={IDEA_STATUS_LABELS[idea.status].color}
-                        bgColor={IDEA_STATUS_LABELS[idea.status].bgColor}
-                        size="sm"
-                      >
-                        {IDEA_STATUS_LABELS[idea.status].label}
-                      </Tag>
-                      {idea.areaIds.length > 0 && (
-                        <span className="text-xs text-gray-500">
-                          {getAreaName(idea.areaIds[0])}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
+                <IdeaCardMini key={idea.id} ideaCard={idea} />
               ))}
               {activeIdeaCards.length === 0 && (
                 <div className="text-center py-8 text-gray-500 text-sm">
@@ -253,11 +247,11 @@ export default function Dashboard() {
               </Link>
               <div className="flex items-center gap-2 text-indigo-600">
                 <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
-                <Link href="/papers" className="hover:text-indigo-700">
+                <Link href="/papers" className="hover:text-indigo-700 no-underline hover:no-underline">
                   添加论文并写总结
                 </Link>
                 <button
-                  onClick={(e) => { e.preventDefault(); setShowAddPaper(true); }}
+                  onClick={() => setShowAddPaper(true)}
                   className="ml-auto w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center hover:bg-indigo-600 transition-colors flex-shrink-0"
                   title="直接添加论文"
                 >
@@ -281,21 +275,27 @@ export default function Dashboard() {
               <h2 className="font-semibold text-gray-900">待处理</h2>
             </div>
             <div className="space-y-2 text-sm">
-              {state.papers.filter(p => p.readingStatus === 'to_read').length > 0 && (
-                <div className="flex justify-between text-gray-600">
-                  <span>待读论文</span>
-                  <span className="font-medium text-amber-600">
-                    {state.papers.filter(p => p.readingStatus === 'to_read').length}
-                  </span>
-                </div>
+              {toReadCount > 0 && (
+                <Link href="/papers" className="no-underline hover:no-underline">
+                  <div className="flex justify-between items-center text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 -mx-2 px-2 py-1 rounded transition-colors">
+                    <span>待读论文</span>
+                    <span className="font-medium text-amber-600">
+                      {toReadCount}
+                    </span>
+                  </div>
+                </Link>
               )}
-              {pendingMVEs > 0 && (
-                <div className="flex justify-between text-gray-600">
-                  <span>待验证 MVE</span>
-                  <span className="font-medium text-rose-600">{pendingMVEs}</span>
-                </div>
+              {pendingMVEs > 0 && firstPendingMVE && (
+                <Link href={`/mve/${firstPendingMVE.id}`} className="no-underline hover:no-underline">
+                  <div className="flex justify-between items-center text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 -mx-2 px-2 py-1 rounded transition-colors">
+                    <span>待验证 MVE</span>
+                    <span className="font-medium text-rose-600">
+                      {pendingMVEs}
+                    </span>
+                  </div>
+                </Link>
               )}
-              {state.papers.filter(p => p.readingStatus === 'to_read').length === 0 && pendingMVEs === 0 && (
+              {toReadCount === 0 && pendingMVEs === 0 && (
                 <div className="text-gray-500 text-center py-4">
                   没有待处理项 🎉
                 </div>

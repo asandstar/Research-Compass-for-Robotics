@@ -23,7 +23,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
 
   if (compact) {
     return (
-      <Card key={paper.id} className="p-4 hover:shadow-sm transition-shadow">
+      <Card key={paper.id} className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <h4 className="font-medium text-gray-900 truncate">{paper.title}</h4>
@@ -98,10 +98,10 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
   }
 
   return (
-    <Card key={paper.id} className="p-5 hover:shadow-md transition-shadow">
+    <Card key={paper.id} className="p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 text-base hover:text-indigo-600 cursor-pointer">
+          <h3 className="font-semibold text-gray-900 text-base">
             {paper.title}
           </h3>
           <p className="text-sm text-gray-500 mt-1">
@@ -176,14 +176,14 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                     </div>
                   )}
 
-                  {(paper.evidence?.tasks?.length || 
-                    paper.evidence?.baselines?.length || 
-                    paper.evidence?.metrics?.length || 
-                    paper.evidence?.keyResults?.length) && (
+                  {(Boolean(paper.evidence?.tasks?.length) ||
+                    Boolean(paper.evidence?.baselines?.length) ||
+                    Boolean(paper.evidence?.metrics?.length) ||
+                    Boolean(paper.evidence?.keyResults?.length)) && (
                     <div>
                       <p className="text-xs font-medium text-gray-500 mb-2">证据信息</p>
                       <div className="grid grid-cols-2 gap-3">
-                        {paper.evidence?.tasks?.length && (
+                        {paper.evidence?.tasks?.length > 0 && (
                           <div className="bg-gray-50 rounded-lg p-2">
                             <p className="text-xs text-gray-500 mb-1">测试任务</p>
                             <div className="flex flex-wrap gap-1">
@@ -195,7 +195,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                             </div>
                           </div>
                         )}
-                        {paper.evidence?.baselines?.length && (
+                        {paper.evidence?.baselines?.length > 0 && (
                           <div className="bg-gray-50 rounded-lg p-2">
                             <p className="text-xs text-gray-500 mb-1">基线方法</p>
                             <div className="flex flex-wrap gap-1">
@@ -207,7 +207,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                             </div>
                           </div>
                         )}
-                        {paper.evidence?.metrics?.length && (
+                        {paper.evidence?.metrics?.length > 0 && (
                           <div className="bg-gray-50 rounded-lg p-2">
                             <p className="text-xs text-gray-500 mb-1">评估指标</p>
                             <div className="flex flex-wrap gap-1">
@@ -219,7 +219,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                             </div>
                           </div>
                         )}
-                        {paper.evidence?.keyResults?.length && (
+                        {paper.evidence?.keyResults?.length > 0 && (
                           <div className="bg-gray-50 rounded-lg p-2">
                             <p className="text-xs text-gray-500 mb-1">关键结果</p>
                             <div className="flex flex-wrap gap-1">
@@ -235,7 +235,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                     </div>
                   )}
 
-                  {paper.assumptions?.length && (
+                  {paper.assumptions?.length > 0 && (
                     <div>
                       <p className="text-xs font-medium text-gray-500 mb-2">假设前提</p>
                       <ul className="space-y-1">
@@ -270,7 +270,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                     </div>
                   )}
 
-                  {paper.questionsToVerify?.length && (
+                  {paper.questionsToVerify?.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <HelpCircle className="w-4 h-4 text-indigo-600" />

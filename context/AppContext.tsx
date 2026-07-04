@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer, useEffect, useRef, ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { Observation, IdeaCard, MVE, ResearchArea, Paper, Evidence } from '../lib/types';
 import { initializeData, persistData, resetDemoData } from '../lib/storage';
 import {
@@ -28,6 +28,7 @@ interface AppState {
   isGeneratingSummary: boolean;
   isGeneratingIdeaFromPaper: boolean;
   isParsingArxiv: boolean;
+  isInitialized: boolean;
 }
 
 type Action =
@@ -41,6 +42,7 @@ type Action =
   | { type: 'UPDATE_MVE_RESULT'; payload: { id: string; resultStatus: MVE['resultStatus']; resultNotes: string } }
   | { type: 'ADD_RESEARCH_AREA'; payload: ResearchArea }
   | { type: 'UPDATE_RESEARCH_AREA'; payload: ResearchArea }
+  | { type: 'DELETE_AREA'; payload: string }
   | { type: 'ADD_PAPER'; payload: Paper }
   | { type: 'UPDATE_PAPER'; payload: Paper }
   | { type: 'DELETE_PAPER'; payload: string }
@@ -75,6 +77,7 @@ function appReducer(state: AppState, action: Action): AppState {
         mves: deduplicateById(action.payload.mves),
         researchAreas: deduplicateById(action.payload.researchAreas),
         papers: deduplicateById(action.payload.papers),
+        isInitialized: true,
       };
     case 'ADD_OBSERVATION':
       return { ...state, observations: deduplicateById([action.payload, ...state.observations]) };
@@ -105,11 +108,18 @@ function appReducer(state: AppState, action: Action): AppState {
           card.id === action.payload.id ? action.payload : card
         )),
       };
-    case 'DELETE_IDEA_CARD':
+    case 'DELETE_IDEA_CARD': {
+      const targetId = action.payload;
       return {
         ...state,
-        ideaCards: state.ideaCards.filter(card => card.id !== action.payload),
+        ideaCards: state.ideaCards.filter(card => card.id !== targetId),
+        mves: state.mves.filter(m => m.ideaCardId !== targetId),
+        papers: state.papers.map(p => ({
+          ...p,
+          inspiredIdeaIds: p.inspiredIdeaIds.filter(iid => iid !== targetId),
+        })),
       };
+    }
     case 'ADD_EVIDENCE': {
       const { ideaId, evidenceType, evidence } = action.payload;
       return {
@@ -180,6 +190,25 @@ function appReducer(state: AppState, action: Action): AppState {
           area.id === action.payload.id ? action.payload : area
         )),
       };
+    case 'DELETE_AREA': {
+      const targetId = action.payload;
+      return {
+        ...state,
+        researchAreas: deduplicateById(state.researchAreas.map(area =>
+          area.id === targetId ? { ...area, isHidden: true, updatedAt: new Date().toISOString() } : area
+        )),
+        // 级联清理 Paper.areaIds(移除被删除的 areaId)
+        papers: deduplicateById(state.papers.map(paper => ({
+          ...paper,
+          areaIds: paper.areaIds.filter(aid => aid !== targetId),
+        }))),
+        // 级联清理 IdeaCard.areaIds
+        ideaCards: deduplicateById(state.ideaCards.map(card => ({
+          ...card,
+          areaIds: card.areaIds.filter(aid => aid !== targetId),
+        }))),
+      };
+    }
     case 'ADD_PAPER':
       return { ...state, papers: deduplicateById([action.payload, ...state.papers]) };
     case 'UPDATE_PAPER':
@@ -189,11 +218,17 @@ function appReducer(state: AppState, action: Action): AppState {
           paper.id === action.payload.id ? action.payload : paper
         )),
       };
-    case 'DELETE_PAPER':
+    case 'DELETE_PAPER': {
+      const targetId = action.payload;
       return {
         ...state,
-        papers: state.papers.filter(paper => paper.id !== action.payload),
+        papers: state.papers.filter(paper => paper.id !== targetId),
+        ideaCards: deduplicateById(state.ideaCards.map(card => ({
+          ...card,
+          sourcePaperIds: card.sourcePaperIds.filter(pid => pid !== targetId),
+        }))),
       };
+    }
     case 'RESET_DATA':
       return {
         ...action.payload,
@@ -246,6 +281,7 @@ interface AppContextType {
   getObservationsByIds: (ids: string[]) => Observation[];
   addResearchArea: (name: string, description: string, category: string, keywords: string[], focusQuestions: string[]) => ResearchArea;
   updateResearchArea: (area: ResearchArea) => void;
+  deleteArea: (id: string) => void;
   getResearchAreaById: (id: string) => ResearchArea | undefined;
   addPaper: (paperData: Partial<Paper>) => Paper;
   updatePaper: (paper: Paper) => void;
@@ -345,6 +381,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isGeneratingSummary: false,
     isGeneratingIdeaFromPaper: false,
     isParsingArxiv: false,
+    isInitialized: false,
   });
 
   const initRef = useRef(false);
@@ -457,9 +494,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateIdeaCard = (ideaCard: IdeaCard) => {
+  const updateIdeaCard = useCallback((ideaCard: IdeaCard) => {
     dispatch({ type: 'UPDATE_IDEA_CARD', payload: { ...ideaCard, updatedAt: new Date().toISOString() } });
-  };
+  }, []);
 
   const deleteIdeaCard = (id: string) => {
     dispatch({ type: 'DELETE_IDEA_CARD', payload: id });
@@ -500,9 +537,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateMVEResult = (id: string, resultStatus: MVE['resultStatus'], resultNotes: string) => {
+  const updateMVEResult = useCallback((id: string, resultStatus: MVE['resultStatus'], resultNotes: string) => {
     dispatch({ type: 'UPDATE_MVE_RESULT', payload: { id, resultStatus, resultNotes } });
-  };
+  }, []);
 
   const getIdeaCardById = (id: string): IdeaCard | undefined => {
     return state.ideaCards.find(card => card.id === id);
@@ -542,8 +579,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'UPDATE_RESEARCH_AREA', payload: { ...area, updatedAt: new Date().toISOString() } });
   };
 
+  const deleteArea = (id: string) => {
+    dispatch({ type: 'DELETE_AREA', payload: id });
+  };
+
   const getResearchAreaById = (id: string): ResearchArea | undefined => {
-    return state.researchAreas.find(area => area.id === id);
+    return state.researchAreas.find(area => area.id === id && !area.isHidden);
   };
 
   const addPaper = (paperData: Partial<Paper>): Paper => {
@@ -702,6 +743,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isGeneratingSummary: false,
         isGeneratingIdeaFromPaper: false,
         isParsingArxiv: false,
+        isInitialized: true,
       },
     });
   };
@@ -722,6 +764,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         getObservationsByIds,
         addResearchArea,
         updateResearchArea,
+        deleteArea,
         getResearchAreaById,
         addPaper,
         updatePaper,

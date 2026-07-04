@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { IdeaCard, IDEA_STATUS_LABELS } from '../../lib/types';
 import { Tag } from '../ui/Tag';
@@ -15,7 +17,7 @@ export function IdeaCardMini({ ideaCard }: IdeaCardMiniProps) {
   const label = IDEA_STATUS_LABELS[ideaCard.status];
 
   return (
-    <Link href={`/idea/${ideaCard.id}`}>
+    <Link href={`/idea/${ideaCard.id}`} className="no-underline hover:no-underline block">
       <div className="bg-white border border-rule rounded-lg p-4 hover:border-accent hover:shadow-sm transition-all cursor-pointer">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold text-ink text-sm">{ideaCard.title}</h3>

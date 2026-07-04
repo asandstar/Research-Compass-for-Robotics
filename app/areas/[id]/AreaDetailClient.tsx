@@ -16,14 +16,20 @@ import { ArrowLeft, Plus, FileText, Lightbulb, FlaskConical, BookOpen } from 'lu
 export default function AreaDetailClient() {
   const params = useParams();
   const router = useRouter();
-  const areaId = params.id as string;
-  const { state, getResearchAreaById, getPapersByAreaId, getIdeasByAreaId, getMvesByAreaId, createIdeaFromPaper } = useApp();
+  const areaId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const { state, getResearchAreaById, getPapersByAreaId, getIdeasByAreaId, getMvesByAreaId, createIdeaFromPaper, deleteArea } = useApp();
   const [showAddPaper, setShowAddPaper] = useState(false);
   const [showCreateIdea, setShowCreateIdea] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleGenerateIdea = async (paperId: string) => {
-    const idea = await createIdeaFromPaper(paperId);
-    router.push(`/idea/${idea.id}`);
+    try {
+      const idea = await createIdeaFromPaper(paperId);
+      router.push(`/idea/${idea.id}`);
+    } catch (error) {
+      console.error('Failed to generate idea:', error);
+      alert('生成 Idea 失败,请重试');
+    }
   };
 
   const area = getResearchAreaById(areaId);
@@ -31,6 +37,10 @@ export default function AreaDetailClient() {
   const ideas = getIdeasByAreaId(areaId);
   const mves = getMvesByAreaId(areaId);
   const activeMves = mves.filter(m => m.resultStatus === 'pending');
+
+  if (!state.isInitialized) {
+    return <div className="text-center py-20 text-gray-500">加载中...</div>;
+  }
 
   if (!area) {
     return (
@@ -46,7 +56,7 @@ export default function AreaDetailClient() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/areas" className="text-gray-500 hover:text-gray-700">
+        <Link href="/areas" className="text-gray-500 hover:text-gray-700" aria-label="返回">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
@@ -61,6 +71,9 @@ export default function AreaDetailClient() {
           <Button onClick={() => setShowCreateIdea(true)}>
             <Lightbulb className="w-4 h-4 mr-1" />
             新增 Idea
+          </Button>
+          <Button variant="secondary" onClick={() => setShowDeleteConfirm(true)}>
+            删除子领域
           </Button>
         </div>
       </div>
@@ -124,7 +137,7 @@ export default function AreaDetailClient() {
               <FileText className="w-5 h-5 text-gray-500" />
               相关论文 ({papers.length})
             </h2>
-            <Link href="/papers" className="text-sm text-indigo-600 hover:underline">
+            <Link href={`/papers?area=${areaId}`} className="text-sm text-indigo-600 hover:underline">
               查看全部
             </Link>
           </div>
@@ -211,6 +224,21 @@ export default function AreaDetailClient() {
           )}
         </div>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm mx-4">
+            <h3 className="text-lg font-semibold mb-2">确认删除</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              删除后子领域将被隐藏,关联的论文和 Idea 不会被删除。此操作不可撤销。
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>取消</Button>
+              <Button onClick={() => { deleteArea(areaId); router.push('/areas'); }}>确认删除</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <AddPaperModal
         isOpen={showAddPaper}

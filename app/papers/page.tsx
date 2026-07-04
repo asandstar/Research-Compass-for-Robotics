@@ -1,24 +1,26 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useMemo, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Tag } from '../../components/ui/Tag';
+import { Select } from '../../components/ui/Select';
 import { AddPaperModal } from '../../components/paper/AddPaperModal';
 import { PaperCard } from '../../components/paper/PaperCard';
 import { AnalysisResultModal } from '../../components/paper/AnalysisResultModal';
 import { Paper } from '../../lib/types';
 import { Plus, Search } from 'lucide-react';
 
-export default function PaperLibraryPage() {
+function PaperLibraryContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { state, createIdeaFromPaper, state: { isGeneratingIdeaFromPaper }, extractAssumptions, extractGaps } = useApp();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPaper, setEditingPaper] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterArea, setFilterArea] = useState<string>('all');
+  const [filterArea, setFilterArea] = useState<string>(searchParams.get('area') || 'all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterJudgement, setFilterJudgement] = useState<string>('all');
 
@@ -78,8 +80,13 @@ export default function PaperLibraryPage() {
   };
 
   const handleGenerateIdea = async (paperId: string) => {
-    const idea = await createIdeaFromPaper(paperId);
-    router.push(`/idea/${idea.id}`);
+    try {
+      const idea = await createIdeaFromPaper(paperId);
+      router.push(`/idea/${idea.id}`);
+    } catch (error) {
+      console.error('Failed to generate idea:', error);
+      alert('生成 Idea 失败,请重试');
+    }
   };
 
   const getAreaName = (areaId: string) => {
@@ -112,48 +119,47 @@ export default function PaperLibraryPage() {
               className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
             />
           </div>
-          <div className="flex items-center gap-3">
-            <div>
+          <div className="flex items-start gap-3">
+            <div className="w-48">
               <label className="text-xs text-gray-500 mb-1 block">子领域</label>
-              <select
+              <Select
                 value={filterArea}
-                onChange={(e) => setFilterArea(e.target.value)}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="all">全部</option>
-                {visibleAreas.map(area => (
-                  <option key={area.id} value={area.id}>{area.name.split('｜')[0]}</option>
-                ))}
-              </select>
+                onChange={setFilterArea}
+                maxHeight="400px"
+                options={[
+                  { value: 'all', label: '全部' },
+                  ...visibleAreas.map(area => ({ value: area.id, label: area.name.split('｜')[0] })),
+                ]}
+              />
             </div>
-            <div>
+            <div className="w-32">
               <label className="text-xs text-gray-500 mb-1 block">阅读状态</label>
-              <select
+              <Select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="all">全部</option>
-                <option value="to_read">待读</option>
-                <option value="skimmed">泛读</option>
-                <option value="deep_reading">精读中</option>
-                <option value="reviewed">已复盘</option>
-                <option value="paused">暂停</option>
-              </select>
+                onChange={setFilterStatus}
+                options={[
+                  { value: 'all', label: '全部' },
+                  { value: 'to_read', label: '待读' },
+                  { value: 'skimmed', label: '泛读' },
+                  { value: 'deep_reading', label: '精读中' },
+                  { value: 'reviewed', label: '已复盘' },
+                  { value: 'paused', label: '暂停' },
+                ]}
+              />
             </div>
-            <div>
+            <div className="w-32">
               <label className="text-xs text-gray-500 mb-1 block">判断级别</label>
-              <select
+              <Select
                 value={filterJudgement}
-                onChange={(e) => setFilterJudgement(e.target.value)}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="all">全部</option>
-                <option value="background">背景资料</option>
-                <option value="useful">有用</option>
-                <option value="idea_source">灵感来源</option>
-                <option value="must_review">必复盘</option>
-              </select>
+                onChange={setFilterJudgement}
+                options={[
+                  { value: 'all', label: '全部' },
+                  { value: 'background', label: '背景资料' },
+                  { value: 'useful', label: '有用' },
+                  { value: 'idea_source', label: '灵感来源' },
+                  { value: 'must_review', label: '必复盘' },
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -166,7 +172,7 @@ export default function PaperLibraryPage() {
       <div className="space-y-3">
         {filteredPapers.length === 0 ? (
           <Card className="p-12 text-center">
-            <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <p className="text-gray-500">暂无匹配的论文</p>
@@ -206,5 +212,13 @@ export default function PaperLibraryPage() {
         gaps={analysisModal.gaps}
       />
     </div>
+  );
+}
+
+export default function PaperLibraryPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
+      <PaperLibraryContent />
+    </Suspense>
   );
 }

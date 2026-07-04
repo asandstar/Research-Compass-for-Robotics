@@ -6,6 +6,7 @@ import { useApp } from '../../context/AppContext';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Tag } from '../../components/ui/Tag';
+import { Select } from '../../components/ui/Select';
 import { Plus, FileText, Lightbulb, FlaskConical, Clock, Edit3 } from 'lucide-react';
 
 export default function ResearchAreasPage() {
@@ -83,25 +84,20 @@ export default function ResearchAreasPage() {
           const readPapers = papers.filter(p => p.readingStatus === 'reviewed' || p.readingStatus === 'deep_reading');
 
           return (
-            <Link key={area.id} href={`/areas/${area.id}`} className="block group no-underline hover:no-underline">
-              <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
-                <div className="p-4 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors truncate">
-                          {area.name}
-                        </h3>
+            <div key={area.id} className="relative group">
+              <Link href={`/areas/${area.id}`} className="block no-underline hover:no-underline">
+                <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors truncate">
+                            {area.name}
+                          </h3>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">{area.description}</p>
                       </div>
-                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">{area.description}</p>
                     </div>
-                    <button
-                      onClick={(e) => { e.preventDefault(); openEdit(area); }}
-                      className="p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                  </div>
 
                   <div className="flex flex-wrap gap-1">
                     {area.keywords.slice(0, 3).map((kw, i) => (
@@ -143,8 +139,16 @@ export default function ResearchAreasPage() {
                     <span>更新于 {new Date(area.updatedAt).toLocaleDateString('zh-CN')}</span>
                   </div>
                 </div>
-              </Card>
-            </Link>
+                </Card>
+              </Link>
+              <button
+                onClick={() => openEdit(area)}
+                className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-label="编辑子领域"
+              >
+                <Edit3 className="w-4 h-4" />
+              </button>
+            </div>
           );
         })}
       </div>
@@ -179,16 +183,16 @@ export default function ResearchAreasPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">分类</label>
-                <select
+                <Select
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                  <option value="感知">感知</option>
-                  <option value="学习">学习</option>
-                  <option value="控制">控制</option>
-                  <option value="前沿">前沿</option>
-                </select>
+                  onChange={(val) => setFormData({ ...formData, category: val })}
+                  options={[
+                    { value: '感知', label: '感知' },
+                    { value: '学习', label: '学习' },
+                    { value: '控制', label: '控制' },
+                    { value: '前沿', label: '前沿' },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">关键词（逗号分隔）</label>

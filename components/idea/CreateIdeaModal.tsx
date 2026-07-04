@@ -25,18 +25,23 @@ export function CreateIdeaModal({ isOpen, onClose, preselectedAreaId, onCreated 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const areaIds = preselectedAreaId ? [preselectedAreaId] : [];
-    const idea = await createIdeaCard(
-      formData.title,
-      formData.researchQuestion,
-      formData.coreHypothesis,
-      formData.whyItMatters,
-      [],
-      areaIds,
-    );
-    setFormData({ title: '', researchQuestion: '', coreHypothesis: '', whyItMatters: '' });
-    onClose();
-    onCreated?.(idea.id);
+    try {
+      const areaIds = preselectedAreaId ? [preselectedAreaId] : [];
+      const idea = await createIdeaCard(
+        formData.title,
+        formData.researchQuestion,
+        formData.coreHypothesis,
+        formData.whyItMatters,
+        [],
+        areaIds,
+      );
+      setFormData({ title: '', researchQuestion: '', coreHypothesis: '', whyItMatters: '' });
+      onClose();
+      onCreated?.(idea.id);
+    } catch (error) {
+      console.error('Failed to create idea:', error);
+      alert('创建 Idea 失败,请重试');
+    }
   };
 
   const canSubmit = formData.title.trim() && formData.researchQuestion.trim() && formData.coreHypothesis.trim() && formData.whyItMatters.trim();
@@ -46,7 +51,7 @@ export function CreateIdeaModal({ isOpen, onClose, preselectedAreaId, onCreated 
       <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">新增 Idea</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
             <X className="w-5 h-5" />
           </button>
         </div>

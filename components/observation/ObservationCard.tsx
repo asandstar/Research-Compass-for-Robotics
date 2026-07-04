@@ -24,7 +24,7 @@ export function ObservationCard({ observation, onGenerateIdea }: ObservationCard
   const label = TYPE_LABELS[observation.type];
 
   return (
-    <div className="bg-bg2 border-l-3 rounded-lg p-3 mb-3" style={{ borderLeftColor: label.color }}>
+    <div className="bg-bg2 border-l-[3px] rounded-lg p-3 mb-3" style={{ borderLeftColor: label.color }}>
       <div className="flex justify-between items-start mb-2">
         <Tag color={label.color} bgColor={label.bgColor}>{label.label}</Tag>
         <span className="text-xs text-muted">{formatDate(observation.createdAt)}</span>

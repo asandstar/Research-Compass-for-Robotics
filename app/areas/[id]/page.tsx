@@ -1,6 +1,8 @@
 import AreaDetailClient from './AreaDetailClient';
 import { mockResearchAreas } from '../../../lib/mockData';
 
+export const dynamicParams = true;
+
 export function generateStaticParams() {
   return mockResearchAreas.map(area => ({ id: area.id }));
 }

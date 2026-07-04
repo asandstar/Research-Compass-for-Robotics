@@ -53,6 +53,7 @@ export function EvidenceList({ title, evidence, color, bgColor, onRemove, onAdd 
               <button
                 onClick={() => onRemove(ev.id)}
                 className="text-xs opacity-50 hover:opacity-100 transition-opacity"
+                aria-label="删除证据"
               >
                 ×
               </button>

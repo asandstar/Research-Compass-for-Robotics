@@ -1,3 +1,5 @@
+'use client';
+
 interface TextareaProps {
   label: string;
   value: string;

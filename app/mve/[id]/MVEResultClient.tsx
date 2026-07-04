@@ -20,10 +20,11 @@ interface MVEResultClientProps {
 export default function MVEResultClient({ id }: MVEResultClientProps) {
   const router = useRouter();
   const { state, getMVEById, getIdeaCardById, updateMVEResult, getResearchAreaById } = useApp();
-  const [mve, setMve] = useState(getMVEById(id));
-  const [resultStatus, setResultStatus] = useState<MVE['resultStatus']>('pending');
-  const [resultNotes, setResultNotes] = useState('');
+  const [mve, setMve] = useState(() => getMVEById(id));
+  const [resultStatus, setResultStatus] = useState<MVE['resultStatus']>(() => getMVEById(id)?.resultStatus || 'pending');
+  const [resultNotes, setResultNotes] = useState(() => getMVEById(id)?.resultNotes || '');
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     const found = getMVEById(id);
@@ -32,7 +33,35 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
       setResultStatus(found.resultStatus);
       setResultNotes(found.resultNotes);
     }
-  }, [id, state.mves]);
+    // 依赖仅 [id]:避免本组件 updateMVEResult 触发的 state.mves 变化覆盖用户正在输入的本地编辑
+    // 与 IdeaWorkspaceClient 保持一致策略
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  // 防抖自动保存:2 秒无操作后保存
+  useEffect(() => {
+    if (!isDirty || !mve) return;
+    const timer = setTimeout(() => {
+      updateMVEResult(mve.id, resultStatus, resultNotes);
+      setIsDirty(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [isDirty, mve, resultStatus, resultNotes, updateMVEResult]);
+
+  // 路由离开前保存
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (isDirty && mve) {
+        updateMVEResult(mve.id, resultStatus, resultNotes);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty, mve, resultStatus, resultNotes, updateMVEResult]);
+
+  if (!state.isInitialized) {
+    return <div className="text-center py-20 text-gray-500">加载中...</div>;
+  }
 
   if (!mve) {
     return (
@@ -49,17 +78,29 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
   const ideaCard = getIdeaCardById(mve.ideaCardId);
   const areas = (ideaCard?.areaIds.map(aid => getResearchAreaById(aid)).filter(Boolean) as ResearchArea[]) || [];
 
+  const handleStatusChange = (status: MVE['resultStatus']) => {
+    setResultStatus(status);
+    setIsDirty(true);
+  };
+
+  const handleNotesChange = (notes: string) => {
+    setResultNotes(notes);
+    setIsDirty(true);
+  };
+
   const handleSaveResult = () => {
     if (resultStatus !== 'pending') {
       setShowConfirm(true);
     } else {
       updateMVEResult(mve.id, resultStatus, resultNotes);
+      setIsDirty(false);
     }
   };
 
   const handleConfirm = () => {
     updateMVEResult(mve.id, resultStatus, resultNotes);
     setShowConfirm(false);
+    setIsDirty(false);
   };
 
   const resultLabels = {
@@ -72,7 +113,7 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700">
+          <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700" aria-label="返回">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
@@ -89,9 +130,14 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
             )}
           </div>
         </div>
-        <Tag color={resultLabels[resultStatus].color} bgColor={resultLabels[resultStatus].bgColor}>
-          {resultLabels[resultStatus].label}
-        </Tag>
+        <div className="flex items-center gap-3">
+          {isDirty && (
+            <span className="text-xs text-amber-600">未保存</span>
+          )}
+          <Tag color={resultLabels[resultStatus].color} bgColor={resultLabels[resultStatus].bgColor}>
+            {resultLabels[resultStatus].label}
+          </Tag>
+        </div>
       </div>
 
       {areas.length > 0 && (
@@ -256,7 +302,7 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
                 name="result"
                 value="passed"
                 checked={resultStatus === 'passed'}
-                onChange={(e) => setResultStatus(e.target.value as any)}
+                onChange={(e) => handleStatusChange(e.target.value as MVE['resultStatus'])}
                 className="accent-emerald-600"
               />
               <Tag color="#065f46" bgColor="#d1fae5">已通过</Tag>
@@ -267,7 +313,7 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
                 name="result"
                 value="failed"
                 checked={resultStatus === 'failed'}
-                onChange={(e) => setResultStatus(e.target.value as any)}
+                onChange={(e) => handleStatusChange(e.target.value as MVE['resultStatus'])}
                 className="accent-red-600"
               />
               <Tag color="#991b1b" bgColor="#fee2e2">已失败</Tag>
@@ -279,7 +325,7 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
           <label className="block text-sm font-semibold text-gray-800 mb-2">记录备注</label>
           <textarea
             value={resultNotes}
-            onChange={(e) => setResultNotes(e.target.value)}
+            onChange={(e) => handleNotesChange(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white resize-none focus:outline-none focus:border-indigo-500 text-sm"
             rows={3}
             placeholder="记录实验过程中的实际发现..."

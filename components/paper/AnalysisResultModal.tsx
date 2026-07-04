@@ -51,7 +51,7 @@ export function AnalysisResultModal({ isOpen, onClose, type, loading, assumption
             <Icon className="w-5 h-5 text-indigo-600" />
             <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
             <X className="w-5 h-5" />
           </button>
         </div>

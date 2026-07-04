@@ -1,7 +1,7 @@
 import { Observation, IdeaCard, MVE, ResearchArea, Paper, LEGACY_STATUS_MAP } from './types';
 import { mockObservations, mockIdeaCards, mockMVEs, mockResearchAreas, mockPapers } from './mockData';
 
-const STORAGE_KEY = 'research-compass-data-v11';
+const STORAGE_KEY = 'research-compass-data-v13';
 
 interface StoredData {
   observations: Observation[];
@@ -16,6 +16,13 @@ function migrateLegacyIdeaStatus(card: any): IdeaCard['status'] {
     return LEGACY_STATUS_MAP[card.status];
   }
   return card.status || 'rough';
+}
+
+function migrateLegacyMVEResultStatus(status: any): MVE['resultStatus'] {
+  if (status === 'success' || status === 'succeeded') return 'passed';
+  if (status === 'failed' || status === 'failure') return 'failed';
+  if (status === 'pending' || status === 'passed' || status === 'failed') return status;
+  return 'pending';
 }
 
 function addDefaultIdeaFields(card: any): IdeaCard {
@@ -34,6 +41,7 @@ function addDefaultIdeaFields(card: any): IdeaCard {
 function addDefaultMVEFields(mve: any): MVE {
   return {
     ...mve,
+    resultStatus: migrateLegacyMVEResultStatus(mve.resultStatus),
     roboticsTask: mve.roboticsTask || '',
     datasetOrScenario: mve.datasetOrScenario || '',
     baseline: mve.baseline || '',
@@ -43,10 +51,17 @@ function addDefaultMVEFields(mve: any): MVE {
   };
 }
 
+function addDefaultAreaFields(area: any): ResearchArea {
+  return {
+    ...area,
+    isHidden: area.isHidden ?? false,
+  };
+}
+
 function deduplicateById<T extends { id: string }>(items: T[]): T[] {
   const seen = new Set<string>();
   return items.filter(item => {
-    if (seen.has(item.id)) {
+    if (item.id == null || seen.has(item.id)) {
       return false;
     }
     seen.add(item.id);
@@ -55,8 +70,9 @@ function deduplicateById<T extends { id: string }>(items: T[]): T[] {
 }
 
 function loadFromStorage(): StoredData {
+  const hasUserKey = typeof window !== 'undefined' && localStorage.getItem(STORAGE_KEY) !== null;
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const data = hasUserKey ? localStorage.getItem(STORAGE_KEY) : null;
     if (data) {
       const parsed = JSON.parse(data);
       const rawResearchAreas = (parsed.researchAreas && Array.isArray(parsed.researchAreas))
@@ -75,10 +91,12 @@ function loadFromStorage(): StoredData {
         ? parsed.mves as any[]
         : [];
 
-      const researchAreas: ResearchArea[] = rawResearchAreas.length > 0
-        ? deduplicateById(rawResearchAreas)
+      // 尊重用户的空数组(主动清空),仅在首次访问(STORAGE_KEY 不存在)时回退到 mock
+      const hasStorageKey = localStorage.getItem(STORAGE_KEY) !== null;
+      const researchAreas: ResearchArea[] = hasStorageKey
+        ? deduplicateById(rawResearchAreas.map(addDefaultAreaFields))
         : [...mockResearchAreas];
-      const papers: Paper[] = rawPapers.length > 0
+      const papers: Paper[] = hasStorageKey
         ? deduplicateById(rawPapers)
         : [...mockPapers];
       const observations: Observation[] = deduplicateById(rawObservations);
@@ -107,6 +125,7 @@ function loadFromStorage(): StoredData {
       return result;
     }
 
+    // 首次访问:无 STORAGE_KEY,加载 mock 数据并初始化
     const legacyData = localStorage.getItem('research-compass-data');
     if (legacyData) {
       const parsed = JSON.parse(legacyData);
@@ -114,22 +133,40 @@ function loadFromStorage(): StoredData {
         observations: deduplicateById(((parsed.observations || []) as Observation[]).filter(o => o && o.id)),
         ideaCards: deduplicateById(((parsed.ideaCards || []) as any[]).filter(c => c && c.id).map(addDefaultIdeaFields)),
         mves: deduplicateById(((parsed.mves || []) as any[]).filter(m => m && m.id).map(addDefaultMVEFields)),
-        researchAreas: [...mockResearchAreas],
+        researchAreas: [...mockResearchAreas].map(addDefaultAreaFields),
         papers: [...mockPapers],
       };
       saveToStorage(migrated);
       return migrated;
     }
+
+    // 完全新用户:加载完整 mock 数据
+    return {
+      observations: [...mockObservations],
+      ideaCards: [...mockIdeaCards],
+      mves: [...mockMVEs],
+      researchAreas: [...mockResearchAreas],
+      papers: [...mockPapers],
+    };
   } catch (e) {
     console.error('Failed to load from storage:', e);
+    // 备份损坏的原始数据,以便用户后续恢复
+    try {
+      const rawData = localStorage.getItem(STORAGE_KEY);
+      if (rawData) {
+        localStorage.setItem(STORAGE_KEY + '-backup-' + Date.now(), rawData);
+      }
+    } catch {}
+    // 返回空数据(observations/ideaCards/mves),避免 mock 覆盖用户可能可恢复的数据
+    // researchAreas/papers 返回 mock 作为基础结构
+    return {
+      observations: [],
+      ideaCards: [],
+      mves: [],
+      researchAreas: [...mockResearchAreas],
+      papers: [...mockPapers],
+    };
   }
-  return {
-    observations: [...mockObservations],
-    ideaCards: [...mockIdeaCards],
-    mves: [...mockMVEs],
-    researchAreas: [...mockResearchAreas],
-    papers: [...mockPapers],
-  };
 }
 
 function saveToStorage(data: StoredData): void {

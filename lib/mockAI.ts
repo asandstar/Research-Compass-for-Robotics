@@ -8,62 +8,63 @@ function generateId(): string {
   return Math.random().toString(36).substring(2, 15);
 }
 
-const cvTemplates = {
+const perceptionTemplates = {
   observation: {
     type: 'paper' as const,
-    keywords: ['对比学习', '长尾分布', '分布假设'],
-    potentialIssue: '长尾场景下对比学习的有效性',
+    keywords: ['深度感知', '鲁棒性', '域适应'],
+    potentialIssue: '复杂场景下感知算法的鲁棒性不足',
     researchValue: 'high' as const,
-    researchValueReason: '这是一个基础假设的漏洞，如果成立可能影响广泛',
-    suggestedAction: '搜索长尾+对比学习的相关工作',
+    researchValueReason: '感知是机器人基础能力,鲁棒性问题影响后续定位、规划等全链路',
+    suggestedAction: '调研相关失败案例与改进方法',
   },
   evidence: {
     supporting: [
-      { content: '尾部类别特征空间确实更稀疏 (Li 2021)', source: '文献' },
-      { content: '半监督对比学习有提升先例 (Chen 2022)', source: '文献' },
+      { content: '已有工作证明域适应能提升跨场景泛化能力 (Tan 2018)', source: '文献' },
+      { content: '多模态融合可以提升感知鲁棒性 ( Zhao 2023)', source: '文献' },
     ],
     opposing: [
-      { content: '已有工作提出混合损失 (Zhou 2023)', source: '文献' },
-      { content: '代理正样本可能引入语义噪声', source: 'AI推理' },
+      { content: '复杂场景下数据分布偏移难以建模', source: 'AI推理' },
+      { content: '实时性约束限制了复杂模型的使用', source: 'AI推理' },
     ],
     missing: [
-      { content: '头部→尾部正样本迁移的有效性验证', source: 'AI识别' },
+      { content: '在真实机器人场景下的定量验证', source: '实验验证' },
     ],
     risks: [
-      '头部类别作为正样本可能引入语义噪声，尾部特征反而被污染',
-      '即使有效，提升幅度可能太小（<2%）不足以支撑完整工作',
+      '改进方案可能牺牲实时性',
+      '在特定数据集上有效但难以泛化到其他场景',
+      '计算开销超出机器人 onboard 算力预算',
     ],
-    nextAction: '在 CIFAR-100-LT 上做 MVE 验证（预计 1.5 天）',
+    nextAction: '在公开数据集上做 MVE 验证(预计 2-3 天)',
   },
   mve: {
-    experimentGoal: '代理正样本对比损失能否在长尾场景下改善尾部特征分布？',
-    minimalDesign: '在 CIFAR-100-LT (imbalance=100) 上训练 ResNet-32，对比三种设置',
+    experimentGoal: '改进方案能否在复杂场景下提升感知精度/鲁棒性?',
+    minimalDesign: '在公开机器人感知数据集上对比 baseline 与改进方案',
     keyVariables: {
-      independent: '正样本构造方式（标准 / 代理正样本 / 仅代理正样本）',
-      dependent: '头部/中部/尾部各类别的 Top-1 准确率 + 整体准确率',
+      independent: '感知算法(标准 / 改进方案 / Ablation)',
+      dependent: '感知精度 + 推理延迟 + 鲁棒性指标(失败率/漂移)',
     },
     controlGroups: [
-      'Baseline: 标准 CE 损失',
-      'Proposed: CE + 代理正样本对比损失',
-      'Ablation: 仅对比损失（无 CE）',
+      'Baseline: 标准 baseline 算法',
+      'Proposed: 改进方案',
+      'Ablation: 仅核心改进模块',
     ],
-    expectedOutcome: '尾部准确率提升 >3%，头部下降 <1%',
+    expectedOutcome: '在复杂场景下感知精度提升 >5%,推理延迟增加 <20%',
     failureSignals: [
-      '尾部准确率不提升',
-      '尾部提升但头部下降 >3%',
-      'Ablation 组效果优于 Proposed 组',
+      '精度提升 <2%,改进幅度不足以支撑独立工作',
+      '推理延迟增加 >50%,无法满足实时要求',
+      'Ablation 组效果优于 Proposed 组,说明改进方向有误',
     ],
-    minimalEffort: '修改现有训练脚本约 80 行代码，单卡 3090 训练约 3 小时，总计 1.5 天',
+    minimalEffort: '基于现有开源代码修改约 200 行,在公开数据集测试,总计 2-3 天',
     nextTasks: {
-      onPass: '扩展到 ImageNet-LT，对比 SOTA',
-      onFail: '尝试其他正样本构造方式或搁置方向',
+      onPass: '在真实机器人场景验证,扩展更多测试场景',
+      onFail: '考虑其他改进方向或调整应用场景',
     },
-    roboticsTask: '图像分类任务',
-    datasetOrScenario: 'CIFAR-100-LT 数据集',
-    baseline: '标准对比学习 + CE 损失',
-    evaluationMetric: 'Top-1 准确率（分头部/中部/尾部）',
-    minimalComputeNeed: '单卡 3090，约 3 小时',
-    expectedTimeCost: '1.5 天',
+    roboticsTask: '移动机器人感知(避障/定位/建图)',
+    datasetOrScenario: 'KITTI / TUM / 自采集场景数据',
+    baseline: '标准 baseline 感知算法',
+    evaluationMetric: '感知精度 + 推理延迟 + 失败率',
+    minimalComputeNeed: '单卡 GPU(3090/4090),推理测试约 4 小时',
+    expectedTimeCost: '2-3 天',
   },
 };
 
@@ -378,25 +379,28 @@ const worldModelTemplates = {
 
 function selectTemplate(content: string) {
   const lower = content.toLowerCase();
-  if (lower.includes('vla') || lower.includes('vision-language-action') || lower.includes('rt-2') || lower.includes('rt-1')) {
-    return { ...cvTemplates, ...vlaTemplates };
+  if (lower.includes('vla') || lower.includes('vision-language-action') || lower.includes('rt-2') || lower.includes('rt-1') || lower.includes('具身') || lower.includes('embodied')) {
+    return { ...perceptionTemplates, ...vlaTemplates };
   }
-  if (lower.includes('slam') || lower.includes('vio') || lower.includes('visual-inertial') || lower.includes('odometry') || lower.includes('state estimation') || lower.includes('卡尔曼')) {
-    return { ...cvTemplates, ...slamTemplates };
+  if (lower.includes('slam') || lower.includes('vio') || lower.includes('visual-inertial') || lower.includes('odometry') || lower.includes('state estimation') || lower.includes('卡尔曼') || lower.includes('状态估计') || lower.includes('定位') || lower.includes('建图') || lower.includes('导航')) {
+    return { ...perceptionTemplates, ...slamTemplates };
   }
-  if (lower.includes('diffusion') || lower.includes('扩散')) {
-    return { ...cvTemplates, ...diffusionTemplates };
+  if (lower.includes('diffusion') || lower.includes('扩散') || lower.includes('灵巧') || lower.includes('dexterous') || lower.includes('操作') || lower.includes('manipulation')) {
+    return { ...perceptionTemplates, ...diffusionTemplates };
   }
   if (lower.includes('world model') || lower.includes('world models') || lower.includes('dreamer') || lower.includes('世界模型')) {
-    return { ...cvTemplates, ...worldModelTemplates };
+    return { ...perceptionTemplates, ...worldModelTemplates };
   }
-  if (lower.includes('对比学习') || lower.includes('长尾') || lower.includes('特征空间')) {
-    return cvTemplates;
+  if (lower.includes('模仿学习') || lower.includes('行为克隆') || lower.includes('imitation') || lower.includes('cloning') || lower.includes('bc')) {
+    return { ...perceptionTemplates, ...diffusionTemplates };
+  }
+  if (lower.includes('感知') || lower.includes('perception') || lower.includes('检测') || lower.includes('detection') || lower.includes('分割') || lower.includes('segmentation')) {
+    return perceptionTemplates;
   }
   if (lower.includes('大模型') || lower.includes('指令微调') || lower.includes('数据质量')) {
     return nlpTemplates;
   }
-  return cvTemplates;
+  return perceptionTemplates;
 }
 
 function selectTemplateByAreas(areas: ResearchArea[]) {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../ui/Button';
+import { Select } from '../ui/Select';
 import { detectLinkType, parseArxivUrl } from '../../lib/mockAI';
 import { X, Sparkles, Link as LinkIcon, FileText, Code, BookOpen } from 'lucide-react';
 import type { Paper } from '../../lib/types';
@@ -113,7 +114,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
   const handleLinkPaste = (field: string, value: string) => {
     const detection = detectLinkType(value);
     
-    let updates: any = { [field]: value };
+    let updates: Record<string, string> = { [field]: value };
     
     if (detection.type === 'arxiv') {
       const parsed = parseArxivUrl(value);
@@ -130,29 +131,34 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
 
   const handleParseArxiv = async () => {
     if (!formData.arxivUrl) return;
-    const result = await fetchArxivPaper(formData.arxivUrl);
-    if (result) {
-      setFormData(prev => ({
-        ...prev,
-        title: result.title,
-        authors: result.authors,
-        year: result.year,
-        venue: result.venue,
-        arxivUrl: result.arxivUrl,
-        pdfUrl: result.pdfUrl,
-        methodKeywords: result.methodKeywords.join(', '),
-        oneSentenceSummary: result.oneSentenceSummary,
-        problem: result.problem,
-        coreContribution: result.coreContribution,
-        methodSketch: result.methodSketch,
-        evidenceTasks: result.evidence.tasks.join(', '),
-        evidenceBaselines: result.evidence.baselines.join(', '),
-        evidenceMetrics: result.evidence.metrics.join(', '),
-        evidenceKeyResults: result.evidence.keyResults.join(', '),
-        assumptions: result.assumptions.join(', '),
-        limitations: result.limitations.join(', '),
-        questionsToVerify: result.questionsToVerify.join(', '),
-      }));
+    try {
+      const result = await fetchArxivPaper(formData.arxivUrl);
+      if (result) {
+        setFormData(prev => ({
+          ...prev,
+          title: result.title,
+          authors: result.authors,
+          year: result.year,
+          venue: result.venue,
+          arxivUrl: result.arxivUrl,
+          pdfUrl: result.pdfUrl,
+          methodKeywords: result.methodKeywords.join(', '),
+          oneSentenceSummary: result.oneSentenceSummary,
+          problem: result.problem,
+          coreContribution: result.coreContribution,
+          methodSketch: result.methodSketch,
+          evidenceTasks: result.evidence.tasks.join(', '),
+          evidenceBaselines: result.evidence.baselines.join(', '),
+          evidenceMetrics: result.evidence.metrics.join(', '),
+          evidenceKeyResults: result.evidence.keyResults.join(', '),
+          assumptions: result.assumptions.join(', '),
+          limitations: result.limitations.join(', '),
+          questionsToVerify: result.questionsToVerify.join(', '),
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to parse arxiv:', error);
+      alert('解析 arXiv 失败,请重试');
     }
   };
 
@@ -166,30 +172,45 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
   };
 
   const handleGenerateSummary = async () => {
-    const summary = await generateOneSentenceSummary({
-      title: formData.title,
-      methodKeywords: formData.methodKeywords.split(',').map(k => k.trim()).filter(Boolean),
-      areaIds: formData.areaIds,
-    });
-    setFormData(prev => ({ ...prev, oneSentenceSummary: summary }));
+    try {
+      const summary = await generateOneSentenceSummary({
+        title: formData.title,
+        methodKeywords: formData.methodKeywords.split(',').map(k => k.trim()).filter(Boolean),
+        areaIds: formData.areaIds,
+      });
+      setFormData(prev => ({ ...prev, oneSentenceSummary: summary }));
+    } catch (error) {
+      console.error('Failed to generate summary:', error);
+      alert('生成总结失败,请重试');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // 解构出中间字段(仅用于表单编辑,不属于 Paper 类型),避免类型污染
+    const {
+      evidenceTasks,
+      evidenceBaselines,
+      evidenceMetrics,
+      evidenceKeyResults,
+      methodKeywords: methodKeywordsStr,
+      ...paperFields
+    } = formData;
+
     const paperData = {
-      ...formData,
-      methodKeywords: formData.methodKeywords.split(',').map(k => k.trim()).filter(Boolean),
+      ...paperFields,
+      methodKeywords: methodKeywordsStr.split(',').map(k => k.trim()).filter(Boolean),
       evidence: {
-        tasks: formData.evidenceTasks.split(',').map(k => k.trim()).filter(Boolean),
-        baselines: formData.evidenceBaselines.split(',').map(k => k.trim()).filter(Boolean),
-        metrics: formData.evidenceMetrics.split(',').map(k => k.trim()).filter(Boolean),
-        keyResults: formData.evidenceKeyResults.split(',').map(k => k.trim()).filter(Boolean),
+        tasks: evidenceTasks.split(',').map(k => k.trim()).filter(Boolean),
+        baselines: evidenceBaselines.split(',').map(k => k.trim()).filter(Boolean),
+        metrics: evidenceMetrics.split(',').map(k => k.trim()).filter(Boolean),
+        keyResults: evidenceKeyResults.split(',').map(k => k.trim()).filter(Boolean),
       },
       assumptions: formData.assumptions.split(',').map(k => k.trim()).filter(Boolean),
       limitations: formData.limitations.split(',').map(k => k.trim()).filter(Boolean),
       questionsToVerify: formData.questionsToVerify.split(',').map(k => k.trim()).filter(Boolean),
     };
-    
+
     if (editingPaper) {
       updatePaper({ ...editingPaper, ...paperData, inspiredIdeaIds: editingPaper.inspiredIdeaIds });
     } else {
@@ -209,7 +230,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
           <h2 className="text-lg font-semibold">
             {editingPaper ? '编辑论文' : '添加论文'}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -243,7 +264,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
               <input
                 type="number"
                 value={formData.year}
-                onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, year: e.target.value === '' ? new Date().getFullYear() : parseInt(e.target.value) || new Date().getFullYear() })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
@@ -354,30 +375,30 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">阅读状态</label>
-              <select
+              <Select
                 value={formData.readingStatus}
-                onChange={(e) => setFormData({ ...formData, readingStatus: e.target.value as Paper['readingStatus'] })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              >
-                <option value="to_read">待读</option>
-                <option value="skimmed">泛读</option>
-                <option value="deep_reading">精读中</option>
-                <option value="reviewed">已复盘</option>
-                <option value="paused">暂停</option>
-              </select>
+                onChange={(val) => setFormData({ ...formData, readingStatus: val as Paper['readingStatus'] })}
+                options={[
+                  { value: 'to_read', label: '待读' },
+                  { value: 'skimmed', label: '泛读' },
+                  { value: 'deep_reading', label: '精读中' },
+                  { value: 'reviewed', label: '已复盘' },
+                  { value: 'paused', label: '暂停' },
+                ]}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">判断级别</label>
-              <select
+              <Select
                 value={formData.judgementLevel}
-                onChange={(e) => setFormData({ ...formData, judgementLevel: e.target.value as Paper['judgementLevel'] })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              >
-                <option value="background">背景资料</option>
-                <option value="useful">有用</option>
-                <option value="idea_source">灵感来源</option>
-                <option value="must_review">必复盘</option>
-              </select>
+                onChange={(val) => setFormData({ ...formData, judgementLevel: val as Paper['judgementLevel'] })}
+                options={[
+                  { value: 'background', label: '背景资料' },
+                  { value: 'useful', label: '有用' },
+                  { value: 'idea_source', label: '灵感来源' },
+                  { value: 'must_review', label: '必复盘' },
+                ]}
+              />
             </div>
           </div>
 
@@ -562,16 +583,15 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
               </div>
             )}
           </div>
+          <div className="flex justify-end gap-3 p-5 border-t border-gray-100 flex-shrink-0">
+            <Button variant="secondary" type="button" onClick={onClose}>
+              取消
+            </Button>
+            <Button type="submit">
+              {editingPaper ? '保存修改' : '添加论文'}
+            </Button>
+          </div>
         </form>
-
-        <div className="flex justify-end gap-3 p-5 border-t border-gray-100 flex-shrink-0">
-          <Button variant="secondary" type="button" onClick={onClose}>
-            取消
-          </Button>
-          <Button type="submit" onClick={handleSubmit as any}>
-            {editingPaper ? '保存修改' : '添加论文'}
-          </Button>
-        </div>
       </div>
     </div>
   );
