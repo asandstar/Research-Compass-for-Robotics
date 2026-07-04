@@ -1,4 +1,8 @@
+'use client';
+
+import { useState } from 'react';
 import { Evidence } from '../../lib/types';
+import { Plus } from 'lucide-react';
 
 interface EvidenceListProps {
   title: string;
@@ -6,12 +10,35 @@ interface EvidenceListProps {
   color: string;
   bgColor: string;
   onRemove?: (id: string) => void;
+  onAdd?: (content: string) => void;
 }
 
-export function EvidenceList({ title, evidence, color, bgColor, onRemove }: EvidenceListProps) {
+export function EvidenceList({ title, evidence, color, bgColor, onRemove, onAdd }: EvidenceListProps) {
+  const [isAdding, setIsAdding] = useState(false);
+  const [newContent, setNewContent] = useState('');
+
+  const handleAdd = () => {
+    if (!newContent.trim() || !onAdd) return;
+    onAdd(newContent.trim());
+    setNewContent('');
+    setIsAdding(false);
+  };
+
   return (
     <div className="rounded-lg p-3" style={{ backgroundColor: bgColor }}>
-      <div className="font-semibold text-sm mb-2" style={{ color }}>{title}</div>
+      <div className="flex items-center justify-between mb-2">
+        <div className="font-semibold text-sm" style={{ color }}>{title}</div>
+        {onAdd && !isAdding && (
+          <button
+            onClick={() => setIsAdding(true)}
+            className="text-xs opacity-60 hover:opacity-100 transition-opacity flex items-center gap-0.5"
+            style={{ color }}
+          >
+            <Plus className="w-3 h-3" />
+            添加
+          </button>
+        )}
+      </div>
       <div className="space-y-2">
         {evidence.map((ev) => (
           <div key={ev.id} className="flex items-start justify-between gap-2">
@@ -32,10 +59,38 @@ export function EvidenceList({ title, evidence, color, bgColor, onRemove }: Evid
             )}
           </div>
         ))}
-        {evidence.length === 0 && (
+        {evidence.length === 0 && !isAdding && (
           <div className="text-xs opacity-60">暂无证据</div>
         )}
       </div>
+
+      {isAdding && (
+        <div className="mt-2 space-y-2">
+          <textarea
+            value={newContent}
+            onChange={(e) => setNewContent(e.target.value)}
+            className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded resize-none focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            rows={2}
+            placeholder="输入证据内容..."
+            autoFocus
+          />
+          <div className="flex gap-1.5">
+            <button
+              onClick={handleAdd}
+              disabled={!newContent.trim()}
+              className="px-2 py-1 text-xs text-white bg-indigo-500 hover:bg-indigo-600 rounded disabled:opacity-40"
+            >
+              确认
+            </button>
+            <button
+              onClick={() => { setIsAdding(false); setNewContent(''); }}
+              className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700"
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

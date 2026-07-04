@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useReducer, useEffect, useRef, ReactNode } from 'react';
-import { Observation, IdeaCard, MVE, ResearchArea, Paper } from '../lib/types';
+import { Observation, IdeaCard, MVE, ResearchArea, Paper, Evidence } from '../lib/types';
 import { initializeData, persistData, resetDemoData } from '../lib/storage';
 import {
   mockAnalyzeObservation,
@@ -36,6 +36,7 @@ type Action =
   | { type: 'CREATE_IDEA_CARD'; payload: IdeaCard }
   | { type: 'UPDATE_IDEA_CARD'; payload: IdeaCard }
   | { type: 'DELETE_IDEA_CARD'; payload: string }
+  | { type: 'ADD_EVIDENCE'; payload: { ideaId: string; evidenceType: 'supportingEvidence' | 'opposingEvidence' | 'missingEvidence'; evidence: Evidence } }
   | { type: 'CREATE_MVE'; payload: MVE }
   | { type: 'UPDATE_MVE_RESULT'; payload: { id: string; resultStatus: MVE['resultStatus']; resultNotes: string } }
   | { type: 'ADD_RESEARCH_AREA'; payload: ResearchArea }
@@ -109,6 +110,24 @@ function appReducer(state: AppState, action: Action): AppState {
         ...state,
         ideaCards: state.ideaCards.filter(card => card.id !== action.payload),
       };
+    case 'ADD_EVIDENCE': {
+      const { ideaId, evidenceType, evidence } = action.payload;
+      return {
+        ...state,
+        ideaCards: deduplicateById(state.ideaCards.map(card => {
+          if (card.id === ideaId) {
+            const existing = card[evidenceType];
+            if (existing.some(e => e.id === evidence.id)) return card;
+            return {
+              ...card,
+              [evidenceType]: [...existing, evidence],
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return card;
+        })),
+      };
+    }
     case 'CREATE_MVE': {
       const newMve = action.payload;
       const updatedIdeaCards = state.ideaCards.map(card => {
@@ -219,6 +238,7 @@ interface AppContextType {
   ) => Promise<IdeaCard>;
   updateIdeaCard: (ideaCard: IdeaCard) => void;
   deleteIdeaCard: (id: string) => void;
+  addEvidence: (ideaId: string, evidenceType: 'supportingEvidence' | 'opposingEvidence' | 'missingEvidence', content: string) => void;
   generateMVE: (ideaCardId: string) => Promise<MVE>;
   updateMVEResult: (id: string, resultStatus: MVE['resultStatus'], resultNotes: string) => void;
   getIdeaCardById: (id: string) => IdeaCard | undefined;
@@ -443,6 +463,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deleteIdeaCard = (id: string) => {
     dispatch({ type: 'DELETE_IDEA_CARD', payload: id });
+  };
+
+  const addEvidence = (ideaId: string, evidenceType: 'supportingEvidence' | 'opposingEvidence' | 'missingEvidence', content: string) => {
+    const evidence: Evidence = {
+      id: generateId(),
+      content,
+      source: '手动添加',
+      isAIGenerated: false,
+    };
+    dispatch({ type: 'ADD_EVIDENCE', payload: { ideaId, evidenceType, evidence } });
   };
 
   const generateMVE = async (ideaCardId: string): Promise<MVE> => {
@@ -684,6 +714,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         createIdeaCard,
         updateIdeaCard,
         deleteIdeaCard,
+        addEvidence,
         generateMVE,
         updateMVEResult,
         getIdeaCardById,

@@ -9,14 +9,22 @@ import { Card } from '../../../components/ui/Card';
 import { Tag } from '../../../components/ui/Tag';
 import { IDEA_STATUS_LABELS } from '../../../lib/types';
 import { PaperCard } from '../../../components/paper/PaperCard';
+import { AddPaperModal } from '../../../components/paper/AddPaperModal';
+import { CreateIdeaModal } from '../../../components/idea/CreateIdeaModal';
 import { ArrowLeft, Plus, FileText, Lightbulb, FlaskConical, BookOpen } from 'lucide-react';
 
 export default function AreaDetailClient() {
   const params = useParams();
   const router = useRouter();
   const areaId = params.id as string;
-  const { state, getResearchAreaById, getPapersByAreaId, getIdeasByAreaId, getMvesByAreaId } = useApp();
+  const { state, getResearchAreaById, getPapersByAreaId, getIdeasByAreaId, getMvesByAreaId, createIdeaFromPaper } = useApp();
   const [showAddPaper, setShowAddPaper] = useState(false);
+  const [showCreateIdea, setShowCreateIdea] = useState(false);
+
+  const handleGenerateIdea = async (paperId: string) => {
+    const idea = await createIdeaFromPaper(paperId);
+    router.push(`/idea/${idea.id}`);
+  };
 
   const area = getResearchAreaById(areaId);
   const papers = getPapersByAreaId(areaId);
@@ -50,7 +58,7 @@ export default function AreaDetailClient() {
             <FileText className="w-4 h-4 mr-1" />
             新增论文
           </Button>
-          <Button>
+          <Button onClick={() => setShowCreateIdea(true)}>
             <Lightbulb className="w-4 h-4 mr-1" />
             新增 Idea
           </Button>
@@ -138,6 +146,8 @@ export default function AreaDetailClient() {
                     const area = state.researchAreas.find(a => a.id === areaId);
                     return area ? area.name.split('｜')[0] : areaId;
                   }}
+                  onGenerateIdea={handleGenerateIdea}
+                  isGeneratingIdea={state.isGeneratingIdeaFromPaper}
                   compact
                 />
               ))}
@@ -201,6 +211,19 @@ export default function AreaDetailClient() {
           )}
         </div>
       </div>
+
+      <AddPaperModal
+        isOpen={showAddPaper}
+        onClose={() => setShowAddPaper(false)}
+        preselectedAreaId={areaId}
+      />
+
+      <CreateIdeaModal
+        isOpen={showCreateIdea}
+        onClose={() => setShowCreateIdea(false)}
+        preselectedAreaId={areaId}
+        onCreated={(ideaId) => router.push(`/idea/${ideaId}`)}
+      />
     </div>
   );
 }

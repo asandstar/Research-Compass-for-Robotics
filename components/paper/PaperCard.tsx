@@ -5,7 +5,7 @@ import { Card } from '../ui/Card';
 import { Tag } from '../ui/Tag';
 import { READING_STATUS_LABELS, JUDGEMENT_LABELS } from '../../lib/types';
 import type { Paper } from '../../lib/types';
-import { ExternalLink, FileText, Lightbulb, Edit3, Sparkles, ChevronDown, ChevronUp, AlertTriangle, Target, BookOpen, CheckCircle2, HelpCircle } from 'lucide-react';
+import { ExternalLink, FileText, Lightbulb, Edit3, Sparkles, ChevronDown, ChevronUp, AlertTriangle, Target, BookOpen, CheckCircle2, HelpCircle, Microscope, Search } from 'lucide-react';
 
 interface PaperCardProps {
   paper: Paper;
@@ -13,10 +13,12 @@ interface PaperCardProps {
   onEdit?: (paper: Paper) => void;
   onGenerateIdea?: (paperId: string) => void;
   isGeneratingIdea?: boolean;
+  onExtractAssumptions?: (paper: Paper) => void;
+  onExtractGaps?: (paper: Paper) => void;
   compact?: boolean;
 }
 
-export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGeneratingIdea, compact = false }: PaperCardProps) {
+export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGeneratingIdea, onExtractAssumptions, onExtractGaps, compact = false }: PaperCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   if (compact) {
@@ -360,14 +362,34 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
             {paper.inspiredIdeaIds.length} 个 Idea
           </div>
 
-          <div className="flex gap-2 mt-2">
+          <div className="flex flex-col gap-1.5 mt-2">
             {onEdit && (
               <button
                 onClick={() => onEdit(paper)}
-                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded self-end"
                 title="编辑"
               >
                 <Edit3 className="w-4 h-4" />
+              </button>
+            )}
+            {onExtractAssumptions && (
+              <button
+                onClick={() => onExtractAssumptions(paper)}
+                className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded flex items-center gap-1"
+                title="提取假设"
+              >
+                <Microscope className="w-3.5 h-3.5" />
+                提取假设
+              </button>
+            )}
+            {onExtractGaps && (
+              <button
+                onClick={() => onExtractGaps(paper)}
+                className="px-2 py-1 text-xs text-purple-600 hover:bg-purple-50 rounded flex items-center gap-1"
+                title="分析缺口"
+              >
+                <Search className="w-3.5 h-3.5" />
+                分析缺口
               </button>
             )}
             {onGenerateIdea && (

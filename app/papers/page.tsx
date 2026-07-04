@@ -8,17 +8,49 @@ import { Card } from '../../components/ui/Card';
 import { Tag } from '../../components/ui/Tag';
 import { AddPaperModal } from '../../components/paper/AddPaperModal';
 import { PaperCard } from '../../components/paper/PaperCard';
+import { AnalysisResultModal } from '../../components/paper/AnalysisResultModal';
+import { Paper } from '../../lib/types';
 import { Plus, Search } from 'lucide-react';
 
 export default function PaperLibraryPage() {
   const router = useRouter();
-  const { state, createIdeaFromPaper, state: { isGeneratingIdeaFromPaper } } = useApp();
+  const { state, createIdeaFromPaper, state: { isGeneratingIdeaFromPaper }, extractAssumptions, extractGaps } = useApp();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPaper, setEditingPaper] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterArea, setFilterArea] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterJudgement, setFilterJudgement] = useState<string>('all');
+
+  const [analysisModal, setAnalysisModal] = useState<{
+    isOpen: boolean;
+    type: 'assumptions' | 'gaps';
+    loading: boolean;
+    assumptions: any;
+    gaps: any;
+  }>({ isOpen: false, type: 'assumptions', loading: false, assumptions: null, gaps: null });
+
+  const handleExtractAssumptions = async (paper: Paper) => {
+    setAnalysisModal({ isOpen: true, type: 'assumptions', loading: true, assumptions: null, gaps: null });
+    try {
+      const result = await extractAssumptions(paper);
+      setAnalysisModal(prev => ({ ...prev, loading: false, assumptions: result }));
+    } catch (error) {
+      console.error('Failed to extract assumptions:', error);
+      setAnalysisModal(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleExtractGaps = async (paper: Paper) => {
+    setAnalysisModal({ isOpen: true, type: 'gaps', loading: true, assumptions: null, gaps: null });
+    try {
+      const result = await extractGaps(paper);
+      setAnalysisModal(prev => ({ ...prev, loading: false, gaps: result }));
+    } catch (error) {
+      console.error('Failed to extract gaps:', error);
+      setAnalysisModal(prev => ({ ...prev, loading: false }));
+    }
+  };
 
   const filteredPapers = useMemo(() => {
     return state.papers.filter(paper => {
@@ -152,6 +184,8 @@ export default function PaperLibraryPage() {
               onEdit={handleEdit}
               onGenerateIdea={handleGenerateIdea}
               isGeneratingIdea={isGeneratingIdeaFromPaper}
+              onExtractAssumptions={handleExtractAssumptions}
+              onExtractGaps={handleExtractGaps}
             />
           ))
         )}
@@ -161,6 +195,15 @@ export default function PaperLibraryPage() {
         isOpen={showAddModal}
         onClose={() => { setShowAddModal(false); setEditingPaper(null); }}
         editingPaper={editingPaper}
+      />
+
+      <AnalysisResultModal
+        isOpen={analysisModal.isOpen}
+        onClose={() => setAnalysisModal(prev => ({ ...prev, isOpen: false }))}
+        type={analysisModal.type}
+        loading={analysisModal.loading}
+        assumptions={analysisModal.assumptions}
+        gaps={analysisModal.gaps}
       />
     </div>
   );

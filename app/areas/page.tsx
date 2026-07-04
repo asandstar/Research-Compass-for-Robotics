@@ -9,7 +9,7 @@ import { Tag } from '../../components/ui/Tag';
 import { Plus, FileText, Lightbulb, FlaskConical, Clock, Edit3 } from 'lucide-react';
 
 export default function ResearchAreasPage() {
-  const { state, getPapersByAreaId, getIdeasByAreaId, getMvesByAreaId } = useApp();
+  const { state, getPapersByAreaId, getIdeasByAreaId, getMvesByAreaId, addResearchArea, updateResearchArea } = useApp();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingArea, setEditingArea] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -24,7 +24,22 @@ export default function ResearchAreasPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: 实现添加/编辑逻辑
+    const keywords = formData.keywords.split(',').map(k => k.trim()).filter(Boolean);
+    const focusQuestions = formData.focusQuestions.split('\n').map(q => q.trim()).filter(Boolean);
+
+    if (editingArea) {
+      updateResearchArea({
+        ...editingArea,
+        name: formData.name,
+        description: formData.description,
+        category: formData.category,
+        keywords,
+        focusQuestions,
+      });
+    } else {
+      addResearchArea(formData.name, formData.description, formData.category, keywords, focusQuestions);
+    }
+
     setShowAddModal(false);
     setEditingArea(null);
     setFormData({ name: '', description: '', category: '感知', keywords: '', focusQuestions: '' });
@@ -49,7 +64,11 @@ export default function ResearchAreasPage() {
           <h1 className="text-2xl font-bold text-gray-900">Research Areas</h1>
           <p className="text-gray-600 mt-1">按机器人子领域管理你的研究方向</p>
         </div>
-        <Button onClick={() => setShowAddModal(true)}>
+        <Button onClick={() => {
+          setEditingArea(null);
+          setFormData({ name: '', description: '', category: '感知', keywords: '', focusQuestions: '' });
+          setShowAddModal(true);
+        }}>
           <Plus className="w-4 h-4 mr-1" />
           新增子领域
         </Button>

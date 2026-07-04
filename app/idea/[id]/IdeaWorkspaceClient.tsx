@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import { EvidenceList } from '../../../components/idea/EvidenceList';
+import { IdeaEvaluationModal } from '../../../components/idea/IdeaEvaluationModal';
 import { ObservationCard } from '../../../components/observation/ObservationCard';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { Tag } from '../../../components/ui/Tag';
 import { IDEA_STATUS_LABELS, READING_STATUS_LABELS, Paper, ResearchArea } from '../../../lib/types';
-import { ArrowLeft, Sparkles, FlaskConical, PlusCircle, FileText, ExternalLink, Cpu, Database, Target, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Sparkles, FlaskConical, PlusCircle, FileText, ExternalLink, Cpu, Database, Target, BarChart3, ClipboardCheck } from 'lucide-react';
 
 interface IdeaWorkspaceClientProps {
   id: string;
@@ -17,10 +18,13 @@ interface IdeaWorkspaceClientProps {
 
 export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
   const router = useRouter();
-  const { state, getIdeaCardById, getObservationsByIds, getPaperById, updateIdeaCard, generateMVE, addObservation, getResearchAreaById } = useApp();
+  const { state, getIdeaCardById, getObservationsByIds, getPaperById, updateIdeaCard, generateMVE, addObservation, getResearchAreaById, evaluateIdea, addEvidence } = useApp();
   const [ideaCard, setIdeaCard] = useState(getIdeaCardById(id));
   const [showAddObservation, setShowAddObservation] = useState(false);
   const [newObservation, setNewObservation] = useState('');
+  const [showEvaluation, setShowEvaluation] = useState(false);
+  const [evaluating, setEvaluating] = useState(false);
+  const [evaluationResult, setEvaluationResult] = useState<any>(null);
 
   useEffect(() => {
     setIdeaCard(getIdeaCardById(id));
@@ -56,6 +60,31 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
     } catch (error) {
       console.error('Failed to generate MVE:', error);
     }
+  };
+
+  const handleEvaluate = async () => {
+    setShowEvaluation(true);
+    setEvaluating(true);
+    setEvaluationResult(null);
+    try {
+      const result = await evaluateIdea({
+        title: ideaCard.title,
+        researchQuestion: ideaCard.researchQuestion,
+        coreHypothesis: ideaCard.coreHypothesis,
+        roboticsTask: ideaCard.roboticsTask,
+        baseline: ideaCard.baseline,
+      });
+      setEvaluationResult(result);
+    } catch (error) {
+      console.error('Failed to evaluate idea:', error);
+    } finally {
+      setEvaluating(false);
+    }
+  };
+
+  const handleAdoptHypothesis = (hypothesis: string) => {
+    setIdeaCard({ ...ideaCard, coreHypothesis: hypothesis });
+    updateIdeaCard({ ...ideaCard, coreHypothesis: hypothesis });
   };
 
   const handleRemoveSupportingEvidence = (eid: string) => {
@@ -121,7 +150,13 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
             </div>
           </div>
         </div>
-        <Button onClick={handleSave}>保存</Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={handleEvaluate} disabled={!canGenerateMVE}>
+            <ClipboardCheck className="w-4 h-4 mr-1" />
+            AI 评估
+          </Button>
+          <Button onClick={handleSave}>保存</Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-[2fr_1fr] gap-6">
@@ -233,6 +268,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
               color="#065f46"
               bgColor="#d1fae5"
               onRemove={handleRemoveSupportingEvidence}
+              onAdd={(content) => addEvidence(ideaCard.id, 'supportingEvidence', content)}
             />
             <EvidenceList
               title="反对证据"
@@ -240,6 +276,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
               color="#991b1b"
               bgColor="#fee2e2"
               onRemove={handleRemoveOpposingEvidence}
+              onAdd={(content) => addEvidence(ideaCard.id, 'opposingEvidence', content)}
             />
             <EvidenceList
               title="缺失证据"
@@ -247,6 +284,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
               color="#92400e"
               bgColor="#fef3c7"
               onRemove={handleRemoveMissingEvidence}
+              onAdd={(content) => addEvidence(ideaCard.id, 'missingEvidence', content)}
             />
           </div>
 
@@ -392,6 +430,14 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
           </div>
         </div>
       )}
+
+      <IdeaEvaluationModal
+        isOpen={showEvaluation}
+        onClose={() => setShowEvaluation(false)}
+        loading={evaluating}
+        result={evaluationResult}
+        onAdoptHypothesis={handleAdoptHypothesis}
+      />
     </div>
   );
 }
