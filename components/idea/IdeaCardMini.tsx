@@ -18,12 +18,12 @@ export function IdeaCardMini({ ideaCard }: IdeaCardMiniProps) {
 
   return (
     <Link href={`/detail/idea/${ideaCard.id}`} className="no-underline hover:no-underline block">
-      <div className="bg-white border border-rule rounded-lg p-4 hover:border-accent hover:shadow-sm transition-all cursor-pointer">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all cursor-pointer">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-ink text-sm">{ideaCard.title}</h3>
+          <h3 className="font-semibold text-gray-800 text-sm">{ideaCard.title}</h3>
           <Tag color={label.color} bgColor={label.bgColor}>{label.label}</Tag>
         </div>
-        <div className="text-xs text-muted">
+        <div className="text-xs text-gray-500">
           来源观察: {ideaCard.sourceObservations.length} 条
           {' | '}
           最后更新: {formatDate(ideaCard.updatedAt)}

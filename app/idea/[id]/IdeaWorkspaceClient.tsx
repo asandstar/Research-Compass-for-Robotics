@@ -30,7 +30,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
 
   // 只在 id 变化或初始化完成时同步,避免其他 dispatch 覆盖本地编辑内容
   useEffect(() => {
-    if (state.isInitialized) {
+    if (state.isInitialized && !isDirty) {
       setIdeaCard(getIdeaCardById(id));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -91,7 +91,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
   const canGenerateMVE = ideaCard.researchQuestion && ideaCard.coreHypothesis && ideaCard.whyItMatters;
 
   const handleFieldChange = (
-    field: 'title' | 'researchQuestion' | 'coreHypothesis' | 'whyItMatters' | 'roboticsTask' | 'datasetOrScenario' | 'baseline' | 'evaluationMetric',
+    field: 'title' | 'researchQuestion' | 'coreHypothesis' | 'whyItMatters' | 'roboticsTask' | 'datasetOrScenario' | 'baseline' | 'evaluationMetric' | 'notes',
     value: string
   ) => {
     setIdeaCard(prev => prev ? { ...prev, [field]: value } : prev);
@@ -463,6 +463,17 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
               <PlusCircle className="w-4 h-4 mr-1" />
               补充观察
             </Button>
+          </Card>
+
+          <Card>
+            <h3 className="font-semibold text-gray-800 mb-3">备注</h3>
+            <textarea
+              value={ideaCard.notes || ''}
+              onChange={(e) => handleFieldChange('notes', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 resize-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+              rows={3}
+              placeholder="添加备注信息..."
+            />
           </Card>
 
           <Card className="bg-indigo-50 border-indigo-200">

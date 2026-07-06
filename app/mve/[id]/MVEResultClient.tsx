@@ -6,10 +6,10 @@ import { useApp } from '../../../context/AppContext';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { Tag } from '../../../components/ui/Tag';
-import { IDEA_STATUS_LABELS, MVE, ResearchArea } from '../../../lib/types';
+import { IDEA_STATUS_LABELS, MVE_RESULT_LABELS, MVE, ResearchArea } from '../../../lib/types';
 import {
   ArrowLeft, CheckCircle, XCircle, AlertCircle, Target, Database, Cpu, BarChart3,
-  Clock, Server
+  Clock, Server, List, Plus, Trash2, FileSpreadsheet
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -113,11 +113,7 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
     setIsDirty(false);
   };
 
-  const resultLabels = {
-    pending: { label: '待实验', color: '#78716c', bgColor: '#f5f5f4' },
-    passed: { label: '已通过', color: '#065f46', bgColor: '#d1fae5' },
-    failed: { label: '已失败', color: '#991b1b', bgColor: '#fee2e2' },
-  };
+  const resultLabels = MVE_RESULT_LABELS;
 
   return (
     <div className="space-y-6">

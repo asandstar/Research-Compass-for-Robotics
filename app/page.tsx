@@ -14,11 +14,23 @@ import {
   Lightbulb, FileText, TrendingUp, AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function Dashboard() {
   const { state } = useApp();
   const [showAddPaper, setShowAddPaper] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Handle SPA fallback redirect from 404.html
+  useEffect(() => {
+    const redirectPath = searchParams.get('r');
+    if (redirectPath) {
+      const decoded = decodeURIComponent(redirectPath);
+      router.push(decoded);
+    }
+  }, [searchParams, router]);
 
   const activeAreas = state.researchAreas.filter(a => !a.isHidden);
   const paperCount = state.papers.length;
@@ -26,12 +38,10 @@ export default function Dashboard() {
     card.status !== 'abandoned' && card.status !== 'promising'
   ).length;
   const pendingMVEs = state.mves.filter(mve => mve.resultStatus === 'pending').length;
-  const firstPendingMVE = state.mves.find(mve => mve.resultStatus === 'pending');
 
   const activeIdeaCards = state.ideaCards.filter(card =>
     card.status !== 'abandoned'
   ).slice(0, 5);
-  const firstActiveIdea = activeIdeaCards[0];
   const toReadCount = state.papers.filter(p => p.readingStatus === 'to_read').length;
 
   const recentPapers = [...state.papers]
@@ -100,7 +110,7 @@ export default function Dashboard() {
             </div>
           </Card>
         </Link>
-        <Link href={firstActiveIdea ? `/detail/idea/${firstActiveIdea.id}` : '/papers'} className="no-underline hover:no-underline">
+        <Link href="/ideas" className="no-underline hover:no-underline">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
@@ -113,8 +123,8 @@ export default function Dashboard() {
             </div>
           </Card>
         </Link>
-        <Link href={firstPendingMVE ? `/detail/mve/${firstPendingMVE.id}` : '#'} className={`no-underline hover:no-underline ${!firstPendingMVE ? 'pointer-events-none' : ''}`}>
-          <Card className={`h-full ${firstPendingMVE ? 'hover:shadow-lg transition-shadow cursor-pointer' : ''}`}>
+        <Link href="/mves" className="no-underline hover:no-underline">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-rose-100 flex items-center justify-center">
                 <FlaskConical className="w-6 h-6 text-rose-600" />
@@ -285,8 +295,8 @@ export default function Dashboard() {
                   </div>
                 </Link>
               )}
-              {pendingMVEs > 0 && firstPendingMVE && (
-                <Link href={`/detail/mve/${firstPendingMVE.id}`} className="no-underline hover:no-underline">
+              {pendingMVEs > 0 && (
+                <Link href="/mves" className="no-underline hover:no-underline">
                   <div className="flex justify-between items-center text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 -mx-2 px-2 py-1 rounded transition-colors">
                     <span>待验证 MVE</span>
                     <span className="font-medium text-rose-600">

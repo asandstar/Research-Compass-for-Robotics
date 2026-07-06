@@ -8,6 +8,8 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: Compass },
   { href: '/areas', label: 'Research Areas', icon: LayoutGrid },
   { href: '/papers', label: 'Paper Library', icon: FileText },
+  { href: '/ideas', label: 'Ideas', icon: Lightbulb },
+  { href: '/mves', label: 'MVEs', icon: FlaskConical },
 ];
 
 export function Navbar() {

@@ -452,7 +452,7 @@ export async function mockGenerateIdeaEvidence(
 export async function mockGenerateMVE(ideaCard: IdeaCard): Promise<Omit<MVE, 'id' | 'ideaCardId' | 'resultStatus' | 'resultNotes' | 'createdAt'>> {
   await delay(1500 + Math.random() * 1000);
   const template = selectTemplate(ideaCard.researchQuestion + ' ' + ideaCard.coreHypothesis);
-  return template.mve;
+  return { ...template.mve, steps: [], dataRecords: [] };
 }
 
 export async function mockGenerateRoboticsMVE(
@@ -469,6 +469,8 @@ export async function mockGenerateRoboticsMVE(
     datasetOrScenario: ideaCard.datasetOrScenario || template.mve.datasetOrScenario,
     baseline: ideaCard.baseline || template.mve.baseline,
     evaluationMetric: ideaCard.evaluationMetric || template.mve.evaluationMetric,
+    steps: [],
+    dataRecords: [],
   };
 }
 

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+      // GitHub Pages SPA fallback
+      // Redirect to index.html, Next.js client-side routing will handle the path
+      var basePath = '/Research-Compass-for-Robotics';
+      var path = window.location.pathname;
+      var query = window.location.search;
+      
+      // If already at root, stay there
+      if (path === '/' || path === basePath + '/' || path === basePath + '/index.html') {
+        window.location.href = window.location.origin + basePath + '/';
+      } else {
+        // Pass original path as query param for Next.js to handle
+        window.location.href = window.location.origin + basePath + '/?r=' + encodeURIComponent(path + query);
+      }
+    </script>
+  </head>
+  <body>
+    <p>Redirecting...</p>
+  </body>
+</html>

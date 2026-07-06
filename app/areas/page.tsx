@@ -1,18 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Tag } from '../../components/ui/Tag';
 import { Select } from '../../components/ui/Select';
-import { Plus, FileText, Lightbulb, FlaskConical, Clock, Edit3 } from 'lucide-react';
+import { Input } from '../../components/ui/Input';
+import { Plus, FileText, Lightbulb, FlaskConical, Clock, Edit3, Search } from 'lucide-react';
 
 export default function ResearchAreasPage() {
   const { state, getPapersByAreaId, getIdeasByAreaId, getMvesByAreaId, addResearchArea, updateResearchArea } = useApp();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingArea, setEditingArea] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   useEffect(() => {
     if (!showAddModal) return;
@@ -30,7 +33,27 @@ export default function ResearchAreasPage() {
     focusQuestions: '',
   });
 
-  const visibleAreas = state.researchAreas.filter(a => !a.isHidden);
+  const categories = ['感知', '学习', '控制', '前沿'];
+  const categoryOptions = [
+    { value: 'all', label: '全部分类' },
+    ...categories.map(cat => ({ value: cat, label: cat })),
+  ];
+
+  const visibleAreas = useMemo(() => {
+    return state.researchAreas.filter(area => {
+      if (area.isHidden) return false;
+      if (categoryFilter !== 'all' && area.category !== categoryFilter) return false;
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        return (
+          area.name.toLowerCase().includes(query) ||
+          area.description.toLowerCase().includes(query) ||
+          area.keywords.some(kw => kw.toLowerCase().includes(query))
+        );
+      }
+      return true;
+    });
+  }, [state.researchAreas, categoryFilter, searchQuery]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +105,26 @@ export default function ResearchAreasPage() {
           <Plus className="w-4 h-4 mr-1" />
           新增子领域
         </Button>
+      </div>
+
+      <div className="flex gap-4 items-center">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="搜索子领域名称、描述、关键词..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select
+          options={categoryOptions}
+          value={categoryFilter}
+          onChange={(value) => setCategoryFilter(value)}
+          placeholder="筛选分类"
+          width="140px"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -90,9 +90,25 @@ export interface IdeaCard {
   evaluationMetric: string;
 
   nextAction: string;
+  notes: string;
 
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ExperimentStep {
+  id: string;
+  description: string;
+  completed: boolean;
+  completedAt?: string;
+}
+
+export interface DataRecord {
+  id: string;
+  variable: string;
+  value: string;
+  unit?: string;
+  timestamp?: string;
 }
 
 export interface MVE {
@@ -114,6 +130,9 @@ export interface MVE {
   minimalComputeNeed: string;
   expectedTimeCost: string;
 
+  steps: ExperimentStep[];
+  dataRecords: DataRecord[];
+  
   resultStatus: 'pending' | 'passed' | 'failed';
   resultNotes: string;
   createdAt: string;
@@ -162,4 +181,10 @@ export const JUDGEMENT_LABELS: Record<Paper['judgementLevel'], StatusLabel> = {
   useful: { label: '有用', color: '#0891b2', bgColor: '#cffafe' },
   idea_source: { label: '灵感来源', color: '#7c3aed', bgColor: '#ede9fe' },
   must_review: { label: '必复盘', color: '#991b1b', bgColor: '#fee2e2' },
+};
+
+export const MVE_RESULT_LABELS: Record<MVE['resultStatus'], StatusLabel> = {
+  pending: { label: '待实验', color: '#78716c', bgColor: '#f5f5f4' },
+  passed: { label: '已通过', color: '#065f46', bgColor: '#d1fae5' },
+  failed: { label: '已失败', color: '#991b1b', bgColor: '#fee2e2' },
 };

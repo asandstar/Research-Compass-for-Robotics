@@ -40,6 +40,8 @@ type Action =
   | { type: 'ADD_EVIDENCE'; payload: { ideaId: string; evidenceType: 'supportingEvidence' | 'opposingEvidence' | 'missingEvidence'; evidence: Evidence } }
   | { type: 'CREATE_MVE'; payload: MVE }
   | { type: 'UPDATE_MVE_RESULT'; payload: { id: string; resultStatus: MVE['resultStatus']; resultNotes: string } }
+  | { type: 'UPDATE_MVE_STEPS'; payload: { id: string; steps: MVE['steps'] } }
+  | { type: 'UPDATE_MVE_DATA_RECORDS'; payload: { id: string; dataRecords: MVE['dataRecords'] } }
   | { type: 'ADD_RESEARCH_AREA'; payload: ResearchArea }
   | { type: 'UPDATE_RESEARCH_AREA'; payload: ResearchArea }
   | { type: 'DELETE_AREA'; payload: string }
@@ -181,6 +183,20 @@ function appReducer(state: AppState, action: Action): AppState {
       
       return { ...state, mves: updatedMves, ideaCards: updatedIdeaCards };
     }
+    case 'UPDATE_MVE_STEPS':
+      return {
+        ...state,
+        mves: deduplicateById(state.mves.map(mve =>
+          mve.id === action.payload.id ? { ...mve, steps: action.payload.steps } : mve
+        )),
+      };
+    case 'UPDATE_MVE_DATA_RECORDS':
+      return {
+        ...state,
+        mves: deduplicateById(state.mves.map(mve =>
+          mve.id === action.payload.id ? { ...mve, dataRecords: action.payload.dataRecords } : mve
+        )),
+      };
     case 'ADD_RESEARCH_AREA':
       return { ...state, researchAreas: deduplicateById([...state.researchAreas, action.payload]) };
     case 'UPDATE_RESEARCH_AREA':
@@ -276,6 +292,8 @@ interface AppContextType {
   addEvidence: (ideaId: string, evidenceType: 'supportingEvidence' | 'opposingEvidence' | 'missingEvidence', content: string) => void;
   generateMVE: (ideaCardId: string) => Promise<MVE>;
   updateMVEResult: (id: string, resultStatus: MVE['resultStatus'], resultNotes: string) => void;
+  updateMveSteps: (id: string, steps: MVE['steps']) => void;
+  updateMveDataRecords: (id: string, dataRecords: MVE['dataRecords']) => void;
   getIdeaCardById: (id: string) => IdeaCard | undefined;
   getMVEById: (id: string) => MVE | undefined;
   getObservationsByIds: (ids: string[]) => Observation[];
@@ -484,6 +502,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         baseline,
         evaluationMetric,
         nextAction: evidence.nextAction,
+        notes: '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -526,6 +545,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         id: generateId(),
         ideaCardId,
         ...mveData,
+        steps: [],
+        dataRecords: [],
         resultStatus: 'pending',
         resultNotes: '',
         createdAt: new Date().toISOString(),
@@ -539,6 +560,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateMVEResult = useCallback((id: string, resultStatus: MVE['resultStatus'], resultNotes: string) => {
     dispatch({ type: 'UPDATE_MVE_RESULT', payload: { id, resultStatus, resultNotes } });
+  }, []);
+
+  const updateMveSteps = useCallback((id: string, steps: MVE['steps']) => {
+    dispatch({ type: 'UPDATE_MVE_STEPS', payload: { id, steps } });
+  }, []);
+
+  const updateMveDataRecords = useCallback((id: string, dataRecords: MVE['dataRecords']) => {
+    dispatch({ type: 'UPDATE_MVE_DATA_RECORDS', payload: { id, dataRecords } });
   }, []);
 
   const getIdeaCardById = (id: string): IdeaCard | undefined => {
@@ -689,6 +718,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         baseline: ideaData.baseline,
         evaluationMetric: ideaData.evaluationMetric,
         nextAction: ideaData.nextAction,
+        notes: '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -759,6 +789,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addEvidence,
         generateMVE,
         updateMVEResult,
+        updateMveSteps,
+        updateMveDataRecords,
         getIdeaCardById,
         getMVEById,
         getObservationsByIds,

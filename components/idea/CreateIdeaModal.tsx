@@ -21,6 +21,15 @@ export function CreateIdeaModal({ isOpen, onClose, preselectedAreaId, onCreated 
     whyItMatters: '',
   });
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,17 +54,6 @@ export function CreateIdeaModal({ isOpen, onClose, preselectedAreaId, onCreated 
   };
 
   const canSubmit = formData.title.trim() && formData.researchQuestion.trim() && formData.coreHypothesis.trim() && formData.whyItMatters.trim();
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
 
   return (
     <div

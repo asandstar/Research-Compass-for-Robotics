@@ -15,9 +15,11 @@ interface SelectProps {
   className?: string;
   size?: 'sm' | 'md';
   maxHeight?: string;
+  placeholder?: string;
+  width?: string;
 }
 
-export function Select({ value, onChange, options, className = '', size = 'md', maxHeight = '320px' }: SelectProps) {
+export function Select({ value, onChange, options, className = '', size = 'md', maxHeight = '320px', placeholder, width }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -57,9 +59,10 @@ export function Select({ value, onChange, options, className = '', size = 'md', 
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between gap-2 ${paddingX} ${paddingY} ${textSize} border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors`}
+        style={{ width }}
+        className={`flex items-center justify-between gap-2 ${paddingX} ${paddingY} ${textSize} border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${width ? '' : 'w-full'}`}
       >
-        <span className="text-gray-900 truncate">{selectedOption?.label || '请选择'}</span>
+        <span className="text-gray-900 truncate">{selectedOption?.label || placeholder || '请选择'}</span>
         <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 

@@ -24,16 +24,16 @@ export function ObservationCard({ observation, onGenerateIdea }: ObservationCard
   const label = TYPE_LABELS[observation.type];
 
   return (
-    <div className="bg-bg2 border-l-[3px] rounded-lg p-3 mb-3" style={{ borderLeftColor: label.color }}>
+    <div className="bg-gray-50 border-l-[3px] border-gray-200 rounded-lg p-3 mb-3" style={{ borderLeftColor: label.color }}>
       <div className="flex justify-between items-start mb-2">
         <Tag color={label.color} bgColor={label.bgColor}>{label.label}</Tag>
-        <span className="text-xs text-muted">{formatDate(observation.createdAt)}</span>
+        <span className="text-xs text-gray-500">{formatDate(observation.createdAt)}</span>
       </div>
-      <div className="text-sm text-ink mb-2">{observation.content}</div>
-      <div className="text-xs text-muted mb-1">
+      <div className="text-sm text-gray-800 mb-2">{observation.content}</div>
+      <div className="text-xs text-gray-500 mb-1">
         关键词: {observation.keywords.join(' / ')}
       </div>
-      <div className="text-xs text-accent">
+      <div className="text-xs text-indigo-600">
         建议: {observation.suggestedAction}
       </div>
       {onGenerateIdea && (
