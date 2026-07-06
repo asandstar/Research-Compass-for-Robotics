@@ -11,7 +11,7 @@ import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { CreateIdeaModal } from '../../components/idea/CreateIdeaModal';
 import { IDEA_STATUS_LABELS, READING_STATUS_LABELS, ResearchArea } from '../../lib/types';
-import { Search, Filter, Lightbulb, ArrowRight } from 'lucide-react';
+import { Search, Filter, Lightbulb, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function IdeasPage() {
   const router = useRouter();
@@ -23,11 +23,11 @@ export default function IdeasPage() {
 
   const statusOptions = [
     { value: 'all', label: '全部状态' },
-    { value: 'researching', label: '研究中' },
-    { value: 'rough', label: '初步' },
-    { value: 'mve_running', label: 'MVE 进行中' },
+    { value: 'active', label: '活跃' },
+    { value: 'unstable', label: '不稳定' },
     { value: 'promising', label: '值得推进' },
-    { value: 'abandoned', label: '已放弃' },
+    { value: 'rejected', label: '已拒绝' },
+    { value: 'revived', label: '已恢复' },
   ];
 
   const visibleAreas = state.researchAreas.filter(a => !a.isHidden);
@@ -64,6 +64,7 @@ export default function IdeasPage() {
     active: state.ideaCards.filter(c => c.status === 'active').length,
     unstable: state.ideaCards.filter(c => c.status === 'unstable').length,
     promising: state.ideaCards.filter(c => c.status === 'promising').length,
+    revived: state.ideaCards.filter(c => c.status === 'revived').length,
   };
 
   return (
@@ -107,6 +108,13 @@ export default function IdeasPage() {
             <span className="text-sm">值得推进</span>
           </div>
           <p className="text-2xl font-bold text-green-600 mt-1">{stats.promising}</p>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-2 text-purple-600">
+            <Sparkles className="w-5 h-5" />
+            <span className="text-sm">已恢复</span>
+          </div>
+          <p className="text-2xl font-bold text-purple-600 mt-1">{stats.revived}</p>
         </Card>
       </div>
 

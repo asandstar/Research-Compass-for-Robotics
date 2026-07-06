@@ -285,6 +285,44 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
         </Card>
       </div>
 
+      {mve.failureAnalysis && (
+        <Card className="bg-amber-50 border-amber-200">
+          <h3 className="font-semibold text-amber-800 text-sm mb-4 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
+            失败分析
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-amber-700 mb-1">失败原因分类</label>
+              <div className="flex flex-wrap gap-1.5">
+                {mve.failureAnalysis.failureReasonTaxonomy.map((reason, index) => (
+                  <Tag
+                    key={index}
+                    color="#92400e"
+                    bgColor="#fef3c7"
+                    size="sm"
+                  >
+                    {reason}
+                  </Tag>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-amber-700 mb-1">假设更新建议</label>
+              <div className="text-sm text-amber-900">{mve.failureAnalysis.hypothesisUpdateSuggestion}</div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-amber-700 mb-1">下一步实验建议</label>
+              <ul className="text-sm text-amber-900 space-y-1">
+                {mve.failureAnalysis.nextMveGeneration.map((item, index) => (
+                  <li key={index}>• {item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <Card className="bg-gray-50 border-gray-200">
         <h3 className="font-semibold text-gray-800 text-sm mb-4">记录实验结果</h3>
         

@@ -8,14 +8,14 @@ export function calculateIdeaState(card: IdeaCard): IdeaStatus {
   if (survivalScore >= 70 && confidenceScore >= 60) {
     return 'promising';
   }
+  if (survivalScore < 20) {
+    return 'rejected';
+  }
   if (survivalScore >= 50 && confidenceScore >= 40) {
     return 'active';
   }
   if (survivalScore < 50 || confidenceScore < 30) {
     return 'unstable';
-  }
-  if (survivalScore < 20) {
-    return 'rejected';
   }
 
   return 'active';

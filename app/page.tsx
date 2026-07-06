@@ -35,7 +35,7 @@ export default function Dashboard() {
   const activeAreas = state.researchAreas.filter(a => !a.isHidden);
   const paperCount = state.papers.length;
   const activeIdeas = state.ideaCards.filter(card =>
-    card.status === 'active' || card.status === 'unstable'
+    card.status === 'active' || card.status === 'unstable' || card.status === 'revived'
   ).length;
   const pendingMVEs = state.mves.filter(mve => mve.resultStatus === 'pending').length;
 

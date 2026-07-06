@@ -438,9 +438,9 @@ export async function mockGenerateIdeaEvidence(
   coreHypothesis: string,
   observations: Observation[]
 ): Promise<{
-  supportingEvidence: Evidence[];
-  opposingEvidence: Evidence[];
-  missingEvidence: Evidence[];
+  evidenceForHypothesis: Evidence[];
+  evidenceAgainstHypothesis: Evidence[];
+  falsificationRisks: Evidence[];
   biggestRisks: string[];
   nextAction: string;
 }> {
@@ -448,17 +448,17 @@ export async function mockGenerateIdeaEvidence(
   const template = selectTemplate(researchQuestion + ' ' + coreHypothesis);
   
   return {
-    supportingEvidence: template.evidence.supporting.map(e => ({
+    evidenceForHypothesis: template.evidence.supporting.map(e => ({
       ...e,
       id: generateId(),
       isAIGenerated: true,
     })),
-    opposingEvidence: template.evidence.opposing.map(e => ({
+    evidenceAgainstHypothesis: template.evidence.opposing.map(e => ({
       ...e,
       id: generateId(),
       isAIGenerated: true,
     })),
-    missingEvidence: template.evidence.missing.map(e => ({
+    falsificationRisks: template.evidence.missing.map(e => ({
       ...e,
       id: generateId(),
       isAIGenerated: true,
@@ -559,9 +559,9 @@ export async function mockGenerateIdeaFromPaper(
   researchQuestion: string;
   coreHypothesis: string;
   whyItMatters: string;
-  supportingEvidence: Evidence[];
-  opposingEvidence: Evidence[];
-  missingEvidence: Evidence[];
+  evidenceForHypothesis: Evidence[];
+  evidenceAgainstHypothesis: Evidence[];
+  falsificationRisks: Evidence[];
   biggestRisks: string[];
   roboticsTask: string;
   datasetOrScenario: string;
@@ -585,17 +585,17 @@ export async function mockGenerateIdeaFromPaper(
 
   return {
     ...ideaData,
-    supportingEvidence: template.evidence.supporting.map(e => ({
+    evidenceForHypothesis: template.evidence.supporting.map(e => ({
       ...e,
       id: generateId(),
       isAIGenerated: true,
     })),
-    opposingEvidence: template.evidence.opposing.map(e => ({
+    evidenceAgainstHypothesis: template.evidence.opposing.map(e => ({
       ...e,
       id: generateId(),
       isAIGenerated: true,
     })),
-    missingEvidence: template.evidence.missing.map(e => ({
+    falsificationRisks: template.evidence.missing.map(e => ({
       ...e,
       id: generateId(),
       isAIGenerated: true,

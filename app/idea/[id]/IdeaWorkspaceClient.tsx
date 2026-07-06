@@ -91,10 +91,64 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
   const canGenerateMVE = ideaCard.researchQuestion && ideaCard.coreHypothesis && ideaCard.whyItMatters;
 
   const handleFieldChange = (
-    field: 'title' | 'researchQuestion' | 'coreHypothesis' | 'whyItMatters' | 'roboticsTask' | 'datasetOrScenario' | 'baseline' | 'evaluationMetric' | 'notes',
+    field: 'title' | 'researchQuestion' | 'coreHypothesis' | 'hypothesis' | 'whyItMatters' | 'roboticsTask' | 'datasetOrScenario' | 'baseline' | 'evaluationMetric' | 'notes',
     value: string
   ) => {
     setIdeaCard(prev => prev ? { ...prev, [field]: value } : prev);
+    setIsDirty(true);
+  };
+
+  const handleAddPrediction = (condition: string, expectedOutcome: string) => {
+    const updated = {
+      ...ideaCard,
+      predictions: [...ideaCard.predictions, { condition, expectedOutcome }],
+    };
+    setIdeaCard(updated);
+    setIsDirty(true);
+  };
+
+  const handleRemovePrediction = (index: number) => {
+    const updated = {
+      ...ideaCard,
+      predictions: ideaCard.predictions.filter((_, i) => i !== index),
+    };
+    setIdeaCard(updated);
+    setIsDirty(true);
+  };
+
+  const handleAddFailureCondition = (condition: string) => {
+    const updated = {
+      ...ideaCard,
+      failureConditions: [...ideaCard.failureConditions, condition],
+    };
+    setIdeaCard(updated);
+    setIsDirty(true);
+  };
+
+  const handleRemoveFailureCondition = (index: number) => {
+    const updated = {
+      ...ideaCard,
+      failureConditions: ideaCard.failureConditions.filter((_, i) => i !== index),
+    };
+    setIdeaCard(updated);
+    setIsDirty(true);
+  };
+
+  const handleAddConfounder = (confounder: string) => {
+    const updated = {
+      ...ideaCard,
+      confounders: [...ideaCard.confounders, confounder],
+    };
+    setIdeaCard(updated);
+    setIsDirty(true);
+  };
+
+  const handleRemoveConfounder = (index: number) => {
+    const updated = {
+      ...ideaCard,
+      confounders: ideaCard.confounders.filter((_, i) => i !== index),
+    };
+    setIdeaCard(updated);
     setIsDirty(true);
   };
 
@@ -285,6 +339,148 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
                   rows={3}
                   placeholder="这个问题为什么值得研究？"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-1">
+                  可检验假设
+                </label>
+                <textarea
+                  value={ideaCard.hypothesis}
+                  onChange={(e) => handleFieldChange('hypothesis', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 resize-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                  rows={3}
+                  placeholder="明确的可检验陈述，如：'在条件X下，方法Y能达到Z效果'"
+                />
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <h3 className="font-semibold text-amber-600 mb-4">可证伪性配置</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  预测（条件 → 预期结果）
+                </label>
+                <div className="space-y-2">
+                  {ideaCard.predictions.map((pred, index) => (
+                    <div key={index} className="flex items-start gap-2 p-2 bg-gray-50 rounded-lg">
+                      <span className="text-xs text-gray-500 mt-1">如果</span>
+                      <input
+                        type="text"
+                        value={pred.condition}
+                        onChange={(e) => {
+                          const updated = { ...ideaCard };
+                          updated.predictions[index] = { ...updated.predictions[index], condition: e.target.value };
+                          setIdeaCard(updated);
+                          setIsDirty(true);
+                        }}
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="条件..."
+                      />
+                      <span className="text-xs text-gray-500 mt-1">→</span>
+                      <input
+                        type="text"
+                        value={pred.expectedOutcome}
+                        onChange={(e) => {
+                          const updated = { ...ideaCard };
+                          updated.predictions[index] = { ...updated.predictions[index], expectedOutcome: e.target.value };
+                          setIdeaCard(updated);
+                          setIsDirty(true);
+                        }}
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="预期结果..."
+                      />
+                      <button
+                        onClick={() => handleRemovePrediction(index)}
+                        className="text-gray-400 hover:text-gray-600 text-xs"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => handleAddPrediction('', '')}
+                    className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                  >
+                    <PlusCircle className="w-3 h-3" />
+                    添加预测
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  失败条件（哪些结果会直接否定该 idea）
+                </label>
+                <div className="space-y-2">
+                  {ideaCard.failureConditions.map((cond, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={cond}
+                        onChange={(e) => {
+                          const updated = { ...ideaCard };
+                          updated.failureConditions[index] = e.target.value;
+                          setIdeaCard(updated);
+                          setIsDirty(true);
+                        }}
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="失败条件..."
+                      />
+                      <button
+                        onClick={() => handleRemoveFailureCondition(index)}
+                        className="text-gray-400 hover:text-gray-600 text-xs"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => handleAddFailureCondition('')}
+                    className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                  >
+                    <PlusCircle className="w-3 h-3" />
+                    添加失败条件
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  混淆因素（可能导致误判的因素）
+                </label>
+                <div className="space-y-2">
+                  {ideaCard.confounders.map((conf, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={conf}
+                        onChange={(e) => {
+                          const updated = { ...ideaCard };
+                          updated.confounders[index] = e.target.value;
+                          setIdeaCard(updated);
+                          setIsDirty(true);
+                        }}
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="混淆因素..."
+                      />
+                      <button
+                        onClick={() => handleRemoveConfounder(index)}
+                        className="text-gray-400 hover:text-gray-600 text-xs"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => handleAddConfounder('')}
+                    className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                  >
+                    <PlusCircle className="w-3 h-3" />
+                    添加混淆因素
+                  </button>
+                </div>
               </div>
             </div>
           </Card>
