@@ -154,7 +154,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
   const handleRemoveSupportingEvidence = (eid: string) => {
     const updated = {
       ...ideaCard,
-      supportingEvidence: ideaCard.supportingEvidence.filter(e => e.id !== eid),
+      evidenceForHypothesis: ideaCard.evidenceForHypothesis.filter((e) => e.id !== eid),
     };
     setIdeaCard(updated);
     updateIdeaCard(updated);
@@ -163,7 +163,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
   const handleRemoveOpposingEvidence = (eid: string) => {
     const updated = {
       ...ideaCard,
-      opposingEvidence: ideaCard.opposingEvidence.filter(e => e.id !== eid),
+      evidenceAgainstHypothesis: ideaCard.evidenceAgainstHypothesis.filter((e) => e.id !== eid),
     };
     setIdeaCard(updated);
     updateIdeaCard(updated);
@@ -172,7 +172,7 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
   const handleRemoveMissingEvidence = (eid: string) => {
     const updated = {
       ...ideaCard,
-      missingEvidence: ideaCard.missingEvidence.filter(e => e.id !== eid),
+      falsificationRisks: ideaCard.falsificationRisks.filter((e) => e.id !== eid),
     };
     setIdeaCard(updated);
     updateIdeaCard(updated);
@@ -350,27 +350,27 @@ export default function IdeaWorkspaceClient({ id }: IdeaWorkspaceClientProps) {
           <div className="grid grid-cols-3 gap-3">
             <EvidenceList
               title="支持证据"
-              evidence={ideaCard.supportingEvidence}
+              evidence={ideaCard.evidenceForHypothesis}
               color="#065f46"
               bgColor="#d1fae5"
               onRemove={handleRemoveSupportingEvidence}
-              onAdd={(content) => addEvidence(ideaCard.id, 'supportingEvidence', content)}
+              onAdd={(content) => addEvidence(ideaCard.id, 'evidenceForHypothesis', content)}
             />
             <EvidenceList
               title="反对证据"
-              evidence={ideaCard.opposingEvidence}
+              evidence={ideaCard.evidenceAgainstHypothesis}
               color="#991b1b"
               bgColor="#fee2e2"
               onRemove={handleRemoveOpposingEvidence}
-              onAdd={(content) => addEvidence(ideaCard.id, 'opposingEvidence', content)}
+              onAdd={(content) => addEvidence(ideaCard.id, 'evidenceAgainstHypothesis', content)}
             />
             <EvidenceList
               title="缺失证据"
-              evidence={ideaCard.missingEvidence}
+              evidence={ideaCard.falsificationRisks}
               color="#92400e"
               bgColor="#fef3c7"
               onRemove={handleRemoveMissingEvidence}
-              onAdd={(content) => addEvidence(ideaCard.id, 'missingEvidence', content)}
+              onAdd={(content) => addEvidence(ideaCard.id, 'falsificationRisks', content)}
             />
           </div>
 

@@ -924,6 +924,8 @@ export const mockObservations: Observation[] = [
     researchValueReason: '这是一个基础假设的漏洞，如果成立可能影响广泛',
     suggestedAction: '搜索长尾+对比学习的相关工作',
     createdAt: '2026-07-01T10:00:00Z',
+    context: '来自论文阅读笔记',
+    signals: ['数据异常', '方法局限性'],
   },
   {
     id: 'obs-002',
@@ -935,6 +937,8 @@ export const mockObservations: Observation[] = [
     researchValueReason: '可能是复现问题也可能是真实问题',
     suggestedAction: '检查代码，如果确认不是 bug 则值得深挖',
     createdAt: '2026-07-01T14:30:00Z',
+    context: '来自实验日志',
+    signals: ['性能瓶颈', '未解决问题'],
   },
   {
     id: 'obs-003',
@@ -946,6 +950,8 @@ export const mockObservations: Observation[] = [
     researchValueReason: '如果真没人做，可能是差异化切入点',
     suggestedAction: '搜索数据增强+长尾识别的工作',
     createdAt: '2026-07-02T09:00:00Z',
+    context: '来自团队讨论',
+    signals: ['潜在改进点', '关键假设'],
   },
 ];
 
@@ -953,19 +959,23 @@ export const mockIdeaCards: IdeaCard[] = [
   {
     id: 'idea-vla-speedup',
     title: 'VLA推理加速：分层动作解码策略',
-    status: 'researching',
+    status: 'active',
     researchQuestion: '能否通过分层动作解码，在保持VLA泛化能力的同时大幅提升推理速度？',
     coreHypothesis: '将VLA动作输出分解为"高层语义动作+低层轨迹生成"两层，高层用大模型推理，低层用轻量模型执行，可以在不损失太多泛化性的情况下实现实时控制。',
+    hypothesis: '将VLA动作输出分解为"高层语义动作+低层轨迹生成"两层，高层用大模型推理，低层用轻量模型执行，可以在不损失太多泛化性的情况下实现实时控制。',
     whyItMatters: 'VLA是机器人基础模型的核心方向，但当前推理速度（~3s/step）远不能满足实时控制需求（>10Hz），速度瓶颈严重制约了VLA的实际应用。',
-    supportingEvidence: [
+    predictions: [],
+    failureConditions: [],
+    confounders: [],
+    evidenceForHypothesis: [
       { id: 'ev-1', content: '分层控制在机器人领域已被广泛验证', source: '文献', isAIGenerated: true },
       { id: 'ev-2', content: 'RT-2显示VLA输出低层动作效率低', source: '论文', isAIGenerated: true },
     ],
-    opposingEvidence: [
+    evidenceAgainstHypothesis: [
       { id: 'ev-3', content: '分层可能导致语义与动作的鸿沟', source: 'AI推理', isAIGenerated: true },
       { id: 'ev-4', content: '高层规划的错误会向下传播', source: 'AI推理', isAIGenerated: true },
     ],
-    missingEvidence: [
+    falsificationRisks: [
       { id: 'ev-5', content: '分层架构在未见任务上的泛化性对比', source: '实验验证', isAIGenerated: true },
       { id: 'ev-6', content: '高层语义动作的表示空间设计', source: '研究问题', isAIGenerated: true },
     ],
@@ -974,6 +984,9 @@ export const mockIdeaCards: IdeaCard[] = [
       '高低层接口设计困难，语义鸿沟问题严重',
       '加速效果不明显（<2x），不足以支撑实时应用',
     ],
+    survivalScore: 50,
+    confidenceScore: 50,
+    falsificationStrength: 0,
     sourceObservations: [],
     sourcePaperIds: ['paper-vla-001'],
     areaIds: ['area-vla', 'area-foundation'],
@@ -989,24 +1002,31 @@ export const mockIdeaCards: IdeaCard[] = [
   {
     id: 'idea-diffusion-fast',
     title: '快速扩散策略：少步扩散用于实时机器人控制',
-    status: 'rough',
+    status: 'active',
     researchQuestion: '能否将扩散步数从50步压缩到5步以内，同时保持策略性能，用于实时机器人控制？',
     coreHypothesis: '通过蒸馏或更好的噪声调度，可以用极少的扩散步数（<5步）达到接近全步数的策略性能，从而满足实时控制要求。',
+    hypothesis: '通过蒸馏或更好的噪声调度，可以用极少的扩散步数（<5步）达到接近全步数的策略性能，从而满足实时控制要求。',
     whyItMatters: '扩散策略在多模态动作建模上有优势，但推理速度是主要瓶颈。如果能实现少步扩散，将大幅提升扩散策略的实用性。',
-    supportingEvidence: [
+    predictions: [],
+    failureConditions: [],
+    confounders: [],
+    evidenceForHypothesis: [
       { id: 'ev-7', content: '图像领域已有少步扩散的成功案例（如LCM）', source: '文献', isAIGenerated: true },
       { id: 'ev-8', content: 'Diffusion Policy展示了扩散在策略学习中的优势', source: '论文', isAIGenerated: true },
     ],
-    opposingEvidence: [
+    evidenceAgainstHypothesis: [
       { id: 'ev-9', content: '动作空间维度高，少步扩散可能质量下降严重', source: 'AI推理', isAIGenerated: true },
     ],
-    missingEvidence: [
+    falsificationRisks: [
       { id: 'ev-10', content: '动作空间中少步扩散的性能边界', source: '实验验证', isAIGenerated: true },
     ],
     biggestRisks: [
       '少步扩散后策略性能下降超过10%，得不偿失',
       '蒸馏方法的训练复杂度高，难以复现',
     ],
+    survivalScore: 50,
+    confidenceScore: 50,
+    falsificationStrength: 0,
     sourceObservations: [],
     sourcePaperIds: ['paper-diffusion-001'],
     areaIds: ['area-diffusion-policy', 'area-robot-learning'],
@@ -1022,19 +1042,23 @@ export const mockIdeaCards: IdeaCard[] = [
   {
     id: 'idea-vio-dynamic',
     title: '动态VIO：动态场景下的鲁棒视觉惯性里程计',
-    status: 'mve_running',
+    status: 'active',
     researchQuestion: '如何在高动态场景下保持VIO的定位精度和鲁棒性？',
     coreHypothesis: '通过动态物体检测与特征点分类，将动态物体上的特征点排除或降权，可以显著提升动态场景下VIO的定位精度。',
+    hypothesis: '通过动态物体检测与特征点分类，将动态物体上的特征点排除或降权，可以显著提升动态场景下VIO的定位精度。',
     whyItMatters: '真实环境中大量动态物体（人、车）严重影响VIO性能，但现有方法多假设静态环境，动态场景下漂移严重。',
-    supportingEvidence: [
+    predictions: [],
+    failureConditions: [],
+    confounders: [],
+    evidenceForHypothesis: [
       { id: 'ev-11', content: '动态物体是VIO主要误差源之一', source: '文献', isAIGenerated: true },
       { id: 'ev-12', content: '语义分割可以有效识别动态物体', source: '事实', isAIGenerated: true },
     ],
-    opposingEvidence: [
+    evidenceAgainstHypothesis: [
       { id: 'ev-13', content: '语义分割增加计算量，可能降低实时性', source: 'AI推理', isAIGenerated: true },
       { id: 'ev-14', content: '误检静态物体为动态可能丢失有效特征', source: 'AI推理', isAIGenerated: true },
     ],
-    missingEvidence: [
+    falsificationRisks: [
       { id: 'ev-15', content: '在真实高动态场景下的定量对比实验', source: '实验验证', isAIGenerated: true },
     ],
     biggestRisks: [
@@ -1042,6 +1066,9 @@ export const mockIdeaCards: IdeaCard[] = [
       '计算开销太大，实时性无法保证',
       '提升幅度有限（<10%），不构成独立贡献',
     ],
+    survivalScore: 50,
+    confidenceScore: 50,
+    falsificationStrength: 0,
     sourceObservations: [],
     sourcePaperIds: ['paper-slam-001', 'paper-vio-001'],
     areaIds: ['area-vio', 'area-slam', 'area-dynamic-scene'],
@@ -1060,7 +1087,10 @@ export const mockMVEs: MVE[] = [
   {
     id: 'mve-vio-dynamic-001',
     ideaCardId: 'idea-vio-dynamic',
+    mveType: 'sanity_check',
     experimentGoal: '验证动态特征点排除能否在高动态场景下提升VIO定位精度',
+    taskDefinition: '移动机器人在动态环境中的定位',
+    evaluationProtocol: 'ATE RMSE + 定位失败率 + 处理帧率',
     minimalDesign: '在VINS-Mono基础上加入基于语义分割的动态特征点过滤，在TUM动态序列上对比ATE',
     keyVariables: {
       independent: '动态特征处理方式（无处理 / 直接排除 / 降权）',
@@ -1071,12 +1101,15 @@ export const mockMVEs: MVE[] = [
       'Proposed: 语义分割+动态特征排除',
       'Ablation: 动态特征降权（不排除）',
     ],
-    expectedOutcome: '动态场景下ATE降低30%以上，静态场景下性能不下降',
+    baselineReferences: ['VINS-Mono 标准版本'],
+    successCriteria: '动态场景下ATE降低30%以上，静态场景下性能不下降',
+    failureModes: [],
     failureSignals: [
       'ATE降低幅度<10%',
       '静态场景下ATE反而上升',
       '处理帧率<10Hz，不满足实时要求',
     ],
+    minimalEnvOrDataset: 'TUM RGB-D Dataset 动态序列（walking/running）',
     minimalEffort: '基于VINS-Mono修改约200行代码，集成轻量语义分割模型，在TUM数据集测试',
     nextTasks: {
       onPass: '扩展到更多动态场景，设计更精细的动态特征处理策略',

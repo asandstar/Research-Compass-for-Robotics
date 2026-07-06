@@ -1,11 +1,12 @@
-import { Observation, IdeaCard, MVE, ResearchArea, Paper, LEGACY_STATUS_MAP } from './types';
+import { Observation, IdeaCard, MVE, ResearchArea, Paper, IdeaRelationship, LEGACY_STATUS_MAP } from './types';
 import { mockObservations, mockIdeaCards, mockMVEs, mockResearchAreas, mockPapers } from './mockData';
 
-const STORAGE_KEY = 'research-compass-data-v13';
+const STORAGE_KEY = 'research-compass-data-v14';
 
 interface StoredData {
   observations: Observation[];
   ideaCards: IdeaCard[];
+  ideaRelationships: IdeaRelationship[];
   mves: MVE[];
   researchAreas: ResearchArea[];
   papers: Paper[];
@@ -29,6 +30,16 @@ function addDefaultIdeaFields(card: any): IdeaCard {
   return {
     ...card,
     status: migrateLegacyIdeaStatus(card),
+    hypothesis: card.hypothesis || card.coreHypothesis || '',
+    predictions: card.predictions || [],
+    failureConditions: card.failureConditions || [],
+    confounders: card.confounders || [],
+    evidenceForHypothesis: card.evidenceForHypothesis || card.supportingEvidence || [],
+    evidenceAgainstHypothesis: card.evidenceAgainstHypothesis || card.opposingEvidence || [],
+    falsificationRisks: card.falsificationRisks || card.missingEvidence || [],
+    survivalScore: card.survivalScore != null ? card.survivalScore : 50,
+    confidenceScore: card.confidenceScore != null ? card.confidenceScore : 50,
+    falsificationStrength: card.falsificationStrength != null ? card.falsificationStrength : 0,
     areaIds: card.areaIds || [],
     sourcePaperIds: card.sourcePaperIds || [],
     roboticsTask: card.roboticsTask || '',
@@ -41,6 +52,13 @@ function addDefaultIdeaFields(card: any): IdeaCard {
 function addDefaultMVEFields(mve: any): MVE {
   return {
     ...mve,
+    mveType: mve.mveType || 'sanity_check',
+    taskDefinition: mve.taskDefinition || mve.roboticsTask || '',
+    evaluationProtocol: mve.evaluationProtocol || mve.evaluationMetric || '',
+    baselineReferences: mve.baselineReferences || (mve.baseline ? [mve.baseline] : []),
+    successCriteria: mve.successCriteria || mve.expectedOutcome || '',
+    failureModes: mve.failureModes || [],
+    minimalEnvOrDataset: mve.minimalEnvOrDataset || mve.datasetOrScenario || '',
     resultStatus: migrateLegacyMVEResultStatus(mve.resultStatus),
     roboticsTask: mve.roboticsTask || '',
     datasetOrScenario: mve.datasetOrScenario || '',
@@ -90,6 +108,9 @@ function loadFromStorage(): StoredData {
       const rawMves = (parsed.mves && Array.isArray(parsed.mves))
         ? parsed.mves as any[]
         : [];
+      const rawIdeaRelationships = (parsed.ideaRelationships && Array.isArray(parsed.ideaRelationships))
+        ? parsed.ideaRelationships as IdeaRelationship[]
+        : [];
 
       // 尊重用户的空数组(主动清空),仅在首次访问(STORAGE_KEY 不存在)时回退到 mock
       const hasStorageKey = localStorage.getItem(STORAGE_KEY) !== null;
@@ -102,10 +123,12 @@ function loadFromStorage(): StoredData {
       const observations: Observation[] = deduplicateById(rawObservations);
       const ideaCards: IdeaCard[] = deduplicateById(rawIdeaCards.map(addDefaultIdeaFields));
       const mves: MVE[] = deduplicateById(rawMves.map(addDefaultMVEFields));
+      const ideaRelationships: IdeaRelationship[] = deduplicateById(rawIdeaRelationships);
 
       const result: StoredData = {
         observations,
         ideaCards,
+        ideaRelationships,
         mves,
         researchAreas,
         papers,
@@ -114,6 +137,7 @@ function loadFromStorage(): StoredData {
       const needsRepair =
         observations.length !== rawObservations.length ||
         ideaCards.length !== rawIdeaCards.length ||
+        ideaRelationships.length !== rawIdeaRelationships.length ||
         mves.length !== rawMves.length ||
         researchAreas.length !== rawResearchAreas.length ||
         papers.length !== rawPapers.length;
@@ -132,6 +156,7 @@ function loadFromStorage(): StoredData {
       const migrated: StoredData = {
         observations: deduplicateById(((parsed.observations || []) as Observation[]).filter(o => o && o.id)),
         ideaCards: deduplicateById(((parsed.ideaCards || []) as any[]).filter(c => c && c.id).map(addDefaultIdeaFields)),
+        ideaRelationships: [],
         mves: deduplicateById(((parsed.mves || []) as any[]).filter(m => m && m.id).map(addDefaultMVEFields)),
         researchAreas: [...mockResearchAreas].map(addDefaultAreaFields),
         papers: [...mockPapers],
@@ -144,6 +169,7 @@ function loadFromStorage(): StoredData {
     return {
       observations: [...mockObservations],
       ideaCards: [...mockIdeaCards],
+      ideaRelationships: [],
       mves: [...mockMVEs],
       researchAreas: [...mockResearchAreas],
       papers: [...mockPapers],
@@ -162,6 +188,7 @@ function loadFromStorage(): StoredData {
     return {
       observations: [],
       ideaCards: [],
+      ideaRelationships: [],
       mves: [],
       researchAreas: [...mockResearchAreas],
       papers: [...mockPapers],

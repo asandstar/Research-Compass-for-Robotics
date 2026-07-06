@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useReducer, useEffect, useRef, useCallback, ReactNode } from 'react';
-import { Observation, IdeaCard, MVE, ResearchArea, Paper, Evidence } from '../lib/types';
+import { Observation, IdeaCard, MVE, ResearchArea, Paper, Evidence, Prediction, AdversarialReview, IdeaRelationship, FailureAnalysis, FailureMode } from '../lib/types';
 import { initializeData, persistData, resetDemoData } from '../lib/storage';
 import {
   mockAnalyzeObservation,
@@ -14,11 +14,15 @@ import {
   mockExtractAssumptions,
   mockExtractGaps,
   mockEvaluateIdea,
+  mockGenerateAdversarialReview,
+  mockAnalyzeFailure,
 } from '../lib/mockAI';
+import { calculateIdeaState, updateIdeaCardWithCalculatedState } from '../lib/stateCalculator';
 
 interface AppState {
   observations: Observation[];
   ideaCards: IdeaCard[];
+  ideaRelationships: IdeaRelationship[];
   mves: MVE[];
   researchAreas: ResearchArea[];
   papers: Paper[];
@@ -32,14 +36,17 @@ interface AppState {
 }
 
 type Action =
-  | { type: 'INIT_DATA'; payload: { observations: Observation[]; ideaCards: IdeaCard[]; mves: MVE[]; researchAreas: ResearchArea[]; papers: Paper[] } }
+  | { type: 'INIT_DATA'; payload: { observations: Observation[]; ideaCards: IdeaCard[]; ideaRelationships: IdeaRelationship[]; mves: MVE[]; researchAreas: ResearchArea[]; papers: Paper[] } }
   | { type: 'ADD_OBSERVATION'; payload: Observation }
   | { type: 'CREATE_IDEA_CARD'; payload: IdeaCard }
   | { type: 'UPDATE_IDEA_CARD'; payload: IdeaCard }
+  | { type: 'UPDATE_IDEA_CALCULATED_STATE'; payload: IdeaCard }
   | { type: 'DELETE_IDEA_CARD'; payload: string }
-  | { type: 'ADD_EVIDENCE'; payload: { ideaId: string; evidenceType: 'supportingEvidence' | 'opposingEvidence' | 'missingEvidence'; evidence: Evidence } }
+  | { type: 'ADD_EVIDENCE'; payload: { ideaId: string; evidenceType: 'evidenceForHypothesis' | 'evidenceAgainstHypothesis' | 'falsificationRisks'; evidence: Evidence } }
+  | { type: 'ADD_IDEA_RELATIONSHIP'; payload: IdeaRelationship }
+  | { type: 'REMOVE_IDEA_RELATIONSHIP'; payload: string }
   | { type: 'CREATE_MVE'; payload: MVE }
-  | { type: 'UPDATE_MVE_RESULT'; payload: { id: string; resultStatus: MVE['resultStatus']; resultNotes: string } }
+  | { type: 'UPDATE_MVE_RESULT'; payload: { id: string; resultStatus: MVE['resultStatus']; resultNotes: string; failureAnalysis?: FailureAnalysis } }
   | { type: 'UPDATE_MVE_STEPS'; payload: { id: string; steps: MVE['steps'] } }
   | { type: 'UPDATE_MVE_DATA_RECORDS'; payload: { id: string; dataRecords: MVE['dataRecords'] } }
   | { type: 'ADD_RESEARCH_AREA'; payload: ResearchArea }
@@ -76,6 +83,7 @@ function appReducer(state: AppState, action: Action): AppState {
         ...state,
         observations: deduplicateById(action.payload.observations),
         ideaCards: deduplicateById(action.payload.ideaCards),
+        ideaRelationships: deduplicateById(action.payload.ideaRelationships || []),
         mves: deduplicateById(action.payload.mves),
         researchAreas: deduplicateById(action.payload.researchAreas),
         papers: deduplicateById(action.payload.papers),
@@ -110,11 +118,21 @@ function appReducer(state: AppState, action: Action): AppState {
           card.id === action.payload.id ? action.payload : card
         )),
       };
+    case 'UPDATE_IDEA_CALCULATED_STATE':
+      return {
+        ...state,
+        ideaCards: deduplicateById(state.ideaCards.map(card =>
+          card.id === action.payload.id ? action.payload : card
+        )),
+      };
     case 'DELETE_IDEA_CARD': {
       const targetId = action.payload;
       return {
         ...state,
         ideaCards: state.ideaCards.filter(card => card.id !== targetId),
+        ideaRelationships: state.ideaRelationships.filter(
+          r => r.sourceId !== targetId && r.targetId !== targetId
+        ),
         mves: state.mves.filter(m => m.ideaCardId !== targetId),
         papers: state.papers.map(p => ({
           ...p,
@@ -140,11 +158,22 @@ function appReducer(state: AppState, action: Action): AppState {
         })),
       };
     }
+    case 'ADD_IDEA_RELATIONSHIP':
+      return {
+        ...state,
+        ideaRelationships: deduplicateById([action.payload, ...state.ideaRelationships]),
+      };
+    case 'REMOVE_IDEA_RELATIONSHIP':
+      return {
+        ...state,
+        ideaRelationships: state.ideaRelationships.filter(r => r.id !== action.payload),
+      };
     case 'CREATE_MVE': {
       const newMve = action.payload;
       const updatedIdeaCards = state.ideaCards.map(card => {
         if (card.id === newMve.ideaCardId) {
-          return { ...card, status: 'mve_running' as const, updatedAt: new Date().toISOString() };
+          const updatedCard = updateIdeaCardWithCalculatedState(card, [...state.mves, newMve]);
+          return { ...updatedCard, status: 'active' as const };
         }
         return card;
       });
@@ -155,27 +184,20 @@ function appReducer(state: AppState, action: Action): AppState {
       };
     }
     case 'UPDATE_MVE_RESULT': {
+      const { id, resultStatus, resultNotes, failureAnalysis } = action.payload;
       const updatedMves = deduplicateById(state.mves.map(mve =>
-        mve.id === action.payload.id
-          ? { ...mve, resultStatus: action.payload.resultStatus, resultNotes: action.payload.resultNotes }
+        mve.id === id
+          ? { ...mve, resultStatus, resultNotes, failureAnalysis }
           : mve
       ));
       
-      const updatedMve = updatedMves.find(m => m.id === action.payload.id);
+      const updatedMve = updatedMves.find(m => m.id === id);
       let updatedIdeaCards = state.ideaCards;
       
       if (updatedMve) {
         updatedIdeaCards = deduplicateById(state.ideaCards.map(card => {
           if (card.id === updatedMve!.ideaCardId) {
-            let newStatus: IdeaCard['status'];
-            if (action.payload.resultStatus === 'passed') {
-              newStatus = 'promising';
-            } else if (action.payload.resultStatus === 'failed') {
-              newStatus = 'abandoned';
-            } else {
-              newStatus = 'mve_running';
-            }
-            return { ...card, status: newStatus, updatedAt: new Date().toISOString() };
+            return updateIdeaCardWithCalculatedState(card, updatedMves);
           }
           return card;
         }));
@@ -213,12 +235,10 @@ function appReducer(state: AppState, action: Action): AppState {
         researchAreas: deduplicateById(state.researchAreas.map(area =>
           area.id === targetId ? { ...area, isHidden: true, updatedAt: new Date().toISOString() } : area
         )),
-        // 级联清理 Paper.areaIds(移除被删除的 areaId)
         papers: deduplicateById(state.papers.map(paper => ({
           ...paper,
           areaIds: paper.areaIds.filter(aid => aid !== targetId),
         }))),
-        // 级联清理 IdeaCard.areaIds
         ideaCards: deduplicateById(state.ideaCards.map(card => ({
           ...card,
           areaIds: card.areaIds.filter(aid => aid !== targetId),
@@ -250,6 +270,7 @@ function appReducer(state: AppState, action: Action): AppState {
         ...action.payload,
         observations: deduplicateById(action.payload.observations),
         ideaCards: deduplicateById(action.payload.ideaCards),
+        ideaRelationships: deduplicateById(action.payload.ideaRelationships || []),
         mves: deduplicateById(action.payload.mves),
         researchAreas: deduplicateById(action.payload.researchAreas),
         papers: deduplicateById(action.payload.papers),
@@ -289,9 +310,12 @@ interface AppContextType {
   ) => Promise<IdeaCard>;
   updateIdeaCard: (ideaCard: IdeaCard) => void;
   deleteIdeaCard: (id: string) => void;
-  addEvidence: (ideaId: string, evidenceType: 'supportingEvidence' | 'opposingEvidence' | 'missingEvidence', content: string) => void;
+  addEvidence: (ideaId: string, evidenceType: 'evidenceForHypothesis' | 'evidenceAgainstHypothesis' | 'falsificationRisks', content: string) => void;
   generateMVE: (ideaCardId: string) => Promise<MVE>;
-  updateMVEResult: (id: string, resultStatus: MVE['resultStatus'], resultNotes: string) => void;
+  updateMVEResult: (id: string, resultStatus: MVE['resultStatus'], resultNotes: string) => Promise<void>;
+  addIdeaRelationship: (sourceId: string, targetId: string, relationshipType: IdeaRelationship['relationshipType'], description?: string) => IdeaRelationship;
+  removeIdeaRelationship: (id: string) => void;
+  generateAdversarialReview: (ideaCardId: string) => Promise<AdversarialReview>;
   updateMveSteps: (id: string, steps: MVE['steps']) => void;
   updateMveDataRecords: (id: string, dataRecords: MVE['dataRecords']) => void;
   getIdeaCardById: (id: string) => IdeaCard | undefined;
@@ -390,6 +414,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, {
     observations: [],
     ideaCards: [],
+    ideaRelationships: [],
     mves: [],
     researchAreas: [],
     papers: [],
@@ -425,6 +450,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     initDataCache = {
       observations: deduplicateById(data.observations),
       ideaCards: deduplicateById(data.ideaCards),
+      ideaRelationships: deduplicateById((data as any).ideaRelationships || []),
       mves: deduplicateById(data.mves),
       researchAreas: deduplicateById(data.researchAreas),
       papers: deduplicateById(data.papers),
@@ -442,11 +468,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     persistData({
       observations: state.observations,
       ideaCards: state.ideaCards,
+      ideaRelationships: state.ideaRelationships,
       mves: state.mves,
       researchAreas: state.researchAreas,
       papers: state.papers,
     });
-  }, [state.observations, state.ideaCards, state.mves, state.researchAreas, state.papers]);
+  }, [state.observations, state.ideaCards, state.ideaRelationships, state.mves, state.researchAreas, state.papers]);
 
   const addObservation = async (content: string): Promise<Observation> => {
     dispatch({ type: 'SET_ANALYZING', payload: true });
@@ -486,14 +513,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const ideaCard: IdeaCard = {
         id: generateId(),
         title,
-        status: 'researching',
+        status: 'active',
         researchQuestion,
         coreHypothesis,
+        hypothesis: coreHypothesis,
         whyItMatters,
-        supportingEvidence: evidence.supportingEvidence,
-        opposingEvidence: evidence.opposingEvidence,
-        missingEvidence: evidence.missingEvidence,
+        predictions: [],
+        failureConditions: [],
+        confounders: [],
+        evidenceForHypothesis: evidence.supportingEvidence,
+        evidenceAgainstHypothesis: evidence.opposingEvidence,
+        falsificationRisks: evidence.missingEvidence,
         biggestRisks: evidence.biggestRisks,
+        survivalScore: 50,
+        confidenceScore: 50,
+        falsificationStrength: 0,
         sourceObservations,
         sourcePaperIds,
         areaIds,
@@ -521,7 +555,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'DELETE_IDEA_CARD', payload: id });
   };
 
-  const addEvidence = (ideaId: string, evidenceType: 'supportingEvidence' | 'opposingEvidence' | 'missingEvidence', content: string) => {
+  const addEvidence = (ideaId: string, evidenceType: 'evidenceForHypothesis' | 'evidenceAgainstHypothesis' | 'falsificationRisks', content: string) => {
     const evidence: Evidence = {
       id: generateId(),
       content,
@@ -545,8 +579,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         id: generateId(),
         ideaCardId,
         ...mveData,
-        steps: [],
-        dataRecords: [],
         resultStatus: 'pending',
         resultNotes: '',
         createdAt: new Date().toISOString(),
@@ -558,9 +590,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateMVEResult = useCallback((id: string, resultStatus: MVE['resultStatus'], resultNotes: string) => {
-    dispatch({ type: 'UPDATE_MVE_RESULT', payload: { id, resultStatus, resultNotes } });
-  }, []);
+  const updateMVEResult = useCallback(async (id: string, resultStatus: MVE['resultStatus'], resultNotes: string) => {
+    const mve = state.mves.find(m => m.id === id);
+    if (!mve) return;
+
+    const ideaCard = state.ideaCards.find(c => c.id === mve.ideaCardId);
+    if (!ideaCard) return;
+
+    let failureAnalysis: FailureAnalysis | undefined;
+    if (resultStatus === 'failed') {
+      failureAnalysis = await mockAnalyzeFailure(mve, ideaCard);
+    }
+
+    dispatch({ type: 'UPDATE_MVE_RESULT', payload: { id, resultStatus, resultNotes, failureAnalysis } });
+  }, [state.mves, state.ideaCards]);
 
   const updateMveSteps = useCallback((id: string, steps: MVE['steps']) => {
     dispatch({ type: 'UPDATE_MVE_STEPS', payload: { id, steps } });
@@ -569,6 +612,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateMveDataRecords = useCallback((id: string, dataRecords: MVE['dataRecords']) => {
     dispatch({ type: 'UPDATE_MVE_DATA_RECORDS', payload: { id, dataRecords } });
   }, []);
+
+  const addIdeaRelationship = (sourceId: string, targetId: string, relationshipType: IdeaRelationship['relationshipType'], description?: string) => {
+    const relationship: IdeaRelationship = {
+      id: generateId(),
+      sourceId,
+      targetId,
+      relationshipType,
+      description,
+      createdAt: new Date().toISOString(),
+    };
+    dispatch({ type: 'ADD_IDEA_RELATIONSHIP', payload: relationship });
+    return relationship;
+  };
+
+  const removeIdeaRelationship = (id: string) => {
+    dispatch({ type: 'REMOVE_IDEA_RELATIONSHIP', payload: id });
+  };
+
+  const generateAdversarialReview = async (ideaCardId: string): Promise<AdversarialReview> => {
+    const ideaCard = state.ideaCards.find(card => card.id === ideaCardId);
+    if (!ideaCard) {
+      throw new Error('Idea Card not found');
+    }
+    return await mockGenerateAdversarialReview(ideaCard);
+  };
 
   const getIdeaCardById = (id: string): IdeaCard | undefined => {
     return state.ideaCards.find(card => card.id === id);
@@ -702,14 +770,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const ideaCard: IdeaCard = {
         id: generateId(),
         title: ideaData.title,
-        status: 'rough',
+        status: 'active',
         researchQuestion: ideaData.researchQuestion,
         coreHypothesis: ideaData.coreHypothesis,
+        hypothesis: ideaData.coreHypothesis,
         whyItMatters: ideaData.whyItMatters,
-        supportingEvidence: ideaData.supportingEvidence,
-        opposingEvidence: ideaData.opposingEvidence,
-        missingEvidence: ideaData.missingEvidence,
+        predictions: [],
+        failureConditions: [],
+        confounders: [],
+        evidenceForHypothesis: ideaData.supportingEvidence,
+        evidenceAgainstHypothesis: ideaData.opposingEvidence,
+        falsificationRisks: ideaData.missingEvidence,
         biggestRisks: ideaData.biggestRisks,
+        survivalScore: 50,
+        confidenceScore: 50,
+        falsificationStrength: 0,
         sourceObservations: [],
         sourcePaperIds: [paperId],
         areaIds: paper.areaIds,
@@ -764,6 +839,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       payload: {
         observations: freshData.observations,
         ideaCards: freshData.ideaCards,
+        ideaRelationships: [],
         mves: freshData.mves,
         researchAreas: freshData.researchAreas,
         papers: freshData.papers,
@@ -791,6 +867,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         updateMVEResult,
         updateMveSteps,
         updateMveDataRecords,
+        addIdeaRelationship,
+        removeIdeaRelationship,
+        generateAdversarialReview,
         getIdeaCardById,
         getMVEById,
         getObservationsByIds,

@@ -35,12 +35,12 @@ export default function Dashboard() {
   const activeAreas = state.researchAreas.filter(a => !a.isHidden);
   const paperCount = state.papers.length;
   const activeIdeas = state.ideaCards.filter(card =>
-    card.status !== 'abandoned' && card.status !== 'promising'
+    card.status === 'active' || card.status === 'unstable'
   ).length;
   const pendingMVEs = state.mves.filter(mve => mve.resultStatus === 'pending').length;
 
   const activeIdeaCards = state.ideaCards.filter(card =>
-    card.status !== 'abandoned'
+    card.status === 'active' || card.status === 'unstable' || card.status === 'promising' || card.status === 'revived'
   ).slice(0, 5);
   const toReadCount = state.papers.filter(p => p.readingStatus === 'to_read').length;
 

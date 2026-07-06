@@ -61,8 +61,8 @@ export default function IdeasPage() {
 
   const stats = {
     total: state.ideaCards.length,
-    active: state.ideaCards.filter(c => c.status !== 'abandoned' && c.status !== 'promising').length,
-    mveRunning: state.ideaCards.filter(c => c.status === 'mve_running').length,
+    active: state.ideaCards.filter(c => c.status === 'active').length,
+    unstable: state.ideaCards.filter(c => c.status === 'unstable').length,
     promising: state.ideaCards.filter(c => c.status === 'promising').length,
   };
 
@@ -97,9 +97,9 @@ export default function IdeasPage() {
         <Card className="p-4">
           <div className="flex items-center gap-2 text-amber-600">
             <Filter className="w-5 h-5" />
-            <span className="text-sm">MVE 进行中</span>
+            <span className="text-sm">不稳定</span>
           </div>
-          <p className="text-2xl font-bold text-amber-600 mt-1">{stats.mveRunning}</p>
+          <p className="text-2xl font-bold text-amber-600 mt-1">{stats.unstable}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-green-600">

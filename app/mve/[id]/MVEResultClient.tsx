@@ -250,7 +250,7 @@ export default function MVEResultClient({ id }: MVEResultClientProps) {
             <CheckCircle className="w-4 h-4 text-emerald-600" />
             <h3 className="font-semibold text-emerald-700 text-sm">预期结果（通过标准）</h3>
           </div>
-          <div className="text-sm text-emerald-800">{mve.expectedOutcome}</div>
+          <div className="text-sm text-emerald-800">{mve.successCriteria}</div>
         </Card>
         <Card className="bg-red-50 border-red-200">
           <div className="flex items-center gap-2 mb-2">

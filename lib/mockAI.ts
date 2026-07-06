@@ -1,4 +1,4 @@
-import { Observation, Evidence, IdeaCard, MVE, ResearchArea, Paper } from './types';
+import { Observation, Evidence, IdeaCard, MVE, ResearchArea, Paper, AdversarialReview, FailureAnalysis, FailureMode } from './types';
 
 function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -411,7 +411,26 @@ function selectTemplateByAreas(areas: ResearchArea[]) {
 export async function mockAnalyzeObservation(content: string): Promise<Omit<Observation, 'id' | 'content' | 'createdAt'>> {
   await delay(800 + Math.random() * 700);
   const template = selectTemplate(content);
-  return template.observation;
+  const contextOptions = [
+    '来自论文阅读笔记',
+    '来自实验日志',
+    '来自团队讨论',
+    '来自个人思考',
+    '来自数据探索',
+  ];
+  const signalsOptions = [
+    '数据异常',
+    '性能瓶颈',
+    '方法局限性',
+    '未解决问题',
+    '潜在改进点',
+    '关键假设',
+  ];
+  return {
+    ...template.observation,
+    context: contextOptions[Math.floor(Math.random() * contextOptions.length)],
+    signals: signalsOptions.slice(0, 2 + Math.floor(Math.random() * 2)),
+  };
 }
 
 export async function mockGenerateIdeaEvidence(
@@ -452,7 +471,31 @@ export async function mockGenerateIdeaEvidence(
 export async function mockGenerateMVE(ideaCard: IdeaCard): Promise<Omit<MVE, 'id' | 'ideaCardId' | 'resultStatus' | 'resultNotes' | 'createdAt'>> {
   await delay(1500 + Math.random() * 1000);
   const template = selectTemplate(ideaCard.researchQuestion + ' ' + ideaCard.coreHypothesis);
-  return { ...template.mve, steps: [], dataRecords: [] };
+  const mveData = template.mve;
+  return {
+    mveType: 'sanity_check',
+    experimentGoal: mveData.experimentGoal,
+    taskDefinition: mveData.roboticsTask,
+    evaluationProtocol: mveData.evaluationMetric,
+    minimalDesign: mveData.minimalDesign,
+    keyVariables: mveData.keyVariables,
+    controlGroups: mveData.controlGroups,
+    baselineReferences: mveData.baseline ? [mveData.baseline] : [],
+    successCriteria: mveData.expectedOutcome,
+    failureModes: [] as FailureMode[],
+    failureSignals: mveData.failureSignals,
+    minimalEnvOrDataset: mveData.datasetOrScenario,
+    minimalEffort: mveData.minimalEffort,
+    nextTasks: mveData.nextTasks,
+    roboticsTask: mveData.roboticsTask,
+    datasetOrScenario: mveData.datasetOrScenario,
+    baseline: mveData.baseline,
+    evaluationMetric: mveData.evaluationMetric,
+    minimalComputeNeed: mveData.minimalComputeNeed,
+    expectedTimeCost: mveData.expectedTimeCost,
+    steps: [],
+    dataRecords: [],
+  };
 }
 
 export async function mockGenerateRoboticsMVE(
@@ -462,13 +505,34 @@ export async function mockGenerateRoboticsMVE(
   await delay(1500 + Math.random() * 1000);
   const content = ideaCard.researchQuestion + ' ' + ideaCard.coreHypothesis + ' ' + sourcePapers.map(p => p.title).join(' ');
   const template = selectTemplate(content);
+  const mveData = template.mve;
+  
+  const roboticsTask = ideaCard.roboticsTask || mveData.roboticsTask;
+  const datasetOrScenario = ideaCard.datasetOrScenario || mveData.datasetOrScenario;
+  const baseline = ideaCard.baseline || mveData.baseline;
+  const evaluationMetric = ideaCard.evaluationMetric || mveData.evaluationMetric;
   
   return {
-    ...template.mve,
-    roboticsTask: ideaCard.roboticsTask || template.mve.roboticsTask,
-    datasetOrScenario: ideaCard.datasetOrScenario || template.mve.datasetOrScenario,
-    baseline: ideaCard.baseline || template.mve.baseline,
-    evaluationMetric: ideaCard.evaluationMetric || template.mve.evaluationMetric,
+    mveType: 'sanity_check',
+    experimentGoal: mveData.experimentGoal,
+    taskDefinition: roboticsTask,
+    evaluationProtocol: evaluationMetric,
+    minimalDesign: mveData.minimalDesign,
+    keyVariables: mveData.keyVariables,
+    controlGroups: mveData.controlGroups,
+    baselineReferences: baseline ? [baseline] : [],
+    successCriteria: mveData.expectedOutcome,
+    failureModes: [] as FailureMode[],
+    failureSignals: mveData.failureSignals,
+    minimalEnvOrDataset: datasetOrScenario,
+    minimalEffort: mveData.minimalEffort,
+    nextTasks: mveData.nextTasks,
+    roboticsTask,
+    datasetOrScenario,
+    baseline,
+    evaluationMetric,
+    minimalComputeNeed: mveData.minimalComputeNeed,
+    expectedTimeCost: mveData.expectedTimeCost,
     steps: [],
     dataRecords: [],
   };
@@ -862,6 +926,96 @@ export async function mockExtractGaps(paper: Paper): Promise<{
   const shuffled = gapTemplates.sort(() => Math.random() - 0.5);
   return {
     gaps: shuffled.slice(0, 3),
+  };
+}
+
+export async function mockGenerateAdversarialReview(ideaCard: IdeaCard): Promise<AdversarialReview> {
+  await delay(1000 + Math.random() * 800);
+  
+  const counterargumentTemplates = [
+    '假设依赖的前提条件在真实场景中可能不成立',
+    '忽略了关键的干扰因素，可能导致结果误判',
+    '与已有文献中的反例相矛盾',
+    '实验设计存在漏洞，无法有效验证假设',
+    '数据分布假设过于理想化',
+    '评估指标选择可能掩盖真实问题',
+    '计算复杂度分析不足，实际部署不可行',
+    '泛化能力被高估，未见场景可能完全失效',
+  ];
+
+  const failureScenarioTemplates = [
+    '在极端条件下性能急剧下降',
+    '基线方法在某些配置下反而表现更好',
+    '实验结果无法复现',
+    '关键模块的实现存在未发现的缺陷',
+    '数据集偏差导致虚假的性能提升',
+    '与其他方法的对比不够充分',
+    '消融实验结果与预期不符',
+    '长期运行出现累积误差',
+  ];
+
+  const falsificationExperimentTemplates = [
+    '在对抗性数据集上测试鲁棒性',
+    '移除核心假设条件后验证性能变化',
+    '与多个基线方法进行系统性对比',
+    '在更长周期的任务上验证稳定性',
+    '使用完全不同的评估指标重新评估',
+    '交换训练和测试数据集分布',
+    '引入噪声或扰动验证敏感性',
+    '在真实机器人硬件上进行端到端验证',
+  ];
+
+  const shuffledCounterargs = counterargumentTemplates.sort(() => Math.random() - 0.5).slice(0, 3);
+  const shuffledFailures = failureScenarioTemplates.sort(() => Math.random() - 0.5).slice(0, 3);
+  const shuffledFalsifications = falsificationExperimentTemplates.sort(() => Math.random() - 0.5).slice(0, 2);
+
+  return {
+    strongestCounterarguments: shuffledCounterargs,
+    likelyFailureScenarios: shuffledFailures,
+    falsificationExperiments: shuffledFalsifications,
+  };
+}
+
+export async function mockAnalyzeFailure(mve: MVE, ideaCard: IdeaCard): Promise<FailureAnalysis> {
+  await delay(800 + Math.random() * 600);
+  
+  const failureReasonTemplates = [
+    '假设的前提条件不成立',
+    '实验设计未能有效隔离关键变量',
+    '数据集偏差导致结果不具有代表性',
+    '评估指标无法反映真实性能',
+    '基线方法选择不当',
+    '计算资源不足导致实验不完整',
+    '时间预算不足导致实验不充分',
+    '实现细节存在缺陷',
+  ];
+
+  const hypothesisUpdateTemplates = [
+    '建议重新审视核心假设，考虑引入额外的约束条件',
+    '建议缩小假设范围，聚焦更具体的场景',
+    '建议修改假设以排除已验证不成立的前提',
+    '建议考虑替代假设或互补假设',
+    '建议将复杂假设分解为多个可独立验证的子假设',
+  ];
+
+  const nextMveTemplates = [
+    '设计一个更严格的控制实验，隔离关键变量',
+    '在更多样化的数据集上进行验证',
+    '使用不同的评估指标重新评估',
+    '与更多基线方法进行系统性对比',
+    '在更长周期的任务上验证稳定性',
+    '引入消融实验验证核心模块的必要性',
+    '在真实机器人硬件上进行端到端验证',
+  ];
+
+  const shuffledReasons = failureReasonTemplates.sort(() => Math.random() - 0.5).slice(0, 3);
+  const hypothesisUpdate = hypothesisUpdateTemplates[Math.floor(Math.random() * hypothesisUpdateTemplates.length)];
+  const shuffledNextMves = nextMveTemplates.sort(() => Math.random() - 0.5).slice(0, 2);
+
+  return {
+    failureReasonTaxonomy: shuffledReasons,
+    hypothesisUpdateSuggestion: hypothesisUpdate,
+    nextMveGeneration: shuffledNextMves,
   };
 }
 

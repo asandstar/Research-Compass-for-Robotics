@@ -110,7 +110,7 @@ export default function AreaDetailClient() {
             <span className="text-sm">活跃 Idea</span>
           </div>
           <p className="text-2xl font-bold text-indigo-600 mt-1">
-            {ideas.filter(i => i.status !== 'abandoned' && i.status !== 'promising').length}
+            {ideas.filter(i => i.status !== 'rejected' && i.status !== 'promising').length}
           </p>
         </Card>
         <Card className="p-4">
