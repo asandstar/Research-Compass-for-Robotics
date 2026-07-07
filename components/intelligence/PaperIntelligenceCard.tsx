@@ -31,12 +31,12 @@ export default function PaperIntelligenceCard({ paper }: PaperIntelligenceCardPr
       <div className="mb-4 pb-3 border-b border-border-subtle">
         <div className="flex items-start justify-between gap-2 flex-wrap">
           <h3 className="text-h2 font-semibold text-ink leading-snug flex-1 min-w-0">{paper.title}</h3>
-          <Tag variant="soft" size="sm" color="#d97706" bgColor="#d97706">
+          <Tag variant="soft" size="sm" color="#d97706">
             Draft · 待核验
           </Tag>
         </div>
         <div className="mt-2">
-          <Tag variant="soft" size="sm" color="#0d9488" bgColor="#0d9488">
+          <Tag variant="soft" size="sm" color="#0d9488">
             {paper.area}
           </Tag>
         </div>

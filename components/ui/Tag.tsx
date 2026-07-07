@@ -21,13 +21,28 @@ export function Tag({ children, color, bgColor, size = 'md', variant = 'solid', 
   const variantClasses = variant === 'outline'
     ? 'border border-current bg-transparent rounded-full'
     : variant === 'soft'
-    ? 'bg-opacity-10 rounded-full'
+    ? 'rounded-full'
     : 'rounded-full';
+
+  const style = color || bgColor
+    ? { color: color || 'inherit', backgroundColor: bgColor || 'transparent' }
+    : undefined;
+
+  if (variant === 'soft' && color && !bgColor) {
+    return (
+      <span
+        className={`inline-block font-semibold ${sizeClasses} ${variantClasses} ${className}`}
+        style={{ color, backgroundColor: `${color}1A` }}
+      >
+        {children}
+      </span>
+    );
+  }
 
   return (
     <span
       className={`inline-block font-semibold ${sizeClasses} ${variantClasses} ${className}`}
-      style={color || bgColor ? { color: color || 'inherit', backgroundColor: bgColor || 'transparent' } : undefined}
+      style={style}
     >
       {children}
     </span>

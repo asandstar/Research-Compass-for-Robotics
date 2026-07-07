@@ -17,7 +17,7 @@ export default function PromptTemplateCard({ template }: PromptTemplateCardProps
           <Terminal className="w-3.5 h-3.5 text-accent2 flex-shrink-0" />
           <h4 className="font-medium text-ink text-sm truncate">{template.name}</h4>
         </div>
-        <Tag variant="soft" size="sm" color="#0d9488" bgColor="#0d9488">
+        <Tag variant="soft" size="sm" color="#0d9488">
           → {template.outputSink}
         </Tag>
       </div>

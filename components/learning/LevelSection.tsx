@@ -27,7 +27,7 @@ export default function LevelSection({ level, isLast }: LevelSectionProps) {
         <p className="text-caption text-muted mt-0.5 leading-relaxed">{level.goal}</p>
         <div className="flex items-center gap-1.5 mt-2 flex-wrap">
           {level.topics.map((topic) => (
-            <Tag key={topic} variant="soft" size="sm" color="#0d9488" bgColor="#0d9488">
+            <Tag key={topic} variant="soft" size="sm" color="#0d9488">
               {topic}
             </Tag>
           ))}
