@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className="bg-gray-50 min-h-screen">
+      <body className="bg-bg min-h-screen">
         <ClientProviders>
           {children}
         </ClientProviders>

@@ -9,24 +9,24 @@ interface TagProps {
 
 export function Tag({ children, color, bgColor, size = 'md', variant = 'solid', className = '' }: TagProps) {
   const sizeClasses = size === 'sm' ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-0.5 text-xs';
-  
+
   if (variant === 'secondary') {
     return (
-      <span className={`inline-block rounded font-medium ${sizeClasses} bg-gray-100 text-gray-600 ${className}`}>
+      <span className={`inline-block rounded-full font-medium ${sizeClasses} bg-bg2 text-muted ${className}`}>
         {children}
       </span>
     );
   }
-  
-  const variantClasses = variant === 'outline' 
-    ? 'border border-current bg-transparent' 
+
+  const variantClasses = variant === 'outline'
+    ? 'border border-current bg-transparent rounded-full'
     : variant === 'soft'
-    ? 'bg-opacity-10'
-    : '';
+    ? 'bg-opacity-10 rounded-full'
+    : 'rounded-full';
 
   return (
     <span
-      className={`inline-block rounded font-semibold ${sizeClasses} ${variantClasses} ${className}`}
+      className={`inline-block font-semibold ${sizeClasses} ${variantClasses} ${className}`}
       style={color || bgColor ? { color: color || 'inherit', backgroundColor: bgColor || 'transparent' } : undefined}
     >
       {children}

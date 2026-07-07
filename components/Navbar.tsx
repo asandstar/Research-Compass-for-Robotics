@@ -1,56 +1,189 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Compass, LayoutGrid, FileText, Lightbulb, FlaskConical } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Target, Lightbulb, FileText, FlaskConical, LayoutGrid, Compass, Search } from 'lucide-react';
+import { useActiveIdea } from '../context/ActiveIdeaContext';
+import { useApp } from '../context/AppContext';
+import { CommandPalette } from './CommandPalette';
 
-const navItems = [
-  { href: '/', label: 'Dashboard', icon: Compass },
-  { href: '/areas', label: 'Research Areas', icon: LayoutGrid },
-  { href: '/papers', label: 'Paper Library', icon: FileText },
-  { href: '/ideas', label: 'Ideas', icon: Lightbulb },
-  { href: '/mves', label: 'MVEs', icon: FlaskConical },
+const coreNav = [
+  { href: '/', label: '概览', icon: LayoutDashboard },
+  { href: '/focus', label: '聚焦', icon: Target, primary: true },
+];
+
+const workNav = [
+  { href: '/ideas', label: '选择方向', icon: Lightbulb },
+  { href: '/papers', label: '论文', icon: FileText },
+  { href: '/mves', label: '验证记录', icon: FlaskConical },
+];
+
+const utilityNav = [
+  { href: '/areas', label: '子领域', icon: LayoutGrid, iconOnly: true },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { activeIdeaId, isActive } = useActiveIdea();
+  const { getIdeaCardById } = useApp();
+  const [scrolled, setScrolled] = useState(false);
+  const [cmdOpen, setCmdOpen] = useState(false);
 
-  const isActive = (href: string) => {
+  const activeIdea = activeIdeaId ? getIdeaCardById(activeIdeaId) : null;
+
+  // Scroll shadow enhancement
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Global ⌘K / Ctrl+K listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setCmdOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const checkActive = (href: string) => {
     if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
   };
 
   return (
-    <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-14">
-          <div className="flex items-center gap-2">
-            <Compass className="w-6 h-6 text-indigo-600" />
-            <span className="font-semibold text-lg text-gray-900">Research Compass</span>
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full ml-1">for Robotics</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              return (
+    <>
+      <nav className={`sticky top-0 z-50 transition-fast transition-shadow bg-surface/80 backdrop-blur-md border-b border-border-subtle ${scrolled ? 'shadow-card' : 'shadow-navbar'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center h-14 gap-4">
+
+            {/* ── Left: Brand + Nav Groups ── */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {/* Brand */}
+              <Link href="/" className="flex items-center gap-2 text-ink no-underline hover:no-underline flex-shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
+                  <Compass className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-bold text-sm tracking-tight hidden md:inline">Research Compass</span>
+              </Link>
+
+              <div className="w-px h-5 bg-border-subtle hidden md:block" />
+
+              {/* Core Nav Group */}
+              <div className="flex items-center gap-0.5">
+                {coreNav.map((item) => (
+                  <NavLink key={item.href} item={item} active={checkActive(item.href)}>
+                    {item.primary && isActive && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent2 ml-0.5" />
+                    )}
+                  </NavLink>
+                ))}
+              </div>
+
+              <div className="w-px h-4 bg-border-subtle hidden sm:block" />
+
+              {/* Work Nav Group */}
+              <div className="hidden sm:flex items-center gap-0.5">
+                {workNav.map((item) => (
+                  <NavLink key={item.href} item={item} active={checkActive(item.href)} />
+                ))}
+              </div>
+            </div>
+
+            {/* ── Spacer ── */}
+            <div className="flex-1" />
+
+            {/* ── Right: Actions ── */}
+            <div className="flex items-center gap-2.5 flex-shrink-0">
+
+              {/* Active Idea Pill (conditional) */}
+              {isActive && activeIdea && (
                 <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    active
-                      ? 'text-indigo-700 bg-indigo-50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                  href="/focus"
+                  className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-accent/8 text-accent rounded-full text-[12px] font-medium max-w-[200px] hover:bg-accent/15 transition-fast transition-colors no-underline hover:no-underline"
                 >
-                  <Icon className="w-4 h-4" />
-                  {item.label}
+                  <Target className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">{activeIdea.title}</span>
                 </Link>
-              );
-            })}
+              )}
+
+              {/* Search Trigger */}
+              <button
+                type="button"
+                onClick={() => setCmdOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-bg2/70 border border-border-subtle rounded-lg text-[13px] text-muted hover:border-border-default hover:text-ink transition-fast transition-colors cursor-pointer"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">搜索...</span>
+                <kbd className="hidden sm:flex items-center px-1.5 py-0.5 bg-surface border border-border-subtle rounded text-[11px] text-muted/60 font-mono leading-none">
+                  ⌘K
+                </kbd>
+              </button>
+
+              {/* Areas (icon only, always visible) */}
+              {utilityNav.map((item) => (
+                <NavLink key={item.href} item={item} active={checkActive(item.href)} />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Command Palette */}
+      <CommandPalette
+        isOpen={cmdOpen}
+        onClose={() => setCmdOpen(false)}
+      />
+    </>
   );
 }
+
+/* ── NavLink Sub-component ── */
+
+function NavLink({ item, active, children }: { item: { href: string; label: string; icon: any; primary?: boolean; iconOnly?: boolean }; active: boolean; children?: React.ReactNode }) {
+  const Icon = item.icon;
+
+  if (item.iconOnly) {
+    return (
+      <Link
+        href={item.href}
+        title={item.label}
+        className={`inline-flex items-center justify-center w-8 h-8 rounded-lg transition-fast transition-colors ${
+          active
+            ? 'text-accent bg-accent/10'
+            : 'text-muted hover:text-ink hover:bg-bg2'
+        }`}
+      >
+        <Icon className="w-[18px] h-[18px]" />
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href={item.href}
+      className={`relative inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[13px] font-medium rounded-lg transition-fast transition-colors ${
+        active
+          ? 'text-accent bg-accent/10'
+          : item.primary
+            ? 'text-muted hover:text-accent hover:bg-accent/[0.06]'
+            : 'text-muted hover:text-ink hover:bg-bg2'
+      }`}
+    >
+      <Icon className="w-[18px] h-[18px]" />
+      <span className="hidden md:inline">{item.label}</span>
+      {children}
+      {active && (
+        <span className="absolute -bottom-[9px] left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-accent" />
+      )}
+    </Link>
+  );
+}
+
+

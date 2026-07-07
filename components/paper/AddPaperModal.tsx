@@ -234,33 +234,33 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-[2px] modal-overlay flex items-center justify-center z-50 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="add-paper-modal-title"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col"
+        className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col modal-content"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-5 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between p-5 border-b border-border-subtle flex-shrink-0">
           <h2 id="add-paper-modal-title" className="text-lg font-semibold">
             {editingPaper ? '编辑论文' : '添加论文'}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
+          <button onClick={onClose} className="text-gray-400 hover:text-muted" aria-label="关闭">
             <X className="w-5 h-5" />
           </button>
         </div>
         
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">论文标题 *</label>
+            <label className="block text-sm font-medium text-ink mb-1">论文标题 *</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent"
               placeholder="输入论文标题"
               required
             />
@@ -268,38 +268,38 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">作者</label>
+              <label className="block text-sm font-medium text-ink mb-1">作者</label>
               <input
                 type="text"
                 value={formData.authors}
                 onChange={(e) => setFormData({ ...formData, authors: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent"
                 placeholder="First Author et al."
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">年份</label>
+              <label className="block text-sm font-medium text-ink mb-1">年份</label>
               <input
                 type="number"
                 value={formData.year}
                 onChange={(e) => setFormData({ ...formData, year: e.target.value === '' ? new Date().getFullYear() : parseInt(e.target.value) || new Date().getFullYear() })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">会议/期刊</label>
+              <label className="block text-sm font-medium text-ink mb-1">会议/期刊</label>
               <input
                 type="text"
                 value={formData.venue}
                 onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent"
                 placeholder="ICRA / IROS / arXiv"
               />
             </div>
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+            <h3 className="text-sm font-medium text-ink flex items-center gap-1.5">
               <LinkIcon className="w-4 h-4" />
               链接
             </h3>
@@ -311,7 +311,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                     type="button"
                     onClick={handleParseArxiv}
                     disabled={isParsingArxiv || !formData.arxivUrl}
-                    className="text-xs text-indigo-600 hover:text-indigo-700 disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1"
+                    className="text-xs text-accent hover:text-accent disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     {isParsingArxiv ? '解析中...' : '自动解析论文信息'}
@@ -323,7 +323,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                     type="url"
                     value={formData.arxivUrl}
                     onChange={(e) => handleLinkPaste('arxivUrl', e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full pl-8 pr-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="https://arxiv.org/abs/xxxx.xxxxx"
                   />
                 </div>
@@ -336,7 +336,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                     type="url"
                     value={formData.pdfUrl}
                     onChange={(e) => handleLinkPaste('pdfUrl', e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full pl-8 pr-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="https://arxiv.org/pdf/xxxx.xxxxx"
                   />
                 </div>
@@ -349,7 +349,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                     type="url"
                     value={formData.feishuNoteUrl}
                     onChange={(e) => handleLinkPaste('feishuNoteUrl', e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full pl-8 pr-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="feishu.cn/docx/..."
                   />
                 </div>
@@ -362,7 +362,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                     type="url"
                     value={formData.codeUrl}
                     onChange={(e) => handleLinkPaste('codeUrl', e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full pl-8 pr-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="github.com/..."
                   />
                 </div>
@@ -371,7 +371,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">所属子领域</label>
+            <label className="block text-sm font-medium text-ink mb-2">所属子领域</label>
             <div className="flex flex-wrap gap-2">
               {visibleAreas.map(area => (
                 <button
@@ -380,8 +380,8 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                   onClick={() => toggleArea(area.id)}
                   className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
                     formData.areaIds.includes(area.id)
-                      ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
-                      : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                      ? 'bg-accent/10 border-accent/30 text-accent'
+                      : 'bg-white border-border-subtle text-muted hover:border-border-default'
                   }`}
                 >
                   {area.name.split('｜')[0]}
@@ -392,7 +392,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">阅读状态</label>
+              <label className="block text-sm font-medium text-ink mb-1">阅读状态</label>
               <Select
                 value={formData.readingStatus}
                 onChange={(val) => setFormData({ ...formData, readingStatus: val as Paper['readingStatus'] })}
@@ -406,7 +406,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">判断级别</label>
+              <label className="block text-sm font-medium text-ink mb-1">判断级别</label>
               <Select
                 value={formData.judgementLevel}
                 onChange={(val) => setFormData({ ...formData, judgementLevel: val as Paper['judgementLevel'] })}
@@ -421,24 +421,24 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">方法关键词（逗号分隔）</label>
+            <label className="block text-sm font-medium text-ink mb-1">方法关键词（逗号分隔）</label>
             <input
               type="text"
               value={formData.methodKeywords}
               onChange={(e) => setFormData({ ...formData, methodKeywords: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent"
               placeholder="VIO, 优化, 多传感器融合"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-sm font-medium text-gray-700">一句话总结（你的判断）</label>
+              <label className="text-sm font-medium text-ink">一句话总结（你的判断）</label>
               <button
                 type="button"
                 onClick={handleGenerateSummary}
                 disabled={isGeneratingSummary || formData.areaIds.length === 0}
-                className="text-xs text-indigo-600 hover:text-indigo-700 disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1"
+                className="text-xs text-accent hover:text-accent disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 {isGeneratingSummary ? '生成中...' : 'AI 生成建议'}
@@ -448,39 +448,39 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
               value={formData.oneSentenceSummary}
               onChange={(e) => setFormData({ ...formData, oneSentenceSummary: e.target.value })}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent"
               placeholder="用一句话写下你对这篇论文的判断和评价"
             />
             <p className="text-xs text-gray-400 mt-1">这是你自己的判断，不是论文摘要。鼓励简短、有观点。</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">和我研究的关系</label>
+            <label className="block text-sm font-medium text-ink mb-1">和我研究的关系</label>
             <textarea
               value={formData.relevanceToMyResearch}
               onChange={(e) => setFormData({ ...formData, relevanceToMyResearch: e.target.value })}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent"
               placeholder="这篇论文和你当前研究方向的关系"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">局限或疑问</label>
+            <label className="block text-sm font-medium text-ink mb-1">局限或疑问</label>
             <textarea
               value={formData.limitationsOrQuestions}
               onChange={(e) => setFormData({ ...formData, limitationsOrQuestions: e.target.value })}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent"
               placeholder="这篇论文的问题、局限，或者你没想清楚的地方"
             />
           </div>
 
-          <div className="border-t border-gray-100 pt-4">
+          <div className="border-t border-border-subtle pt-4">
             <button
               type="button"
               onClick={() => setShowAdvancedFields(!showAdvancedFields)}
-              className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+              className="text-sm text-accent hover:text-accent flex items-center gap-1"
             >
               {showAdvancedFields ? '收起' : '展开'} 结构化论文卡片字段
             </button>
@@ -488,40 +488,40 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
             {showAdvancedFields && (
               <div className="space-y-4 mt-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">问题定义</label>
+                  <label className="block text-sm font-medium text-ink mb-1">问题定义</label>
                   <textarea
                     value={formData.problem}
                     onChange={(e) => setFormData({ ...formData, problem: e.target.value })}
                     rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="这篇论文试图解决什么问题？"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">核心贡献</label>
+                  <label className="block text-sm font-medium text-ink mb-1">核心贡献</label>
                   <textarea
                     value={formData.coreContribution}
                     onChange={(e) => setFormData({ ...formData, coreContribution: e.target.value })}
                     rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="这篇论文的主要贡献是什么？"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">方法概述</label>
+                  <label className="block text-sm font-medium text-ink mb-1">方法概述</label>
                   <textarea
                     value={formData.methodSketch}
                     onChange={(e) => setFormData({ ...formData, methodSketch: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="简述方法的主要步骤"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">证据信息</label>
+                  <label className="block text-sm font-medium text-ink mb-2">证据信息</label>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs text-gray-500 mb-1">测试任务（逗号分隔）</label>
@@ -529,7 +529,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                         type="text"
                         value={formData.evidenceTasks}
                         onChange={(e) => setFormData({ ...formData, evidenceTasks: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                         placeholder="Pick-and-place, Navigation"
                       />
                     </div>
@@ -539,7 +539,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                         type="text"
                         value={formData.evidenceBaselines}
                         onChange={(e) => setFormData({ ...formData, evidenceBaselines: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                         placeholder="RT-1, BC"
                       />
                     </div>
@@ -549,7 +549,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                         type="text"
                         value={formData.evidenceMetrics}
                         onChange={(e) => setFormData({ ...formData, evidenceMetrics: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                         placeholder="Task success rate, ATE"
                       />
                     </div>
@@ -559,7 +559,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                         type="text"
                         value={formData.evidenceKeyResults}
                         onChange={(e) => setFormData({ ...formData, evidenceKeyResults: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                         placeholder="成功率提升30%"
                       />
                     </div>
@@ -567,41 +567,41 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">假设前提（逗号分隔）</label>
+                  <label className="block text-sm font-medium text-ink mb-1">假设前提（逗号分隔）</label>
                   <textarea
                     value={formData.assumptions}
                     onChange={(e) => setFormData({ ...formData, assumptions: e.target.value })}
                     rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="任务环境满足特定结构假设"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">局限性（逗号分隔）</label>
+                  <label className="block text-sm font-medium text-ink mb-1">局限性（逗号分隔）</label>
                   <textarea
                     value={formData.limitations}
                     onChange={(e) => setFormData({ ...formData, limitations: e.target.value })}
                     rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="在极端场景下性能下降"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">待验证问题（逗号分隔）</label>
+                  <label className="block text-sm font-medium text-ink mb-1">待验证问题（逗号分隔）</label>
                   <textarea
                     value={formData.questionsToVerify}
                     onChange={(e) => setFormData({ ...formData, questionsToVerify: e.target.value })}
                     rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-border-default rounded-lg focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent text-sm"
                     placeholder="这些假设在真实场景中是否成立？"
                   />
                 </div>
               </div>
             )}
           </div>
-          <div className="flex justify-end gap-3 p-5 border-t border-gray-100 flex-shrink-0">
+          <div className="flex justify-end gap-3 p-5 border-t border-border-subtle flex-shrink-0">
             <Button variant="secondary" type="button" onClick={onClose}>
               取消
             </Button>

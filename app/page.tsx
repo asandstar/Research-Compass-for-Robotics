@@ -1,325 +1,380 @@
 'use client';
 
-import { useApp } from '../context/AppContext';
-import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
-import { Tag } from '../components/ui/Tag';
-import { AddPaperModal } from '../components/paper/AddPaperModal';
-import { IdeaCardMini } from '../components/idea/IdeaCardMini';
-import { ObservationInput } from '../components/observation/ObservationInput';
-import { ObservationCard } from '../components/observation/ObservationCard';
-import { IDEA_STATUS_LABELS, READING_STATUS_LABELS } from '../lib/types';
-import {
-  Brain, FlaskConical, BookOpen, Cpu, PlusCircle, ArrowRight, Plus,
-  Lightbulb, FileText, TrendingUp, AlertCircle
-} from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import {
+  Lightbulb, FlaskConical, CheckCircle, FileText, Target,
+  ArrowRight, BookOpen, Map, Sparkles, TrendingUp,
+  ChevronRight
+} from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import { useActiveIdea } from '../context/ActiveIdeaContext';
+import {
+  IDEA_STATUS_LABELS, READING_STATUS_LABELS,
+  JUDGEMENT_LABELS
+} from '../lib/types';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Tag } from '../components/ui/Tag';
 
-export default function Dashboard() {
-  const { state } = useApp();
-  const [showAddPaper, setShowAddPaper] = useState(false);
-  const searchParams = useSearchParams();
+export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { state, getIdeaCardById } = useApp();
+  const { activeIdeaId, isActive, setActiveIdea } = useActiveIdea();
 
-  // Handle SPA fallback redirect from 404.html
   useEffect(() => {
     const redirectPath = searchParams.get('r');
     if (redirectPath) {
-      const decoded = decodeURIComponent(redirectPath);
-      router.push(decoded);
+      const basePath = '/Research-Compass-for-Robotics';
+      let cleanPath = redirectPath;
+      if (cleanPath.startsWith(basePath)) {
+        cleanPath = cleanPath.slice(basePath.length);
+      }
+      if (cleanPath && cleanPath !== '/') {
+        router.replace(cleanPath);
+      }
     }
   }, [searchParams, router]);
 
-  const activeAreas = state.researchAreas.filter(a => !a.isHidden);
-  const paperCount = state.papers.length;
-  const activeIdeas = state.ideaCards.filter(card =>
-    card.status === 'active' || card.status === 'unstable' || card.status === 'revived'
-  ).length;
-  const pendingMVEs = state.mves.filter(mve => mve.resultStatus === 'pending').length;
+  const activeIdea = activeIdeaId ? getIdeaCardById(activeIdeaId) : null;
+  const statusLabel = activeIdea ? IDEA_STATUS_LABELS[activeIdea.status] : null;
 
-  const activeIdeaCards = state.ideaCards.filter(card =>
-    card.status === 'active' || card.status === 'unstable' || card.status === 'promising' || card.status === 'revived'
-  ).slice(0, 5);
-  const toReadCount = state.papers.filter(p => p.readingStatus === 'to_read').length;
+  // Stats
+  const totalIdeas = state.ideaCards.length;
+  const pendingMves = state.mves.filter((m) => m.resultStatus === 'pending').length;
+  const passedMves = state.mves.filter((m) => m.resultStatus === 'passed').length;
+  const totalPapers = state.papers.length;
+  const totalAreas = state.researchAreas.filter((a) => !a.isHidden).length;
 
-  const recentPapers = [...state.papers]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  // Subfields with paper/idea counts
+  const subfields = state.researchAreas
+    .filter((a) => !a.isHidden)
+    .map((area) => {
+      const paperCount = state.papers.filter((p) => p.areaIds?.includes(area.id)).length;
+      const ideaCount = state.ideaCards.filter((i) => i.areaIds?.includes(area.id)).length;
+      return { ...area, paperCount, ideaCount };
+    })
+    .sort((a, b) => b.paperCount - a.paperCount)
     .slice(0, 5);
 
-  const getAreaName = (areaId: string) => {
-    const area = state.researchAreas.find(a => a.id === areaId);
-    return area ? area.name.split('｜')[0] : areaId;
-  };
+  // Active ideas (sorted by updatedAt)
+  const activeIdeas = [...state.ideaCards]
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, 4);
 
-  const getAreaPaperCount = (areaId: string) =>
-    state.papers.filter(p => p.areaIds.includes(areaId)).length;
-
-  const getAreaIdeaCount = (areaId: string) =>
-    state.ideaCards.filter(i => i.areaIds.includes(areaId)).length;
-
-  const topAreas = [...activeAreas]
-    .map(area => ({
-      ...area,
-      paperCount: getAreaPaperCount(area.id),
-      ideaCount: getAreaIdeaCount(area.id),
-    }))
-    .sort((a, b) => (b.paperCount + b.ideaCount) - (a.paperCount + a.ideaCount))
-    .slice(0, 6);
+  // Recent papers (sorted by createdAt)
+  const recentPapers = [...state.papers]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 3);
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white">
-        <div className="flex items-center gap-3 mb-2">
-          <Brain className="w-8 h-8" />
-          <div>
-            <h1 className="text-2xl font-bold">Research Compass for Robotics</h1>
-            <p className="text-sm opacity-80">机器人科研方向管理工作台</p>
+      {/* Header with hero feel */}
+      <div className="page-header">
+        <h1 className="page-title text-[1.75rem] tracking-tight">Research Compass</h1>
+        <p className="page-subtitle">从子领域探索到论文阅读，从灵感捕捉到最小可行实验验证——帮你系统判断机器人科研方向值不值得走。</p>
+      </div>
+
+      {/* Active Focus Card */}
+      <Card className="p-5 border-l-4 border-l-accent">
+        {isActive && activeIdea && statusLabel ? (
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Target className="w-4 h-4 text-accent flex-shrink-0" />
+                <h3 className="font-semibold text-ink">{activeIdea.title}</h3>
+                <Tag color={statusLabel.color} bgColor={statusLabel.bgColor} size="sm">
+                  {statusLabel.label}
+                </Tag>
+              </div>
+              <p className="text-sm text-muted mt-1.5 line-clamp-1">
+                {activeIdea.coreHypothesis || activeIdea.researchQuestion}
+              </p>
+              <div className="flex items-center gap-4 mt-3">
+                <ScoreBar label="存活度" score={activeIdea.survivalScore} color="#3b82f6" />
+                <ScoreBar label="置信度" score={activeIdea.confidenceScore} color="#22c55e" />
+                <ScoreBar label="证伪强度" score={activeIdea.falsificationStrength} color="#f59e0b" />
+              </div>
+            </div>
+            <Link href="/focus" className="no-underline hover:no-underline flex-shrink-0">
+              <Button variant="primary">
+                进入聚焦
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
           </div>
-        </div>
-        <p className="text-sm opacity-90 mt-2 max-w-2xl">
-          从子领域探索到论文阅读，从灵感捕捉到最小可行实验验证——帮你系统判断机器人科研方向值不值得走。
-        </p>
+        ) : (
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                <Target className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <p className="font-medium text-ink">尚未选择研究方向</p>
+                <p className="text-sm text-muted">选择一个 Idea 进入聚焦模式</p>
+              </div>
+            </div>
+            <Link href="/ideas" className="no-underline hover:no-underline flex-shrink-0">
+              <Button variant="primary">选择方向</Button>
+            </Link>
+          </div>
+        )}
+      </Card>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Card className="p-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+              <Map className="w-4 h-4 text-accent" />
+            </div>
+            <span className="text-caption font-medium text-muted/70">子领域</span>
+          </div>
+          <p className="stat-number text-ink mt-1">{totalAreas}</p>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <Lightbulb className="w-4 h-4 text-amber-600" />
+            </div>
+            <span className="text-caption font-medium text-muted/70">活跃 Idea</span>
+          </div>
+          <p className="stat-number text-amber-600 mt-1">{totalIdeas}</p>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+            </div>
+            <span className="text-caption font-medium text-muted/70">已通过</span>
+          </div>
+          <p className="stat-number text-green-600 mt-1">{passedMves}</p>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+              <FileText className="w-4 h-4 text-purple-600" />
+            </div>
+            <span className="text-caption font-medium text-muted/70">论文</span>
+          </div>
+          <p className="stat-number text-purple-600 mt-1">{totalPapers}</p>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        <Link href="/areas" className="no-underline hover:no-underline">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
-                <Cpu className="w-6 h-6 text-indigo-600" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-gray-900">{activeAreas.length}</div>
-                <div className="text-sm text-gray-500">子领域</div>
-              </div>
-            </div>
-          </Card>
-        </Link>
-        <Link href="/papers" className="no-underline hover:no-underline">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-emerald-600" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-gray-900">{paperCount}</div>
-                <div className="text-sm text-gray-500">论文</div>
-              </div>
-            </div>
-          </Card>
-        </Link>
-        <Link href="/ideas" className="no-underline hover:no-underline">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                <Lightbulb className="w-6 h-6 text-amber-600" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-gray-900">{activeIdeas}</div>
-                <div className="text-sm text-gray-500">活跃 Idea</div>
-              </div>
-            </div>
-          </Card>
-        </Link>
-        <Link href="/mves" className="no-underline hover:no-underline">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-rose-100 flex items-center justify-center">
-                <FlaskConical className="w-6 h-6 text-rose-600" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-gray-900">{pendingMVEs}</div>
-                <div className="text-sm text-gray-500">待验证 MVE</div>
-              </div>
-            </div>
-          </Card>
-        </Link>
-      </div>
+      {/* Two-column main content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left column (2/3) */}
+        <div className="lg:col-span-2 space-y-6">
 
-      <ObservationInput />
-
-      <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2 space-y-6">
-          <Card>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Cpu className="w-5 h-5 text-indigo-600" />
-                子领域概览
-              </h2>
-              <Link href="/areas" className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
-                查看全部 <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {topAreas.map(area => (
-                <Link key={area.id} href={`/areas/${area.id}`} className="no-underline hover:no-underline">
-                  <div className="p-4 border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50/50 transition-colors cursor-pointer">
-                    <div className="font-medium text-gray-900 mb-1">
-                      {area.name.split('｜')[0]}
-                    </div>
-                    <div className="text-xs text-gray-500 mb-2 line-clamp-2">
-                      {area.description}
-                    </div>
-                    <div className="flex gap-3 text-xs">
-                      <span className="text-emerald-600">{area.paperCount} 篇论文</span>
-                      <span className="text-amber-600">{area.ideaCount} 个 idea</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-              {topAreas.length === 0 && (
-                <div className="col-span-2 text-center py-8 text-gray-500 text-sm">
-                  还没有子领域。去 Research Areas 开始探索吧。
+          {/* Subfield Overview */}
+          {subfields.length > 0 && (
+            <Card className="p-0 overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
+                <div className="flex items-center gap-2">
+                  <Map className="w-4 h-4 text-accent" />
+                  <h2 className="font-semibold text-ink text-sm">子领域概览</h2>
                 </div>
-              )}
-            </div>
-          </Card>
+                <Link href="/areas" className="text-caption text-muted hover:text-accent transition-fast transition-colors no-underline hover:no-underline inline-flex items-center gap-1">
+                  查看全部 <ChevronRight className="w-3 h-3" />
+                </Link>
+              </div>
+              <div className="divide-y divide-border-subtle">
+                {subfields.map((area) => (
+                  <Link
+                    key={area.id}
+                    href={`/ideas?areaId=${area.id}`}
+                    className="flex items-center gap-4 px-5 py-3 hover:bg-bg2/50 transition-fast transition-colors no-underline hover:no-underline"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-accent/8 flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-4 h-4 text-accent/70" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-ink text-sm">{area.name}</span>
+                        <span className="text-label text-muted/60">{area.category}</span>
+                      </div>
+                      <p className="text-caption text-muted/70 truncate mt-0.5">{area.description}</p>
+                    </div>
+                    <div className="flex items-center gap-4 flex-shrink-0">
+                      <div className="text-center">
+                        <p className="text-sm font-semibold text-ink">{area.paperCount}</p>
+                        <p className="text-[10px] text-muted/60">论文</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-semibold text-ink">{area.ideaCount}</p>
+                        <p className="text-[10px] text-muted/60">Idea</p>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-muted/40" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </Card>
+          )}
 
-          <Card>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-emerald-600" />
-                最近添加的论文
-              </h2>
-              <Link href="/papers" className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
-                Paper Library <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-            <div className="space-y-3">
-              {recentPapers.map(paper => (
-                <Link key={paper.id} href="/papers" className="no-underline hover:no-underline block">
-                  <div className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-indigo-300 transition-colors">
-                    <div className="flex justify-between items-start gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-900 text-sm truncate">{paper.title}</div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {paper.authors} · {paper.year} · {paper.venue}
+          {/* Recent Papers */}
+          {recentPapers.length > 0 && (
+            <Card className="p-0 overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-accent" />
+                  <h2 className="font-semibold text-ink text-sm">最近添加的论文</h2>
+                </div>
+                <Link href="/papers" className="text-caption text-muted hover:text-accent transition-fast transition-colors no-underline hover:no-underline inline-flex items-center gap-1">
+                  查看全部 <ChevronRight className="w-3 h-3" />
+                </Link>
+              </div>
+              <div className="divide-y divide-border-subtle">
+                {recentPapers.map((paper) => {
+                  const readingLabel = READING_STATUS_LABELS[paper.readingStatus];
+                  const judgementLabel = JUDGEMENT_LABELS[paper.judgementLevel];
+                  return (
+                    <div key={paper.id} className="px-5 py-3.5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-ink text-sm leading-snug line-clamp-2">{paper.title}</p>
+                          <p className="text-caption text-muted/60 mt-1">{paper.authors} &middot; {paper.year} &middot; <span className="text-accent">{paper.venue}</span></p>
+                          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                            {paper.methodKeywords.slice(0, 3).map((kw) => (
+                              <span key={kw} className="text-[10px] px-1.5 py-0.5 bg-bg2 rounded-full text-muted/70">
+                                {kw}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                          <Tag color={readingLabel.color} bgColor={readingLabel.bgColor} size="sm">
+                            {readingLabel.label}
+                          </Tag>
+                          <Tag color={judgementLabel.color} bgColor={judgementLabel.bgColor} size="sm">
+                            {judgementLabel.label}
+                          </Tag>
                         </div>
                       </div>
-                    <Tag
-                      color={READING_STATUS_LABELS[paper.readingStatus].color}
-                      bgColor={READING_STATUS_LABELS[paper.readingStatus].bgColor}
-                      size="sm"
-                    >
-                      {READING_STATUS_LABELS[paper.readingStatus].label}
-                    </Tag>
-                  </div>
-                  {paper.areaIds.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {paper.areaIds.slice(0, 2).map(areaId => (
-                        <span key={areaId} className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded">
-                          {getAreaName(areaId)}
-                        </span>
-                      ))}
                     </div>
-                  )}
-                </div>
-                </Link>
-              ))}
-              {recentPapers.length === 0 && (
-                <div className="text-center py-8 text-gray-500 text-sm">
-                  还没有论文。去 Paper Library 添加第一篇吧。
-                </div>
-              )}
-            </div>
-          </Card>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
         </div>
 
+        {/* Right column (1/3) */}
         <div className="space-y-6">
-          <Card>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-amber-500" />
-              活跃 Ideas
-            </h2>
-            <div className="space-y-3">
-              {activeIdeaCards.map(idea => (
-                <IdeaCardMini key={idea.id} ideaCard={idea} />
-              ))}
-              {activeIdeaCards.length === 0 && (
-                <div className="text-center py-8 text-gray-500 text-sm">
-                  还没有活跃的 Idea。从论文中生成灵感吧。
-                </div>
-              )}
-            </div>
-          </Card>
 
-          <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="w-5 h-5 text-indigo-600" />
-              <h2 className="font-semibold text-gray-900">快速开始</h2>
-            </div>
-            <div className="space-y-2 text-sm">
-              <Link href="/areas" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700">
-                <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-xs font-bold">1</span>
-                探索机器人子领域
-              </Link>
-              <div className="flex items-center gap-2 text-indigo-600">
-                <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
-                <Link href="/papers" className="hover:text-indigo-700 no-underline hover:no-underline">
-                  添加论文并写总结
+          {/* Active Ideas */}
+          {activeIdeas.length > 0 && (
+            <Card className="p-0 overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
+                <div className="flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-accent" />
+                  <h2 className="font-semibold text-ink text-sm">活跃 Ideas</h2>
+                </div>
+                <Link href="/ideas" className="text-caption text-muted hover:text-accent transition-fast transition-colors no-underline hover:no-underline inline-flex items-center gap-1">
+                  全部 <ChevronRight className="w-3 h-3" />
                 </Link>
-                <button
-                  onClick={() => setShowAddPaper(true)}
-                  className="ml-auto w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center hover:bg-indigo-600 transition-colors flex-shrink-0"
-                  title="直接添加论文"
+              </div>
+              <div className="divide-y divide-border-subtle">
+                {activeIdeas.map((idea) => {
+                  const sLabel = IDEA_STATUS_LABELS[idea.status];
+                  const isCurrentFocus = idea.id === activeIdeaId;
+                  const updatedDate = new Date(idea.updatedAt);
+                  const dateStr = `${updatedDate.getMonth() + 1}/${updatedDate.getDate()}`;
+                  return (
+                    <button
+                      key={idea.id}
+                      type="button"
+                      onClick={() => setActiveIdea(idea.id)}
+                      className={`w-full flex items-center gap-3 px-5 py-3 hover:bg-bg2/50 transition-fast transition-colors text-left ${
+                        isCurrentFocus ? 'bg-accent/[0.03]' : ''
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm text-ink font-medium truncate">{idea.title}</p>
+                          {isCurrentFocus && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent2 flex-shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-label text-muted/60 mt-0.5">{dateStr}</p>
+                      </div>
+                      <Tag color={sLabel.color} bgColor={sLabel.bgColor} size="sm">
+                        {sLabel.label}
+                      </Tag>
+                    </button>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          {/* Quick Start Guide */}
+          <Card className="p-0 overflow-hidden">
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-border-subtle">
+              <TrendingUp className="w-4 h-4 text-accent" />
+              <h2 className="font-semibold text-ink text-sm">快速开始</h2>
+            </div>
+            <div className="p-5 space-y-4">
+              {[
+                { step: 1, label: '探索机器人子领域', desc: '浏览研究方向地图', href: '/areas', icon: Map },
+                { step: 2, label: '添加论文并写总结', desc: '积累研究素材', href: '/papers', icon: FileText },
+                { step: 3, label: '从论文生成 Idea', desc: '提炼研究假设', href: '/ideas', icon: Sparkles },
+                { step: 4, label: '设计 MVE 验证想法', desc: '最小可行实验', href: '/mves', icon: FlaskConical },
+              ].map((item) => (
+                <Link
+                  key={item.step}
+                  href={item.href}
+                  className="flex items-center gap-3 group no-underline hover:no-underline"
                 >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="flex items-center gap-2 text-gray-500">
-                <span className="w-5 h-5 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold">3</span>
-                从论文生成 Idea
-              </div>
-              <div className="flex items-center gap-2 text-gray-500">
-                <span className="w-5 h-5 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold">4</span>
-                设计 MVE 验证想法
-              </div>
+                  <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-fast transition-colors">
+                    <span className="text-caption font-bold text-accent">{item.step}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-ink group-hover:text-accent transition-fast transition-colors">{item.label}</p>
+                    <p className="text-label text-muted/60">{item.desc}</p>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted/30 group-hover:text-accent/50 transition-fast transition-colors" />
+                </Link>
+              ))}
             </div>
           </Card>
 
-          <Card>
-            <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="w-5 h-5 text-amber-500" />
-              <h2 className="font-semibold text-gray-900">待处理</h2>
-            </div>
-            <div className="space-y-2 text-sm">
-              {toReadCount > 0 && (
-                <Link href="/papers" className="no-underline hover:no-underline">
-                  <div className="flex justify-between items-center text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 -mx-2 px-2 py-1 rounded transition-colors">
-                    <span>待读论文</span>
-                    <span className="font-medium text-amber-600">
-                      {toReadCount}
-                    </span>
-                  </div>
-                </Link>
-              )}
-              {pendingMVEs > 0 && (
-                <Link href="/mves" className="no-underline hover:no-underline">
-                  <div className="flex justify-between items-center text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 -mx-2 px-2 py-1 rounded transition-colors">
-                    <span>待验证 MVE</span>
-                    <span className="font-medium text-rose-600">
-                      {pendingMVEs}
-                    </span>
-                  </div>
-                </Link>
-              )}
-              {toReadCount === 0 && pendingMVEs === 0 && (
-                <div className="text-gray-500 text-center py-4">
-                  没有待处理项 🎉
-                </div>
-              )}
-            </div>
-          </Card>
+          {/* Pending MVEs alert */}
+          {pendingMves > 0 && (
+            <Card className="p-4 border-l-4 border-l-accent2">
+              <div className="flex items-center gap-2 mb-2">
+                <FlaskConical className="w-4 h-4 text-accent2" />
+                <span className="font-medium text-ink text-sm">待验证实验</span>
+                <span className="text-caption font-bold text-accent2 bg-accent2/10 rounded-full px-1.5 py-0.5">{pendingMves}</span>
+              </div>
+              <p className="text-caption text-muted mb-3">你有 {pendingMves} 个最小可行实验等待验证，进入聚焦工作区继续推进。</p>
+              <Link href="/focus" className="no-underline hover:no-underline">
+                <Button variant="secondary" className="text-sm">
+                  查看验证记录
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
+            </Card>
+          )}
         </div>
       </div>
-      {showAddPaper && (
-        <AddPaperModal
-          isOpen={showAddPaper}
-          onClose={() => setShowAddPaper(false)}
+    </div>
+  );
+}
+
+function ScoreBar({ label, score, color }: { label: string; score: number; color: string }) {
+  return (
+    <div className="flex items-center gap-2 min-w-[100px]">
+      <span className="text-xs text-muted whitespace-nowrap">{label}</span>
+      <div className="flex-1 h-1.5 bg-bg2 rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${score}%`, backgroundColor: color }}
         />
-      )}
+      </div>
+      <span className="text-xs font-medium text-ink">{score}</span>
     </div>
   );
 }

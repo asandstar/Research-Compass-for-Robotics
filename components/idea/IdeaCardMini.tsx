@@ -31,8 +31,8 @@ export function IdeaCardMini({ ideaCard }: IdeaCardMiniProps) {
   const label = IDEA_STATUS_LABELS[ideaCard.status];
 
   return (
-    <Link href={`/detail/idea/${ideaCard.id}`} className="no-underline hover:no-underline block">
-      <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all cursor-pointer">
+    <Link href={`/idea/${ideaCard.id}`} className="no-underline hover:no-underline block">
+      <div className="bg-surface border border-border-subtle rounded-lg p-4 hover:border-accent/40 hover:shadow-card-hover transition-fast transition-all cursor-pointer">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold text-gray-800 text-sm line-clamp-1">{ideaCard.title}</h3>
           <Tag color={label.color} bgColor={label.bgColor}>{label.label}</Tag>

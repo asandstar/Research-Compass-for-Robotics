@@ -59,7 +59,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
               href={paper.arxivUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+              className="text-xs text-gray-500 hover:text-accent flex items-center gap-1"
             >
               <ExternalLink className="w-3 h-3" />
               arXiv
@@ -70,7 +70,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
               href={paper.feishuNoteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+              className="text-xs text-gray-500 hover:text-accent flex items-center gap-1"
             >
               <ExternalLink className="w-3 h-3" />
               飞书笔记
@@ -81,7 +81,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
               href={paper.codeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+              className="text-xs text-gray-500 hover:text-accent flex items-center gap-1"
             >
               <ExternalLink className="w-3 h-3" />
               代码
@@ -109,7 +109,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
           </p>
           
           {paper.oneSentenceSummary && (
-            <p className="text-sm text-gray-700 mt-3 bg-gray-50 p-3 rounded-lg border-l-2 border-indigo-400">
+            <p className="text-sm text-gray-700 mt-3 bg-bg2 p-3 rounded-lg border-l-2 border-accent/40">
               {paper.oneSentenceSummary}
             </p>
           )}
@@ -138,7 +138,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
             <>
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="mt-4 text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                className="mt-4 text-sm text-accent hover:text-accent-hover flex items-center gap-1"
               >
                 {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 {expanded ? '收起' : '展开'} 详细信息
@@ -273,13 +273,13 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                   {paper.questionsToVerify?.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <HelpCircle className="w-4 h-4 text-indigo-600" />
+                        <HelpCircle className="w-4 h-4 text-accent" />
                         <p className="text-xs font-medium text-gray-500">待验证问题</p>
                       </div>
                       <ul className="space-y-1">
                         {paper.questionsToVerify.map((q, i) => (
                           <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                            <span className="text-indigo-400 mt-0.5">?</span>
+                            <span className="text-accent/50 mt-0.5">?</span>
                             {q}
                           </li>
                         ))}
@@ -297,7 +297,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                 href={paper.arxivUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+                className="text-sm text-gray-500 hover:text-accent flex items-center gap-1"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 arXiv
@@ -308,7 +308,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                 href={paper.pdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+                className="text-sm text-gray-500 hover:text-accent flex items-center gap-1"
               >
                 <FileText className="w-3.5 h-3.5" />
                 PDF
@@ -319,7 +319,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                 href={paper.feishuNoteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+                className="text-sm text-gray-500 hover:text-accent flex items-center gap-1"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 飞书笔记
@@ -330,7 +330,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                 href={paper.codeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+                className="text-sm text-gray-500 hover:text-accent flex items-center gap-1"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 代码
@@ -396,7 +396,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
               <button
                 onClick={() => onGenerateIdea(paper.id)}
                 disabled={isGeneratingIdea}
-                className="px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-50 rounded flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-xs text-accent hover:bg-accent/[0.06] rounded flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="生成 Idea"
               >
                 <Sparkles className="w-3.5 h-3.5" />

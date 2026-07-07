@@ -60,14 +60,14 @@ export function Select({ value, onChange, options, className = '', size = 'md', 
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         style={{ width }}
-        className={`flex items-center justify-between gap-2 ${paddingX} ${paddingY} ${textSize} border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${width ? '' : 'w-full'}`}
+        className={`flex items-center justify-between gap-2 ${paddingX} ${paddingY} ${textSize} border border-border-default rounded-lg bg-surface hover:border-border-strong focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-accent transition-fast transition-colors ${width ? '' : 'w-full'}`}
       >
-        <span className="text-gray-900 truncate">{selectedOption?.label || placeholder || '请选择'}</span>
-        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="text-ink truncate">{selectedOption?.label || placeholder || '请选择'}</span>
+        <ChevronDown className={`w-4 h-4 text-muted flex-shrink-0 transition-fast transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border-subtle rounded-lg shadow-elevated z-50 overflow-hidden">
           <div
             ref={listRef}
             className="overflow-y-auto py-1"
@@ -81,8 +81,8 @@ export function Select({ value, onChange, options, className = '', size = 'md', 
                   type="button"
                   data-selected={isSelected}
                   onClick={() => handleSelect(option.value)}
-                  className={`w-full text-left px-3 py-2 ${textSize} flex items-center justify-between gap-2 hover:bg-indigo-50 transition-colors ${
-                    isSelected ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700'
+                  className={`w-full text-left px-3 py-2 ${textSize} flex items-center justify-between gap-2 hover:bg-accent/[0.06] transition-fast transition-colors ${
+                    isSelected ? 'bg-accent/10 text-accent font-medium' : 'text-ink'
                   }`}
                 >
                   <span className="truncate">{option.label}</span>

@@ -55,19 +55,19 @@ export function AnalysisResultModal({ isOpen, onClose, type, loading, assumption
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-[2px] modal-overlay flex items-center justify-center z-50 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="analysis-result-modal-title"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto"
+        className="bg-white rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto modal-content"
         onClick={e => e.stopPropagation()}
       >
         <div className="p-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
           <div className="flex items-center gap-2">
-            <Icon className="w-5 h-5 text-indigo-600" />
+            <Icon className="w-5 h-5 text-accent" />
             <h2 id="analysis-result-modal-title" className="text-lg font-semibold text-gray-900">{title}</h2>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
@@ -78,7 +78,7 @@ export function AnalysisResultModal({ isOpen, onClose, type, loading, assumption
         <div className="p-5">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mb-3" />
+              <Loader2 className="w-8 h-8 text-accent animate-spin mb-3" />
               <p className="text-sm text-gray-500">AI 分析中...</p>
             </div>
           ) : type === 'assumptions' && assumptions ? (
@@ -102,12 +102,12 @@ export function AnalysisResultModal({ isOpen, onClose, type, loading, assumption
               })}
 
               {assumptions.verificationQuestions?.length > 0 && (
-                <div className="bg-indigo-50 rounded-lg p-3">
-                  <p className="text-xs font-semibold text-indigo-700 mb-2">验证问题</p>
+                <div className="bg-accent/[0.06] rounded-lg p-3">
+                  <p className="text-xs font-semibold text-accent mb-2">验证问题</p>
                   <ul className="space-y-1">
                     {assumptions.verificationQuestions.map((q, i) => (
                       <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                        <span className="text-indigo-400 mt-0.5">?</span>
+                        <span className="text-accent/60 mt-0.5">?</span>
                         {q}
                       </li>
                     ))}
@@ -123,9 +123,9 @@ export function AnalysisResultModal({ isOpen, onClose, type, loading, assumption
             <div className="space-y-4">
               {gaps.gaps?.length > 0 ? (
                 gaps.gaps.map((gap, i) => (
-                  <div key={i} className="border border-gray-200 rounded-lg p-4">
+                  <div key={i} className="border border-border-subtle rounded-lg p-4">
                     <div className="flex items-start gap-2 mb-3">
-                      <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                      <span className="text-xs font-bold text-accent bg-accent/[0.06] px-2 py-0.5 rounded">
                         Gap {i + 1}
                       </span>
                       <p className="text-sm font-medium text-gray-900 flex-1">{gap.description}</p>

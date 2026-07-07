@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ===== Base Reset ===== */
 * {
   box-sizing: border-box;
 }
@@ -13,16 +14,165 @@ body {
   padding: 0;
   font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.65;
   color: #292524;
   background: #fafaf9;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* ===== Typography Scale ===== */
+h1, .heading-1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: #292524;
+}
+
+h2, .heading-2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #292524;
+}
+
+h3, .heading-3 {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #292524;
+}
+
+h4, .heading-4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #292524;
+}
+
+/* ===== Links ===== */
 a {
   color: #0d9488;
   text-decoration: none;
+  transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 a:hover {
-  text-decoration: underline;
+  color: #0f766e;
+}
+
+/* ===== Focus Ring (global) ===== */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 2px;
+}
+
+/* ===== Selection ===== */
+::selection {
+  background: rgba(13, 148, 136, 0.15);
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+/* ===== Page Header Pattern ===== */
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: #292524;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #78716c;
+  margin-top: 0.25rem;
+}
+
+/* ===== Card Interactive ===== */
+.card-interactive {
+  transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-interactive:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.12);
+}
+
+/* ===== Stats Number ===== */
+.stat-number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Empty State ===== */
+.empty-state-icon {
+  opacity: 0.4;
+}
+
+/* ===== Timeline ===== */
+.timeline-line {
+  width: 2px;
+  background: linear-gradient(to bottom, #e7e5e4, #d6d3d1);
+}
+
+.timeline-node {
+  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timeline-node:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.04);
+}
+
+/* ===== Modal Animations ===== */
+.modal-overlay {
+  animation: fadeIn 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-content {
+  animation: slideUp 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }

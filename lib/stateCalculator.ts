@@ -91,6 +91,25 @@ export function updateIdeaCardWithCalculatedState(card: IdeaCard, mves: MVE[]): 
   };
 }
 
+export function getEvidenceBalance(card: IdeaCard): { support: number; oppose: number; missing: number; ratio: number } {
+  const support = card.evidenceForHypothesis.length;
+  const oppose = card.evidenceAgainstHypothesis.length;
+  const missing = card.falsificationRisks.length;
+  const total = support + oppose + missing;
+  const ratio = total > 0 ? support / total : 0;
+  return { support, oppose, missing, ratio };
+}
+
+export function getActiveMVE(ideaId: string, mves: MVE[]): MVE | null {
+  return mves.find(m => m.ideaCardId === ideaId && m.resultStatus === 'pending') || null;
+}
+
+export function getLatestMVEResult(ideaId: string, mves: MVE[]): MVE | null {
+  const ideaMves = mves.filter(m => m.ideaCardId === ideaId && m.resultStatus !== 'pending');
+  if (ideaMves.length === 0) return null;
+  return ideaMves[ideaMves.length - 1];
+}
+
 export function calculateMVEImpactOnIdea(card: IdeaCard, mve: MVE): Partial<IdeaCard> {
   if (mve.resultStatus === 'passed') {
     return {

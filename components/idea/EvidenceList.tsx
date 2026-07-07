@@ -70,7 +70,7 @@ export function EvidenceList({ title, evidence, color, bgColor, onRemove, onAdd 
           <textarea
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
-            className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded resize-none focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            className="w-full px-2 py-1.5 text-xs border border-border-default rounded resize-none focus:outline-none focus:ring-1 focus:ring-accent/30"
             rows={2}
             placeholder="输入证据内容..."
             autoFocus
@@ -79,7 +79,7 @@ export function EvidenceList({ title, evidence, color, bgColor, onRemove, onAdd 
             <button
               onClick={handleAdd}
               disabled={!newContent.trim()}
-              className="px-2 py-1 text-xs text-white bg-indigo-500 hover:bg-indigo-600 rounded disabled:opacity-40"
+              className="px-2 py-1 text-xs text-white bg-accent hover:bg-accent-hover rounded disabled:opacity-40"
             >
               确认
             </button>

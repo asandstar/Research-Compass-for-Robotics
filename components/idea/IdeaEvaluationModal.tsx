@@ -75,19 +75,19 @@ export function IdeaEvaluationModal({ isOpen, onClose, loading, result, onAdoptH
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-[2px] modal-overlay flex items-center justify-center z-50 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="idea-evaluation-modal-title"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto"
+        className="bg-white rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto modal-content"
         onClick={e => e.stopPropagation()}
       >
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+        <div className="p-5 border-b border-border-subtle flex items-center justify-between sticky top-0 bg-white z-10">
           <div className="flex items-center gap-2">
-            <ClipboardCheck className="w-5 h-5 text-indigo-600" />
+            <ClipboardCheck className="w-5 h-5 text-accent" />
             <h2 id="idea-evaluation-modal-title" className="text-lg font-semibold text-gray-900">Idea AI 评估</h2>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
@@ -98,7 +98,7 @@ export function IdeaEvaluationModal({ isOpen, onClose, loading, result, onAdoptH
         <div className="p-5">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mb-3" />
+              <Loader2 className="w-8 h-8 text-accent animate-spin mb-3" />
               <p className="text-sm text-gray-500">AI 评估中...</p>
             </div>
           ) : result && config && RecIcon ? (
@@ -114,21 +114,21 @@ export function IdeaEvaluationModal({ isOpen, onClose, loading, result, onAdoptH
 
               {/* 评分详情 */}
               <div>
-                <p className="text-sm font-semibold text-gray-700 mb-3">8 维度评分</p>
+                <p className="text-sm font-semibold text-ink mb-3">8 维度评分</p>
                 <div className="space-y-3">
                   {result.scores.map((score, i) => (
-                    <div key={i} className="border border-gray-100 rounded-lg p-3">
+                    <div key={i} className="border border-border-subtle rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-sm font-medium text-gray-800">{score.criterion}</span>
                         <span className="text-sm font-bold text-gray-900">{score.score}/10</span>
                       </div>
-                      <div className="w-full bg-gray-100 rounded-full h-2 mb-1.5">
+                      <div className="w-full bg-bg2 rounded-full h-2 mb-1.5">
                         <div
                           className={`${getScoreColor(score.score)} h-2 rounded-full transition-all`}
                           style={{ width: `${score.score * 10}%` }}
                         />
                       </div>
-                      <p className="text-xs text-gray-500">{score.notes}</p>
+                      <p className="text-xs text-muted">{score.notes}</p>
                     </div>
                   ))}
                 </div>
@@ -136,9 +136,9 @@ export function IdeaEvaluationModal({ isOpen, onClose, loading, result, onAdoptH
 
               {/* 建议修订的假设 */}
               {result.revisedHypothesis && (
-                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                  <p className="text-sm font-semibold text-indigo-700 mb-2">建议修订的假设</p>
-                  <p className="text-sm text-gray-700 mb-3">{result.revisedHypothesis}</p>
+                <div className="bg-accent/[0.06] border border-accent/20 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-accent mb-2">建议修订的假设</p>
+                  <p className="text-sm text-ink mb-3">{result.revisedHypothesis}</p>
                   {onAdoptHypothesis && (
                     <Button
                       className="px-3 py-1 text-xs"
@@ -162,7 +162,7 @@ export function IdeaEvaluationModal({ isOpen, onClose, loading, result, onAdoptH
           )}
         </div>
 
-        <div className="p-4 border-t border-gray-100 flex justify-end">
+        <div className="p-4 border-t border-border-subtle flex justify-end">
           <Button variant="secondary" onClick={onClose}>关闭</Button>
         </div>
       </div>

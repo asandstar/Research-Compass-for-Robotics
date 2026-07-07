@@ -1,161 +1,140 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { FlaskConical, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useActiveIdea } from '../../context/ActiveIdeaContext';
+import { MVE_RESULT_LABELS } from '../../lib/types';
+import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Tag } from '../../components/ui/Tag';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
-import { MVE_RESULT_LABELS } from '../../lib/types';
-import { Search, FlaskConical, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
+import MVEHistoryCard from '../../components/mve/MVEHistoryCard';
 
-export default function MvesPage() {
+function MvesContent() {
+  const searchParams = useSearchParams();
+  const queryIdeaId = searchParams.get('ideaId') || '';
+
   const { state, getIdeaCardById } = useApp();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const { activeIdeaId, setActiveIdea } = useActiveIdea();
 
-  const statusOptions = [
-    { value: 'all', label: '全部状态' },
-    { value: 'pending', label: '待验证' },
-    { value: 'passed', label: '通过' },
-    { value: 'failed', label: '失败' },
-  ];
+  // Use query param if provided, otherwise fall back to activeIdeaId
+  const filterIdeaId = queryIdeaId || activeIdeaId;
 
-  const filteredMVEs = useMemo(() => {
-    return state.mves.filter(mve => {
-      const ideaCard = getIdeaCardById(mve.ideaCardId);
-      
-      // Search filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matchesSearch =
-          (ideaCard && ideaCard.title.toLowerCase().includes(query)) ||
-          mve.roboticsTask.toLowerCase().includes(query) ||
-          (mve.datasetOrScenario && mve.datasetOrScenario.toLowerCase().includes(query));
-        if (!matchesSearch) return false;
-      }
-      // Status filter
-      if (statusFilter !== 'all' && mve.resultStatus !== statusFilter) return false;
-      return true;
-    });
-  }, [state.mves, searchQuery, statusFilter, getIdeaCardById]);
+  const filteredMves = useMemo(() => {
+    if (!filterIdeaId) return state.mves;
+    return state.mves.filter((mve) => mve.ideaCardId === filterIdeaId);
+  }, [state.mves, filterIdeaId]);
+
+  // Sort by createdAt desc
+  const sortedMves = useMemo(() => {
+    return [...filteredMves].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [filteredMves]);
 
   const stats = {
-    total: state.mves.length,
-    pending: state.mves.filter(m => m.resultStatus === 'pending').length,
-    passed: state.mves.filter(m => m.resultStatus === 'passed').length,
-    failed: state.mves.filter(m => m.resultStatus === 'failed').length,
+    total: filteredMves.length,
+    pending: filteredMves.filter((m) => m.resultStatus === 'pending').length,
+    passed: filteredMves.filter((m) => m.resultStatus === 'passed').length,
+    failed: filteredMves.filter((m) => m.resultStatus === 'failed').length,
+  };
+
+  const handleOpenInFocus = (ideaId: string) => {
+    setActiveIdea(ideaId);
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">MVEs</h1>
-          <p className="text-gray-600 mt-1">最小可行实验追踪</p>
-        </div>
+      {/* Header */}
+      <div className="page-header">
+        <h1 className="page-title">验证记录</h1>
+        <p className="page-subtitle">
+          {filterIdeaId
+            ? '查看聚焦方向的实验验证历史'
+            : '所有研究方向的实验验证历史'}
+        </p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      {/* Stats row */}
+      <div className="grid grid-cols-4 gap-3">
         <Card className="p-4">
-          <div className="flex items-center gap-2 text-gray-600">
-            <FlaskConical className="w-5 h-5" />
-            <span className="text-sm">总 MVE</span>
+          <div className="flex items-center gap-2 text-muted">
+            <div className="w-8 h-8 rounded-lg bg-bg2 flex items-center justify-center">
+              <FlaskConical className="w-4 h-4" />
+            </div>
+            <span className="text-caption font-medium text-muted/70">总计</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
+          <p className="stat-number mt-1">{stats.total}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-amber-600">
-            <AlertCircle className="w-5 h-5" />
-            <span className="text-sm">待验证</span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
+            </div>
+            <span className="text-caption font-medium text-muted/70">待实验</span>
           </div>
-          <p className="text-2xl font-bold text-amber-600 mt-1">{stats.pending}</p>
+          <p className="stat-number text-amber-600 mt-1">{stats.pending}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-green-600">
-            <CheckCircle className="w-5 h-5" />
-            <span className="text-sm">通过</span>
+            <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+              <CheckCircle className="w-4 h-4" />
+            </div>
+            <span className="text-caption font-medium text-muted/70">通过</span>
           </div>
-          <p className="text-2xl font-bold text-green-600 mt-1">{stats.passed}</p>
+          <p className="stat-number text-green-600 mt-1">{stats.passed}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-red-600">
-            <AlertCircle className="w-5 h-5" />
-            <span className="text-sm">失败</span>
+            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+              <XCircle className="w-4 h-4" />
+            </div>
+            <span className="text-caption font-medium text-muted/70">失败</span>
           </div>
-          <p className="text-2xl font-bold text-red-600 mt-1">{stats.failed}</p>
+          <p className="stat-number text-red-600 mt-1">{stats.failed}</p>
         </Card>
       </div>
 
-      <div className="flex gap-4 items-center">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="搜索 MVE 关联 Idea、任务..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select
-          options={statusOptions}
-          value={statusFilter}
-          onChange={(value) => setStatusFilter(value)}
-          placeholder="筛选状态"
-          width="180px"
-        />
-      </div>
+      {/* Timeline */}
+      {sortedMves.length === 0 ? (
+        <Card className="py-16 px-8 text-center">
+          <FlaskConical className="w-12 h-12 text-muted/40 mx-auto mb-3 empty-state-icon" />
+          <p className="text-muted mb-1">暂无验证实验</p>
+          <p className="text-sm text-gray-400 mb-4">在聚焦工作区中生成第一个验证实验</p>
+          <Link href="/focus" className="no-underline hover:no-underline">
+            <Button variant="secondary">返回聚焦工作区</Button>
+          </Link>
+        </Card>
+      ) : (
+        <div className="relative">
+          {/* Timeline vertical line */}
+          <div className="absolute left-4 top-0 bottom-0 timeline-line" />
 
-      <div className="space-y-3">
-        {filteredMVEs.length === 0 ? (
-          <Card className="p-8 text-center">
-            <FlaskConical className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">暂无 MVE</p>
-            <p className="text-sm text-gray-400 mt-1">在 Idea 详情页点击"生成 MVE"创建第一个实验</p>
-          </Card>
-        ) : (
-          filteredMVEs.map((mve) => {
-            const label = MVE_RESULT_LABELS[mve.resultStatus];
-            const ideaCard = getIdeaCardById(mve.ideaCardId);
-            return (
-              <Link key={mve.id} href={`/detail/mve/${mve.id}`} className="no-underline hover:no-underline block">
-                <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium text-gray-900">
-                          {ideaCard ? ideaCard.title : '未知 Idea'}
-                        </h3>
-                        <Tag
-                          size="sm"
-                          color={label.color}
-                          bgColor={label.bgColor}
-                        >
-                          {label.label}
-                        </Tag>
-                      </div>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                        <span className="flex items-center gap-1">
-                          <FlaskConical className="w-4 h-4" />
-                          {mve.roboticsTask || '未指定任务'}
-                        </span>
-                        <span>{mve.datasetOrScenario || '未指定数据集'}</span>
-                        <span>{mve.baseline || '未指定基线'}</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-400">{new Date(mve.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
-            );
-          })
-        )}
-      </div>
+          <div className="space-y-6">
+            {sortedMves.map((mve) => {
+              const idea = getIdeaCardById(mve.ideaCardId);
+              return (
+                <MVEHistoryCard
+                  key={mve.id}
+                  mve={mve}
+                  ideaTitle={idea?.title || '未知 Idea'}
+                  onOpenInFocus={handleOpenInFocus}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+export default function MvesPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-20 text-muted">加载中...</div>}>
+      <MvesContent />
+    </Suspense>
   );
 }
