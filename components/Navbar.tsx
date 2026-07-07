@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Target, Lightbulb, FileText, FlaskConical, LayoutGrid, Compass, Search } from 'lucide-react';
+import { LayoutDashboard, Target, Lightbulb, FileText, FlaskConical, LayoutGrid, Compass, Search, Workflow, GraduationCap, BrainCircuit } from 'lucide-react';
 import { useActiveIdea } from '../context/ActiveIdeaContext';
 import { useApp } from '../context/AppContext';
 import { CommandPalette } from './CommandPalette';
@@ -17,10 +17,13 @@ const workNav = [
   { href: '/ideas', label: '选择方向', icon: Lightbulb },
   { href: '/papers', label: '论文', icon: FileText },
   { href: '/mves', label: '验证记录', icon: FlaskConical },
+  { href: '/workflows', label: '工作流', icon: Workflow },
+  { href: '/learning', label: '学习路径', icon: GraduationCap },
 ];
 
 const utilityNav = [
   { href: '/areas', label: '子领域', icon: LayoutGrid, iconOnly: true },
+  { href: '/papers/intelligence', label: '论文智识', icon: BrainCircuit, iconOnly: true },
 ];
 
 export function Navbar() {
