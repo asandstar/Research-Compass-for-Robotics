@@ -1,6 +1,6 @@
 'use client';
 
-import { Target, ListChecks, Terminal, Sparkles, ArrowRight } from 'lucide-react';
+import { Target, ListChecks, Terminal, Sparkles, ArrowRight, ExternalLink } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Tag } from '../ui/Tag';
 import PromptTemplateCard from './PromptTemplateCard';
@@ -40,11 +40,22 @@ export default function WorkflowCard({ workflow }: WorkflowCardProps) {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-ink text-sm">{step.title}</p>
                   <p className="text-caption text-muted mt-1 leading-relaxed">{step.description}</p>
-                  <div className="mt-2">
-                    <Tag variant="secondary" size="sm">
-                      {step.toolCombination}
-                    </Tag>
-                  </div>
+                  {step.tools.length > 0 && (
+                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                      {step.tools.map((tool) => (
+                        <a
+                          key={tool.name}
+                          href={tool.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-accent/30 text-caption text-accent hover:text-accent/80 hover:border-accent/50 hover:bg-accent/5 transition-fast transition-colors"
+                        >
+                          {tool.name}
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

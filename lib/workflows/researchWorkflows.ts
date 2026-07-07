@@ -1,10 +1,15 @@
 // AI Research Workflows - 面向机器人/VLA/具身智能研究的标准工作流
 // 纯静态数据，不依赖任何 Context 或 API
 
+export interface ToolLink {
+  name: string;
+  url: string;
+}
+
 export interface WorkflowStep {
   title: string;
   description: string;
-  toolCombination: string;
+  tools: ToolLink[];
 }
 
 export interface PromptTemplate {
@@ -32,22 +37,22 @@ export const researchWorkflows: ResearchWorkflow[] = [
       {
         title: '扫描近期顶会接收论文',
         description: '浏览 CoRL、RSS、ICRA、IROS、RAL 近两年接收论文标题，识别高频关键词与新兴主题（如 long-horizon manipulation、world models for control）。',
-        toolCombination: 'arXiv + PaperWithCode + Google Scholar',
+        tools: [{ name: 'arXiv', url: 'https://arxiv.org' }, { name: 'PaperWithCode', url: 'https://paperswithcode.com' }, { name: 'Google Scholar', url: 'https://scholar.google.com' }],
       },
       {
         title: '识别"未被解决"的痛点',
         description: '从论文 Limitations 段落和 Future Work 段落抽取共性痛点，特别关注 generalization、sample efficiency、real-world transfer 等机器人领域核心难题。',
-        toolCombination: 'Semantic Scholar + Notion + Research Compass Observation',
+        tools: [{ name: 'Semantic Scholar', url: 'https://www.semanticscholar.org' }, { name: 'Notion', url: 'https://www.notion.so' }],
       },
       {
         title: '评估方向可行性',
         description: '判断方向是否同时满足：①有公开 benchmark 可对比 ②数据/仿真器可得 ③实验室硬件可支持复现。机器人研究尤其要考虑硬件门槛。',
-        toolCombination: 'GitHub + Hugging Face + 实验室硬件清单',
+        tools: [{ name: 'GitHub', url: 'https://github.com' }, { name: 'Hugging Face', url: 'https://huggingface.co' }],
       },
       {
         title: '沉淀为 ResearchArea 和 Observation',
         description: '将候选方向写入 Research Compass 的 ResearchArea，把具体痛点拆解为 Observation，避免想法只停留在脑子里。',
-        toolCombination: 'Research Compass App',
+        tools: [],
       },
     ],
     promptTemplates: [
@@ -73,22 +78,22 @@ export const researchWorkflows: ResearchWorkflow[] = [
       {
         title: '建立关键词与查询',
         description: '基于 ResearchArea 的 keywords 和 focusQuestions，构造 arXiv + Google Scholar 查询，时间范围限制在近 2 年。',
-        toolCombination: 'arXiv API + Google Scholar + Semantic Scholar',
+        tools: [{ name: 'arXiv', url: 'https://arxiv.org' }, { name: 'Google Scholar', url: 'https://scholar.google.com' }, { name: 'Semantic Scholar', url: 'https://www.semanticscholar.org' }],
       },
       {
         title: '快速分类（ relevance / skip）',
         description: '只看标题 + 摘要 + 实验数据集，用 30 秒决策：①must-read（直接相关）②useful（背景知识）③skip（不相关）。',
-        toolCombination: 'arXiv abstract + Research Compass Paper Card',
+        tools: [{ name: 'arXiv', url: 'https://arxiv.org' }],
       },
       {
         title: '查引用关系找源头',
         description: '对 must-read 论文查被引和引用，找到方向的"奠基论文"和"最新进展"，构建 3-5 篇核心阅读清单。',
-        toolCombination: 'Semantic Scholar Citation Graph + Connected Papers',
+        tools: [{ name: 'Semantic Scholar', url: 'https://www.semanticscholar.org' }, { name: 'Connected Papers', url: 'https://www.connectedpapers.com' }],
       },
       {
         title: '登记到 Paper Library',
         description: '将筛选出的论文加入 Research Compass 的 Paper Library，标注 readingStatus 为 to_read，关联到对应 ResearchArea。',
-        toolCombination: 'Research Compass App',
+        tools: [],
       },
     ],
     promptTemplates: [
@@ -114,22 +119,22 @@ export const researchWorkflows: ResearchWorkflow[] = [
       {
         title: '读 Title + Abstract + Intro 最后一段',
         description: '用 3 分钟抓住论文要解决的问题和核心 claim，特别是"我们提出了 X，在 Y 上达到 Z"这类陈述。',
-        toolCombination: 'arXiv PDF + 速读笔记',
+        tools: [{ name: 'arXiv', url: 'https://arxiv.org' }],
       },
       {
         title: '看 Methodology 图表',
         description: '直接跳到方法图（architecture figure），理解 pipeline 而非细节。机器人论文特别关注输入输出、传感器配置、训练数据。',
-        toolCombination: 'PDF 图表 + 速读笔记',
+        tools: [],
       },
       {
         title: '扫实验表格',
         description: '只看主表（main result table），关注：①任务/benchmark ②baseline 对比 ③关键指标提升幅度。判断实验是否 convincing。',
-        toolCombination: 'PDF 表格 + Research Compass Paper Card',
+        tools: [],
       },
       {
         title: '写一句话总结',
         description: '用一句话概括"这篇论文用 X 方法解决了 Y 问题，在 Z 上比 baseline 提升 N%"，登记到 Paper Card 的 oneSentenceSummary 字段。',
-        toolCombination: 'Research Compass App',
+        tools: [],
       },
     ],
     promptTemplates: [
@@ -155,27 +160,27 @@ export const researchWorkflows: ResearchWorkflow[] = [
       {
         title: '通读全文 + 标注疑问',
         description: '逐段精读，用高亮/批注标记：①不清晰的定义 ②未解释的符号 ③跳跃的推导 ④可疑的实验设置。建立"疑问清单"。',
-        toolCombination: 'PDF 阅读器 + Notion / Markdown notes',
+        tools: [{ name: 'Notion', url: 'https://www.notion.so' }],
       },
       {
         title: '重构方法细节',
         description: '把方法章节用自己的话重写一遍，特别关注 loss function、训练流程、超参数。机器人论文要重写动作生成和执行流程。',
-        toolCombination: 'Markdown + 公式编辑器',
+        tools: [],
       },
       {
         title: '批判性审视实验',
         description: '对每个实验问：①baseline 选择是否公平 ②指标是否 cherry-picked ③是否缺少关键 ablation ④统计显著性如何 ⑤是否报告了失败 case。',
-        toolCombination: 'Critical reading checklist',
+        tools: [],
       },
       {
         title: '识别隐藏假设',
         description: '找出论文未明说的前提，如"假设观测无噪声""假设动作执行精确""假设 demo 质量一致"。这些假设往往是改进的入口。',
-        toolCombination: 'Research Compass Paper Card (hiddenAssumptions)',
+        tools: [],
       },
       {
         title: '沉淀判断与可能的扩展',
         description: '在 Paper Card 中填写 judgementLevel（must_review / idea_source / useful / background）和可能的扩展方向，触发后续 Idea 生成。',
-        toolCombination: 'Research Compass App',
+        tools: [],
       },
     ],
     promptTemplates: [
@@ -206,27 +211,27 @@ export const researchWorkflows: ResearchWorkflow[] = [
       {
         title: '检查代码与数据可得性',
         description: '确认作者是否开源代码、是否提供预训练模型、是否使用公开数据集。机器人论文还要确认仿真器版本、硬件配置（机械臂型号、相机型号）。',
-        toolCombination: 'GitHub + Hugging Face + 论文 Appendix',
+        tools: [{ name: 'GitHub', url: 'https://github.com' }, { name: 'Hugging Face', url: 'https://huggingface.co' }],
       },
       {
         title: '搭建环境并跑通 demo',
         description: '按 README 搭建环境，先跑通作者提供的 demo / pretrained model，确认环境无误。记录所有偏离 README 的步骤。',
-        toolCombination: 'conda / docker + 实验日志',
+        tools: [],
       },
       {
         title: '从头训练并对比指标',
         description: '用作者公开的数据/配置从头训练，对比论文报告的指标。机器人复现需特别关注随机种子、训练时长、GPU 占用。',
-        toolCombination: 'wandb / tensorboard + 实验日志',
+        tools: [{ name: 'Weights & Biases', url: 'https://wandb.ai' }],
       },
       {
         title: '记录 gap 与失败模式',
         description: '若复现指标低于论文，分析原因（超参数未公开、数据预处理差异、随机性）。记录失败模式，这些往往是论文的"隐藏弱点"。',
-        toolCombination: 'Research Compass MVE',
+        tools: [],
       },
       {
         title: '沉淀为 MVE 记录',
         description: '将复现过程与结果登记为 MVE（最小可行实验），关联到对应 Paper 和 Idea，为后续改进提供 baseline。',
-        toolCombination: 'Research Compass App',
+        tools: [],
       },
     ],
     promptTemplates: [
@@ -252,22 +257,22 @@ export const researchWorkflows: ResearchWorkflow[] = [
       {
         title: '构建故事线',
         description: '用一句话讲清"解决了什么问题、用什么方法、达到什么效果"。机器人论文特别要突出 real-world 价值和与现有方法的差异。',
-        toolCombination: 'Notion + Markdown outline',
+        tools: [{ name: 'Notion', url: 'https://www.notion.so' }],
       },
       {
         title: '撰写核心章节',
         description: '按 Intro → Related Work → Method → Experiments → Conclusion 顺序撰写。Method 要配清晰的 architecture figure，Experiments 要有 ablation。',
-        toolCombination: 'LaTeX / Overleaf + PDF 阅读器',
+        tools: [{ name: 'Overleaf', url: 'https://www.overleaf.com' }],
       },
       {
         title: '系统性回应 reviewer',
         description: '对每条 reviewer 意见分类：①agree & fix ②partially agree & clarify ③disagree & rebut。每条回应都要有实验或文献支撑。',
-        toolCombination: 'Rebuttal template + 实验记录',
+        tools: [],
       },
       {
         title: '补充实验与可视化',
         description: '针对 reviewer 提出的 ablation / failure case / 新 benchmark 需求，补充实验并制作清晰的可视化（视频、对比图）。',
-        toolCombination: 'wandb + matplotlib + 视频',
+        tools: [{ name: 'Weights & Biases', url: 'https://wandb.ai' }],
       },
     ],
     promptTemplates: [
