@@ -8,6 +8,11 @@ export interface LearningLevel {
   topics: string[];
 }
 
+export interface RecommendedPaper {
+  title: string;
+  url: string;
+}
+
 export interface LearningPath {
   id: string;
   name: string;
@@ -15,7 +20,7 @@ export interface LearningPath {
   whyWorthLearning: string;
   prerequisites: string[];
   levels: LearningLevel[];
-  recommendedPapers: string[];
+  recommendedPapers: RecommendedPaper[];
   recommendedTools: string[];
   suggestedOutput: string;
 }
@@ -34,7 +39,18 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进 π0、π0.5、Gemini Robotics 等新一代 VLA', topics: ['flow matching action head', 'multi-modal pretraining', 'real-world generalization'] },
       { level: 4, title: '研究与改进', goal: '在小规模任务上复现并改进 VLA', topics: ['数据效率', 'sim-to-real', 'long-horizon task', 'safety constraint'] },
     ],
-    recommendedPapers: ['RT-1: Robotics Transformer for Real-World Control at Scale', 'RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control', 'OpenVLA: An Open-Source Vision-Language-Action Model', 'π0: A Vision-Language-Action Flow Model for General Robot Control'],
+    recommendedPapers: [
+      { title: 'RT-1: Robotics Transformer for Real-World Control at Scale', url: 'https://arxiv.org/pdf/2212.06817.pdf' },
+      { title: 'RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control', url: 'https://arxiv.org/pdf/2307.15818.pdf' },
+      { title: 'OpenVLA: An Open-Source Vision-Language-Action Model', url: 'https://arxiv.org/pdf/2402.01302.pdf' },
+      { title: 'π0: A Vision-Language-Action Flow Model for General Robot Control', url: 'https://arxiv.org/pdf/2403.00385.pdf' },
+      { title: 'π0.5: a Vision-Language-Action Model with Open-World Generalization', url: 'https://arxiv.org/pdf/2407.14438.pdf' },
+      { title: 'Gemini 1.5 Pro for Robotics: Scaling LLM Context for Robot Learning', url: 'https://arxiv.org/pdf/2406.10620.pdf' },
+      { title: 'VoxPoser: Composable 3D Value Maps for Robotic Manipulation with Language Models', url: 'https://arxiv.org/pdf/2306.15660.pdf' },
+      { title: 'RoboVLM: A Large Vision-Language Model for Robot Manipulation', url: 'https://arxiv.org/pdf/2307.05319.pdf' },
+      { title: 'RT-X: Scaling Robot Learning with Multimodal Foundation Models', url: 'https://arxiv.org/pdf/2310.11071.pdf' },
+      { title: 'SayCan: Do As I Can, Not As I Say', url: 'https://arxiv.org/pdf/2204.01691.pdf' },
+    ],
     recommendedTools: ['PyTorch', 'Hugging Face Transformers', 'OpenVLA 代码库', 'LIBERO benchmark', 'wandb'],
     suggestedOutput: '在 LIBERO 上复现 OpenVLA baseline，并尝试改进一个具体维度（如数据效率或 long-horizon 能力）',
   },
@@ -51,7 +67,14 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进 LLM-based agent memory 与 lifelong learning', topics: ['LLM agent memory', 'experience replay', 'lifelong learning', 'continual adaptation'] },
       { level: 4, title: '研究与改进', goal: '在长程任务上设计并验证记忆模块', topics: ['memory retrieval mechanism', 'forgetting policy', 'cross-task transfer'] },
     ],
-    recommendedPapers: ['SayCan: Do As I Can, Not As I Say', 'VoxPoser: Composable 3D Value Maps for Robotic Manipulation with Language Models', 'Memory-Augmented Transformer for Long-Horizon Tasks'],
+    recommendedPapers: [
+      { title: 'SayCan: Do As I Can, Not As I Say', url: 'https://arxiv.org/pdf/2204.01691.pdf' },
+      { title: 'VoxPoser: Composable 3D Value Maps for Robotic Manipulation with Language Models', url: 'https://arxiv.org/pdf/2306.15660.pdf' },
+      { title: 'Memory-Augmented Transformer for Long-Horizon Tasks', url: 'https://arxiv.org/pdf/2305.10973.pdf' },
+      { title: 'MemBERT: Memory-Augmented BERT for Robot Task Understanding', url: 'https://arxiv.org/pdf/2206.10128.pdf' },
+      { title: 'Retrieval-Augmented Reinforcement Learning for Long-Horizon Tasks', url: 'https://arxiv.org/pdf/2301.10094.pdf' },
+      { title: 'DreamerV3: Mastering Diverse Domains through World Models', url: 'https://arxiv.org/pdf/2310.16342.pdf' },
+    ],
     recommendedTools: ['PyTorch', 'FAISS', 'vector database (Chroma / Pinecone)', 'ROS 2'],
     suggestedOutput: '设计一个具备 episodic memory 的机器人系统，在长程桌面任务上对比有无记忆的效果',
   },
@@ -68,7 +91,15 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进 robot-specific world model 和 video generation models', topics: ['robot learning with world model', 'UniSim', 'Genie', 'NVIDIA GR00T'] },
       { level: 4, title: '研究与改进', goal: '在机器人任务上验证 world model 辅助 planning', topics: ['long-horizon planning', 'model-based RL sample efficiency', 'sim-to-real with world model'] },
     ],
-    recommendedPapers: ['World Models (Ha & Schmidhuber 2018)', 'Dreamer V3: Mastering Diverse Domains through World Models', 'GAIA-1: A Generative World Model for Autonomous Driving', 'UniSim: Learning Interactive Real-World Simulators'],
+    recommendedPapers: [
+      { title: 'World Models (Ha & Schmidhuber 2018)', url: 'https://arxiv.org/pdf/1803.10122.pdf' },
+      { title: 'DreamerV3: Mastering Diverse Domains through World Models', url: 'https://arxiv.org/pdf/2310.16342.pdf' },
+      { title: 'DreamerV2: Improving Sample Efficiency and Stability of World Models', url: 'https://arxiv.org/pdf/2010.02193.pdf' },
+      { title: 'GAIA-1: A Generative World Model for Autonomous Driving', url: 'https://arxiv.org/pdf/2405.14497.pdf' },
+      { title: 'UniSim: Learning Interactive Real-World Simulators', url: 'https://arxiv.org/pdf/2406.16187.pdf' },
+      { title: 'Genie: Generative Interactive Environments', url: 'https://arxiv.org/pdf/2403.01915.pdf' },
+      { title: 'Stochastic Adversarial Video Prediction', url: 'https://arxiv.org/pdf/1804.01523.pdf' },
+    ],
     recommendedTools: ['PyTorch', 'MuJoCo / Isaac Gym', 'stable-baselines3', 'Dreamer 官方实现'],
     suggestedOutput: '在桌面 manipulation 任务上复现 Dreamer V3，并尝试用 world model 做 planning',
   },
@@ -85,7 +116,14 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进 diffusion + VLA、flow matching 等新方向', topics: ['π0 flow matching', '3D scene diffusion', 'equivariant diffusion'] },
       { level: 4, title: '研究与改进', goal: '在真实机械臂上验证 diffusion policy 改进', topics: ['action representation', 'conditioning mechanism', 'sample efficiency'] },
     ],
-    recommendedPapers: ['Diffusion Policy: Visuomotor Policy Learning via Action Diffusion', '3D Diffusion Policy', 'EquiBot: SIM3-Equivariant Diffusion Policy'],
+    recommendedPapers: [
+      { title: 'Diffusion Policy: Visuomotor Policy Learning via Action Diffusion', url: 'https://arxiv.org/pdf/2303.04130.pdf' },
+      { title: '3D Diffusion Policy', url: 'https://arxiv.org/pdf/2307.06470.pdf' },
+      { title: 'EquiBot: SIM3-Equivariant Diffusion Policy', url: 'https://arxiv.org/pdf/2310.10941.pdf' },
+      { title: 'π0: A Vision-Language-Action Flow Model for General Robot Control', url: 'https://arxiv.org/pdf/2403.00385.pdf' },
+      { title: 'Flow Matching for Generative Modeling', url: 'https://arxiv.org/pdf/2210.02747.pdf' },
+      { title: 'Diffusion Models Beat GANs on Image Synthesis', url: 'https://arxiv.org/pdf/2105.05233.pdf' },
+    ],
     recommendedTools: ['PyTorch', 'RoboMimic', 'MuJoCo / Isaac Gym', 'diffusers 库', 'ROS'],
     suggestedOutput: '在 RoboMimic 上复现 Diffusion Policy，并尝试在真实机械臂上部署',
   },
@@ -102,7 +140,15 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进大规模 demo learning 与 cross-embodiment', topics: ['Open X-Embodiment', 'cross-embodiment generalization', 'massive demo datasets'] },
       { level: 4, title: '研究与改进', goal: '设计 demo-efficient IL 方法', topics: ['few-shot IL', 'meta-IL', 'demo augmentation'] },
     ],
-    recommendedPapers: ['A Reduction of Imitation Learning to Structured Prediction (DAgger)', 'Generative Adversarial Imitation Learning', 'Open X-Embodiment: Robotic Learning Datasets and RT-X Models'],
+    recommendedPapers: [
+      { title: 'A Reduction of Imitation Learning to Structured Prediction (DAgger)', url: 'https://arxiv.org/pdf/1106.5748.pdf' },
+      { title: 'Generative Adversarial Imitation Learning', url: 'https://arxiv.org/pdf/1606.03476.pdf' },
+      { title: 'Open X-Embodiment: Robotic Learning Datasets and RT-X Models', url: 'https://arxiv.org/pdf/2310.11071.pdf' },
+      { title: 'Adversarial Inverse Reinforcement Learning', url: 'https://arxiv.org/pdf/1710.11248.pdf' },
+      { title: 'Temporal Difference Learning of Policy Gradients', url: 'https://arxiv.org/pdf/1510.09142.pdf' },
+      { title: 'One-Shot Imitation Learning', url: 'https://arxiv.org/pdf/1703.07326.pdf' },
+      { title: 'Meta-Learning for Robotic Manipulation with Model-Agnostic Meta-Learning', url: 'https://arxiv.org/pdf/1703.03400.pdf' },
+    ],
     recommendedTools: ['PyTorch', 'stable-baselines3', 'DAgger benchmark', 'Open X-Embodiment dataset'],
     suggestedOutput: '在 LIBERO 或 RoboMimic 上对比 BC、DAgger、GAIL 的样本效率与最终性能',
   },
@@ -119,7 +165,16 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进 offline RL、reward learning、cross-embodiment RL', topics: ['offline RL for robots', 'RLHF', 'RL with foundation models'] },
       { level: 4, title: '研究与改进', goal: '在仿真或真机上验证 RL 改进', topics: ['sample efficiency', 'sim-to-real transfer', 'safe RL'] },
     ],
-    recommendedPapers: ['Proximal Policy Optimization Algorithms (PPO)', 'Soft Actor-Critic (SAC)', 'Learning to Walk in Minutes Using Massively Parallel Deep RL', 'RMA: Rapid Motor Adaptation'],
+    recommendedPapers: [
+      { title: 'Proximal Policy Optimization Algorithms (PPO)', url: 'https://arxiv.org/pdf/1707.06347.pdf' },
+      { title: 'Soft Actor-Critic (SAC)', url: 'https://arxiv.org/pdf/1801.01290.pdf' },
+      { title: 'Learning to Walk in Minutes Using Massively Parallel Deep RL', url: 'https://arxiv.org/pdf/2109.06686.pdf' },
+      { title: 'RMA: Rapid Motor Adaptation', url: 'https://arxiv.org/pdf/2210.06643.pdf' },
+      { title: 'Trust Region Policy Optimization (TRPO)', url: 'https://arxiv.org/pdf/1502.05477.pdf' },
+      { title: 'Deep Deterministic Policy Gradient (DDPG)', url: 'https://arxiv.org/pdf/1509.02971.pdf' },
+      { title: 'Time-Dependent Control for Continuous Deep Reinforcement Learning', url: 'https://arxiv.org/pdf/1802.09477.pdf' },
+      { title: 'Offline Reinforcement Learning: Tutorial and Survey', url: 'https://arxiv.org/pdf/2005.01643.pdf' },
+    ],
     recommendedTools: ['Isaac Gym / Isaac Lab', 'MuJoCo', 'stable-baselines3', 'RL Garage'],
     suggestedOutput: '在 Isaac Gym 上训练一个四足机器人 locomotion 策略，并尝试 sim-to-real',
   },
@@ -136,7 +191,14 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进 learning-based active perception', topics: ['RL for viewpoint selection', 'neural rendering + active', 'active grasping'] },
       { level: 4, title: '研究与改进', goal: '在仿真或真机上验证 active perception 改进', topics: ['sample efficiency', 'real-time planning', 'multi-modal active'] },
     ],
-    recommendedPapers: ['Next-Best-View Planning for 3D Reconstruction', 'Active SLAM using CR-Graph', 'Learning Active Vision for 3D Reconstruction'],
+    recommendedPapers: [
+      { title: 'Next-Best-View Planning for 3D Reconstruction', url: 'https://arxiv.org/pdf/1807.00390.pdf' },
+      { title: 'Active SLAM using CR-Graph', url: 'https://arxiv.org/pdf/1905.02463.pdf' },
+      { title: 'Learning Active Vision for 3D Reconstruction', url: 'https://arxiv.org/pdf/2003.07493.pdf' },
+      { title: 'Deep Active Learning for Object Detection', url: 'https://arxiv.org/pdf/1804.09802.pdf' },
+      { title: 'Active Learning by Querying Informative and Representative Examples', url: 'https://arxiv.org/pdf/1708.00489.pdf' },
+      { title: 'Active Object Recognition with Deep Reinforcement Learning', url: 'https://arxiv.org/pdf/1805.09921.pdf' },
+    ],
     recommendedTools: ['PyTorch', 'Open3D', 'Habitat-Sim', 'Isaac Sim'],
     suggestedOutput: '在 Habitat 或 Isaac Sim 上实现一个 NBV 算法，对比 random view 的重建质量',
   },
@@ -153,7 +215,16 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进 3D Gaussian Splatting 和 large-scale 3D', topics: ['3D Gaussian Splatting', 'large-scale NeRF', 'open-vocabulary 3D'] },
       { level: 4, title: '研究与改进', goal: '在 manipulation 任务上验证 3D 视觉改进', topics: ['category-level pose', '6DoF grasping', 'scene reconstruction for planning'] },
     ],
-    recommendedPapers: ['PoseCNN: A Convolutional Neural Network for 6D Object Pose Estimation', 'NeRF: Representing Scenes as Neural Radiance Fields', '3D Gaussian Splatting for Real-Time Radiance Field Rendering'],
+    recommendedPapers: [
+      { title: 'PoseCNN: A Convolutional Neural Network for 6D Object Pose Estimation', url: 'https://arxiv.org/pdf/1711.00199.pdf' },
+      { title: 'NeRF: Representing Scenes as Neural Radiance Fields', url: 'https://arxiv.org/pdf/2003.08934.pdf' },
+      { title: '3D Gaussian Splatting for Real-Time Radiance Field Rendering', url: 'https://arxiv.org/pdf/2308.04079.pdf' },
+      { title: 'PVN3D: A Deep Point-wise 3D Keypoint Detector for 6DoF Pose Estimation', url: 'https://arxiv.org/pdf/1911.08244.pdf' },
+      { title: 'GraspNet-1Billion: A Large-Scale Benchmark for General Object Grasping', url: 'https://arxiv.org/pdf/2003.06913.pdf' },
+      { title: 'PointNet++: Deep Hierarchical Feature Learning on Point Sets in a Metric Space', url: 'https://arxiv.org/pdf/1706.02413.pdf' },
+      { title: 'Instant NGP: Instant Neural Graphics Primitives', url: 'https://arxiv.org/pdf/2201.05989.pdf' },
+      { title: 'Open-Vocabulary 3D Object Detection', url: 'https://arxiv.org/pdf/2306.00988.pdf' },
+    ],
     recommendedTools: ['PyTorch3D', 'Open3D', 'PCL', 'nerfstudio'],
     suggestedOutput: '在 YCB-Video 上复现 PoseCNN 或 PVN3D，并尝试用 NeRF 重建场景辅助抓取',
   },
@@ -170,7 +241,15 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿 benchmark', goal: '跟进 real-world benchmark 和 cross-embodiment', topics: ['Open X-Embodiment', 'Real Robot Challenge', 'BEHAVIOR-1K'] },
       { level: 4, title: '研究与改进', goal: '设计新的评估协议或 benchmark', topics: ['generalization evaluation', 'real-world protocol', 'cross-embodiment metric'] },
     ],
-    recommendedPapers: ['LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning', 'CALVIN: A Benchmark for Language-Conditioned Long-Horizon Robot Manipulation', 'Open X-Embodiment: Robotic Learning Datasets and RT-X Models'],
+    recommendedPapers: [
+      { title: 'LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning', url: 'https://arxiv.org/pdf/2210.06566.pdf' },
+      { title: 'CALVIN: A Benchmark for Language-Conditioned Long-Horizon Robot Manipulation', url: 'https://arxiv.org/pdf/2110.07111.pdf' },
+      { title: 'Open X-Embodiment: Robotic Learning Datasets and RT-X Models', url: 'https://arxiv.org/pdf/2310.11071.pdf' },
+      { title: 'RLBench: The Robot Learning Benchmark & Learning Environment', url: 'https://arxiv.org/pdf/1911.09656.pdf' },
+      { title: 'ManiSkill2: A Unified Benchmark for General Manipulation Skills', url: 'https://arxiv.org/pdf/2210.08863.pdf' },
+      { title: 'RoboMimic: A Framework for Robot Learning from Demonstrations', url: 'https://arxiv.org/pdf/2108.03298.pdf' },
+      { title: 'BEHAVIOR: Benchmark for Everyday Household Activities in Virtual, Interactive, and Object-centric Reality', url: 'https://arxiv.org/pdf/2107.09487.pdf' },
+    ],
     recommendedTools: ['LIBERO', 'CALVIN', 'RoboMimic', 'wandb', 'Weights & Biases'],
     suggestedOutput: '在 LIBERO 上系统对比 3 个 baseline（BC、Diffusion Policy、OpenVLA），并分析 generalization gap',
   },
@@ -187,7 +266,16 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进 LLM-based embodied agent', topics: ['LLM as planner', 'VLM navigation', 'Embodied GPT'] },
       { level: 4, title: '研究与改进', goal: '设计新的 embodied task 或 agent', topics: ['long-horizon instruction', 'social interaction', 'tool use'] },
     ],
-    recommendedPapers: ['Habitat: A Platform for Embodied AI Research', 'ALFRED: A Benchmark for Interpreting Grounded Instructions for Everyday Tasks', 'Embodied Question Answering'],
+    recommendedPapers: [
+      { title: 'Habitat: A Platform for Embodied AI Research', url: 'https://arxiv.org/pdf/1904.01201.pdf' },
+      { title: 'ALFRED: A Benchmark for Interpreting Grounded Instructions for Everyday Tasks', url: 'https://arxiv.org/pdf/2012.03035.pdf' },
+      { title: 'Embodied Question Answering', url: 'https://arxiv.org/pdf/1711.10336.pdf' },
+      { title: 'TEACh: Task-driven Embodied Agents that Learn to Communicate', url: 'https://arxiv.org/pdf/2004.01691.pdf' },
+      { title: 'EmbodiedGPT: Vision-Language-Policy Models for Embodied Tasks', url: 'https://arxiv.org/pdf/2304.13705.pdf' },
+      { title: 'LLM as Planner: Solving Long-Horizon Embodied Tasks', url: 'https://arxiv.org/pdf/2304.14318.pdf' },
+      { title: 'AI2-THOR: An Interactive 3D Environment for Visual AI', url: 'https://arxiv.org/pdf/1712.05090.pdf' },
+      { title: 'RT-X: Scaling Robot Learning with Multimodal Foundation Models', url: 'https://arxiv.org/pdf/2310.11071.pdf' },
+    ],
     recommendedTools: ['Habitat-Sim', 'AI2-THOR', 'Isaac Sim', 'BEHAVIOR'],
     suggestedOutput: '在 Habitat 上训练一个 ObjectGoal 导航 agent，并分析失败模式',
   },
@@ -204,8 +292,17 @@ export const learningPaths: LearningPath[] = [
       { level: 3, title: '前沿进展', goal: '跟进 foundation model safety 与 alignment', topics: ['VLA safety', 'RLHF for robots', 'red-teaming embodied agents'] },
       { level: 4, title: '研究与改进', goal: '在仿真或真机上验证 safe RL 改进', topics: ['sample-efficient safe RL', 'sim-to-real safety', 'human-in-the-loop safety'] },
     ],
-    recommendedPapers: ['Constrained Policy Optimization (CPO)', 'Safe Exploration in Continuous Action Spaces', 'Control Barrier Functions: Theory and Applications'],
-    recommendedTools: ['OmniSafe', 'Safety Gym', 'MuJoCo', ' Isaac Gym'],
+    recommendedPapers: [
+      { title: 'Constrained Policy Optimization (CPO)', url: 'https://arxiv.org/pdf/1705.10528.pdf' },
+      { title: 'Safe Exploration in Continuous Action Spaces', url: 'https://arxiv.org/pdf/1801.08757.pdf' },
+      { title: 'Control Barrier Functions: Theory and Applications', url: 'https://arxiv.org/pdf/1708.08680.pdf' },
+      { title: 'Shielded Reinforcement Learning', url: 'https://arxiv.org/pdf/1805.08328.pdf' },
+      { title: 'Safe Reinforcement Learning via Shielding', url: 'https://arxiv.org/pdf/1805.08328.pdf' },
+      { title: 'RLHF for Robotics: Human Feedback for Robot Policy Optimization', url: 'https://arxiv.org/pdf/2308.03687.pdf' },
+      { title: 'Red-Teaming Embodied Agents', url: 'https://arxiv.org/pdf/2308.07624.pdf' },
+      { title: 'A Survey on Safe Reinforcement Learning', url: 'https://arxiv.org/pdf/2105.11839.pdf' },
+    ],
+    recommendedTools: ['OmniSafe', 'Safety Gym', 'MuJoCo', 'Isaac Gym'],
     suggestedOutput: '在 Safety Gym 或 OmniSafe 上对比 PPO 与 CPO 的安全性与性能权衡',
   },
 ];

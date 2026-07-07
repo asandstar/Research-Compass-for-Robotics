@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Wrench, Sparkles, Layers, BookOpen } from 'lucide-react';
+import { FileText, Wrench, Sparkles, Layers, BookOpen, ExternalLink } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Tag } from '../ui/Tag';
 import LevelSection from './LevelSection';
@@ -59,9 +59,17 @@ export default function LearningPathCard({ path }: LearningPathCardProps) {
         </p>
         <ul className="space-y-1.5">
           {path.recommendedPapers.map((paper) => (
-            <li key={paper} className="text-caption text-ink leading-relaxed flex items-start gap-1.5">
-              <FileText className="w-3 h-3 text-accent/60 flex-shrink-0 mt-0.5" />
-              <span>{paper}</span>
+            <li key={paper.title}>
+              <a
+                href={paper.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-caption text-accent hover:text-accent/80 hover:underline flex items-start gap-1.5 w-full"
+              >
+                <FileText className="w-3 h-3 text-accent/60 flex-shrink-0 mt-0.5" />
+                <span className="flex-1 min-w-0">{paper.title}</span>
+                <ExternalLink className="w-3 h-3 text-accent/40 flex-shrink-0" />
+              </a>
             </li>
           ))}
         </ul>
