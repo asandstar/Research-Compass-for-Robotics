@@ -13,6 +13,11 @@ export interface RecommendedPaper {
   url: string;
 }
 
+export interface RecommendedTool {
+  name: string;
+  url: string;
+}
+
 export interface LearningPath {
   id: string;
   name: string;
@@ -21,7 +26,7 @@ export interface LearningPath {
   prerequisites: string[];
   levels: LearningLevel[];
   recommendedPapers: RecommendedPaper[];
-  recommendedTools: string[];
+  recommendedTools: RecommendedTool[];
   suggestedOutput: string;
 }
 
@@ -51,7 +56,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'RT-X: Scaling Robot Learning with Multimodal Foundation Models', url: 'https://arxiv.org/pdf/2310.11071.pdf' },
       { title: 'SayCan: Do As I Can, Not As I Say', url: 'https://arxiv.org/pdf/2204.01691.pdf' },
     ],
-    recommendedTools: ['PyTorch', 'Hugging Face Transformers', 'OpenVLA 代码库', 'LIBERO benchmark', 'wandb'],
+    recommendedTools: [{ name: 'PyTorch', url: 'https://pytorch.org' }, { name: 'Hugging Face Transformers', url: 'https://huggingface.co/docs/transformers' }, { name: 'OpenVLA', url: 'https://github.com/openvla/openvla' }, { name: 'LIBERO', url: 'https://libero.farama.org' }, { name: 'Weights & Biases', url: 'https://wandb.ai' }],
     suggestedOutput: '在 LIBERO 上复现 OpenVLA baseline，并尝试改进一个具体维度（如数据效率或 long-horizon 能力）',
   },
   {
@@ -75,7 +80,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'Retrieval-Augmented Reinforcement Learning for Long-Horizon Tasks', url: 'https://arxiv.org/pdf/2301.10094.pdf' },
       { title: 'DreamerV3: Mastering Diverse Domains through World Models', url: 'https://arxiv.org/pdf/2310.16342.pdf' },
     ],
-    recommendedTools: ['PyTorch', 'FAISS', 'vector database (Chroma / Pinecone)', 'ROS 2'],
+    recommendedTools: [{ name: 'PyTorch', url: 'https://pytorch.org' }, { name: 'FAISS', url: 'https://github.com/facebookresearch/faiss' }, { name: 'Chroma', url: 'https://www.trychroma.com' }, { name: 'Pinecone', url: 'https://www.pinecone.io' }, { name: 'ROS 2', url: 'https://docs.ros.org/en/humble' }],
     suggestedOutput: '设计一个具备 episodic memory 的机器人系统，在长程桌面任务上对比有无记忆的效果',
   },
   {
@@ -100,7 +105,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'Genie: Generative Interactive Environments', url: 'https://arxiv.org/pdf/2403.01915.pdf' },
       { title: 'Stochastic Adversarial Video Prediction', url: 'https://arxiv.org/pdf/1804.01523.pdf' },
     ],
-    recommendedTools: ['PyTorch', 'MuJoCo / Isaac Gym', 'stable-baselines3', 'Dreamer 官方实现'],
+    recommendedTools: [{ name: 'PyTorch', url: 'https://pytorch.org' }, { name: 'MuJoCo', url: 'https://mujoco.org' }, { name: 'Isaac Gym', url: 'https://developer.nvidia.com/isaac-gym' }, { name: 'stable-baselines3', url: 'https://stable-baselines3.readthedocs.io' }, { name: 'Dreamer', url: 'https://danijar.com/project/dreamer' }],
     suggestedOutput: '在桌面 manipulation 任务上复现 Dreamer V3，并尝试用 world model 做 planning',
   },
   {
@@ -124,7 +129,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'Flow Matching for Generative Modeling', url: 'https://arxiv.org/pdf/2210.02747.pdf' },
       { title: 'Diffusion Models Beat GANs on Image Synthesis', url: 'https://arxiv.org/pdf/2105.05233.pdf' },
     ],
-    recommendedTools: ['PyTorch', 'RoboMimic', 'MuJoCo / Isaac Gym', 'diffusers 库', 'ROS'],
+    recommendedTools: [{ name: 'PyTorch', url: 'https://pytorch.org' }, { name: 'RoboMimic', url: 'https://robomimic.github.io' }, { name: 'MuJoCo', url: 'https://mujoco.org' }, { name: 'diffusers', url: 'https://huggingface.co/docs/diffusers' }, { name: 'ROS', url: 'https://www.ros.org' }],
     suggestedOutput: '在 RoboMimic 上复现 Diffusion Policy，并尝试在真实机械臂上部署',
   },
   {
@@ -149,7 +154,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'One-Shot Imitation Learning', url: 'https://arxiv.org/pdf/1703.07326.pdf' },
       { title: 'Meta-Learning for Robotic Manipulation with Model-Agnostic Meta-Learning', url: 'https://arxiv.org/pdf/1703.03400.pdf' },
     ],
-    recommendedTools: ['PyTorch', 'stable-baselines3', 'DAgger benchmark', 'Open X-Embodiment dataset'],
+    recommendedTools: [{ name: 'PyTorch', url: 'https://pytorch.org' }, { name: 'stable-baselines3', url: 'https://stable-baselines3.readthedocs.io' }, { name: 'DAgger', url: 'https://sites.google.com/view/alex-ross/home/publications' }, { name: 'Open X-Embodiment', url: 'https://robotics-transformer-x.github.io' }, { name: 'NVIDIA Isaac', url: 'https://developer.nvidia.com/isaac' }],
     suggestedOutput: '在 LIBERO 或 RoboMimic 上对比 BC、DAgger、GAIL 的样本效率与最终性能',
   },
   {
@@ -175,7 +180,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'Time-Dependent Control for Continuous Deep Reinforcement Learning', url: 'https://arxiv.org/pdf/1802.09477.pdf' },
       { title: 'Offline Reinforcement Learning: Tutorial and Survey', url: 'https://arxiv.org/pdf/2005.01643.pdf' },
     ],
-    recommendedTools: ['Isaac Gym / Isaac Lab', 'MuJoCo', 'stable-baselines3', 'RL Garage'],
+    recommendedTools: [{ name: 'Isaac Gym', url: 'https://developer.nvidia.com/isaac-gym' }, { name: 'Isaac Lab', url: 'https://isaaclab.github.io' }, { name: 'MuJoCo', url: 'https://mujoco.org' }, { name: 'stable-baselines3', url: 'https://stable-baselines3.readthedocs.io' }, { name: 'RL Garage', url: 'https://rl-garage.readthedocs.io' }],
     suggestedOutput: '在 Isaac Gym 上训练一个四足机器人 locomotion 策略，并尝试 sim-to-real',
   },
   {
@@ -199,7 +204,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'Active Learning by Querying Informative and Representative Examples', url: 'https://arxiv.org/pdf/1708.00489.pdf' },
       { title: 'Active Object Recognition with Deep Reinforcement Learning', url: 'https://arxiv.org/pdf/1805.09921.pdf' },
     ],
-    recommendedTools: ['PyTorch', 'Open3D', 'Habitat-Sim', 'Isaac Sim'],
+    recommendedTools: [{ name: 'PyTorch', url: 'https://pytorch.org' }, { name: 'Open3D', url: 'https://www.open3d.org' }, { name: 'Habitat-Sim', url: 'https://aihabitat.org/habitat-sim' }, { name: 'Isaac Sim', url: 'https://developer.nvidia.com/isaac-sim' }, { name: 'Unity ML-Agents', url: 'https://unity.com/products/ml-agents' }],
     suggestedOutput: '在 Habitat 或 Isaac Sim 上实现一个 NBV 算法，对比 random view 的重建质量',
   },
   {
@@ -225,7 +230,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'Instant NGP: Instant Neural Graphics Primitives', url: 'https://arxiv.org/pdf/2201.05989.pdf' },
       { title: 'Open-Vocabulary 3D Object Detection', url: 'https://arxiv.org/pdf/2306.00988.pdf' },
     ],
-    recommendedTools: ['PyTorch3D', 'Open3D', 'PCL', 'nerfstudio'],
+    recommendedTools: [{ name: 'PyTorch3D', url: 'https://pytorch3d.org' }, { name: 'Open3D', url: 'https://www.open3d.org' }, { name: 'PCL', url: 'https://pointclouds.org' }, { name: 'nerfstudio', url: 'https://docs.nerf.studio' }, { name: 'Instant NGP', url: 'https://nvlabs.github.io/instant-ngp' }],
     suggestedOutput: '在 YCB-Video 上复现 PoseCNN 或 PVN3D，并尝试用 NeRF 重建场景辅助抓取',
   },
   {
@@ -250,7 +255,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'RoboMimic: A Framework for Robot Learning from Demonstrations', url: 'https://arxiv.org/pdf/2108.03298.pdf' },
       { title: 'BEHAVIOR: Benchmark for Everyday Household Activities in Virtual, Interactive, and Object-centric Reality', url: 'https://arxiv.org/pdf/2107.09487.pdf' },
     ],
-    recommendedTools: ['LIBERO', 'CALVIN', 'RoboMimic', 'wandb', 'Weights & Biases'],
+    recommendedTools: [{ name: 'LIBERO', url: 'https://libero.farama.org' }, { name: 'CALVIN', url: 'https://calvin.cs.uni-freiburg.de' }, { name: 'RoboMimic', url: 'https://robomimic.github.io' }, { name: 'Weights & Biases', url: 'https://wandb.ai' }, { name: 'ManiSkill', url: 'https://maniskill.readthedocs.io' }],
     suggestedOutput: '在 LIBERO 上系统对比 3 个 baseline（BC、Diffusion Policy、OpenVLA），并分析 generalization gap',
   },
   {
@@ -276,7 +281,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'AI2-THOR: An Interactive 3D Environment for Visual AI', url: 'https://arxiv.org/pdf/1712.05090.pdf' },
       { title: 'RT-X: Scaling Robot Learning with Multimodal Foundation Models', url: 'https://arxiv.org/pdf/2310.11071.pdf' },
     ],
-    recommendedTools: ['Habitat-Sim', 'AI2-THOR', 'Isaac Sim', 'BEHAVIOR'],
+    recommendedTools: [{ name: 'Habitat-Sim', url: 'https://aihabitat.org/habitat-sim' }, { name: 'AI2-THOR', url: 'https://ai2thor.allenai.org' }, { name: 'Isaac Sim', url: 'https://developer.nvidia.com/isaac-sim' }, { name: 'BEHAVIOR', url: 'https://behavior.stanford.edu' }, { name: 'MineRL', url: 'https://minerl.io' }],
     suggestedOutput: '在 Habitat 上训练一个 ObjectGoal 导航 agent，并分析失败模式',
   },
   {
@@ -302,7 +307,7 @@ export const learningPaths: LearningPath[] = [
       { title: 'Red-Teaming Embodied Agents', url: 'https://arxiv.org/pdf/2308.07624.pdf' },
       { title: 'A Survey on Safe Reinforcement Learning', url: 'https://arxiv.org/pdf/2105.11839.pdf' },
     ],
-    recommendedTools: ['OmniSafe', 'Safety Gym', 'MuJoCo', 'Isaac Gym'],
+    recommendedTools: [{ name: 'OmniSafe', url: 'https://omnisafe.readthedocs.io' }, { name: 'Safety Gym', url: 'https://openai.com/research/safety-gym' }, { name: 'MuJoCo', url: 'https://mujoco.org' }, { name: 'Isaac Gym', url: 'https://developer.nvidia.com/isaac-gym' }, { name: 'Gymnasium', url: 'https://gymnasium.farama.org' }],
     suggestedOutput: '在 Safety Gym 或 OmniSafe 上对比 PPO 与 CPO 的安全性与性能权衡',
   },
 ];

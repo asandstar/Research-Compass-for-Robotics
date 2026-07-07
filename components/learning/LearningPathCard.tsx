@@ -83,9 +83,16 @@ export default function LearningPathCard({ path }: LearningPathCardProps) {
         </p>
         <div className="flex items-center gap-1.5 flex-wrap">
           {path.recommendedTools.map((tool) => (
-            <Tag key={tool} variant="outline" size="sm" color="#0d9488">
-              {tool}
-            </Tag>
+            <a
+              key={tool.name}
+              href={tool.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-accent/30 text-caption text-accent hover:text-accent/80 hover:border-accent/50 hover:bg-accent/5 transition-fast transition-colors"
+            >
+              {tool.name}
+              <ExternalLink className="w-3 h-3" />
+            </a>
           ))}
         </div>
       </div>
