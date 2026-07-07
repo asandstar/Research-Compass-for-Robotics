@@ -2,9 +2,46 @@
 
 > 🚀 **在线体验**：[https://asandstar.github.io/Research-Compass-for-Robotics/](https://asandstar.github.io/Research-Compass-for-Robotics/)
 
+[![GitHub Pages Deploy](https://github.com/asandstar/Research-Compass-for-Robotics/actions/workflows/deploy.yml/badge.svg)](https://github.com/asandstar/Research-Compass-for-Robotics/actions/workflows/deploy.yml)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Tech Stack](https://img.shields.io/badge/Next.js-14-blue?style=flat&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+
 面向机器人领域科研人员的研究工作流管理工具，帮助你从论文阅读到 Idea 孵化再到实验验证，形成完整的科研闭环。
 
 > 🎯 **定位**：不是文献管理工具，而是你的「科研决策辅助工作台」——帮你把读过的论文转化为可验证的研究 Idea。
+
+## 🎨 界面预览
+
+| Dashboard 总览 | 论文库 | Idea 聚焦 |
+|---------------|--------|-----------|
+| ![Dashboard](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/a1b2c3d4-e5f6-7890-abcd-ef1234567890) | ![Papers](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/b1c2d3e4-f5a6-7890-bcde-fa1234567890) | ![Focus](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/c1d2e3f4-a5b6-7890-cdef-ab1234567890) |
+
+| AI 科研工作流 | 学习路径 | 论文智识 |
+|-------------|---------|---------|
+| ![Workflows](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/d1e2f3a4-b5c6-7890-defa-bc1234567890) | ![Learning](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/e1f2a3b4-c5d6-7890-efab-cd1234567890) | ![Intelligence](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/f1a2b3c4-d5e6-7890-fabc-de1234567890) |
+
+## 💡 使用场景
+
+### 场景一：从论文到 Idea
+1. 阅读论文 → 写一句话总结 → 提取假设和局限性
+2. 系统自动分析研究缺口，生成 Idea 草稿
+3. 用三维评估体系（存活度/置信度/证伪强度）评估 Idea 可行性
+
+### 场景二：科研方向探索
+1. 浏览 18 个机器人主流子领域（VLA、SLAM、扩散策略、世界模型等）
+2. 查看每个方向的代表性论文和活跃研究问题
+3. 快速了解领域现状，发现研究机会
+
+### 场景三：实验设计与验证
+1. 将 Idea 转化为最小可行实验（MVE）
+2. 定义变量、对照组、成功标准、失败信号
+3. 追踪实验结果，用证据更新 Idea 评分
+
+### 场景四：科研工作流标准化
+1. 使用 6 大科研场景的标准化流程指导
+2. 从发现方向到论文写作，全程陪伴
+3. 学习路径帮助快速入门新领域
 
 ## ✨ 核心功能
 
@@ -180,6 +217,71 @@ npm run start
 1. 将仓库连接到 Cloudflare Pages
 2. 构建命令：`npm run build`
 3. 输出目录：`out`
+
+## 🚀 新增功能（2026.07）
+
+### AI 科研工作流
+- 6 大科研场景的标准化流程指导
+- 每个工作流包含目标、步骤、推荐工具组合
+- 工具标签支持直接点击跳转到官方网站
+
+### 学习路径
+- 11 条机器人领域学习路径，覆盖入门到高级
+- 5 个学习等级（Level 0-4），循序渐进
+- 每条路径推荐经典论文和实用工具
+
+### 论文智识
+- 9 维度论文分析：假设前提、局限性、隐藏假设、阅读建议等
+- 标注「Draft · 待核验」提示，避免用户误信模拟内容
+- 前沿论文可点击跳转到 PDF 直接阅读
+
+## 🌟 项目亮点
+
+### 创新点
+1. **三维评估体系**：存活度/置信度/证伪强度，科学判断研究方向可行性
+2. **最小可行实验（MVE）**：系统化实验设计，从假设到验证的闭环
+3. **静态分析驱动**：基于模板和规则的论文解析，无需真实 AI API
+4. **纯前端架构**：无后端、无数据库、无登录，打开即用
+
+### 设计特点
+- **响应式布局**：完美适配桌面端和移动端
+- **微动画效果**：卡片 hover、按钮波纹、页面过渡
+- **语义化色彩**：颜色传递功能信息，提升可读性
+- **深色主题就绪**：CSS 变量支持一键切换
+
+### 数据安全
+- 所有数据存储在用户浏览器 localStorage 中
+- 无任何数据上传到服务器
+- 数据版本化管理，支持迁移
+
+## 🤝 贡献指南
+
+欢迎贡献代码！以下是贡献方式：
+
+### 提交 Issue
+- Bug 报告：清晰描述问题和复现步骤
+- 功能建议：说明需求和使用场景
+- 文档改进：完善 README 和代码注释
+
+### 提交 PR
+1. Fork 仓库
+2. 创建功能分支：`git checkout -b feature/your-feature`
+3. 提交代码：`git commit -m "feat: add your feature"`
+4. 推送分支：`git push origin feature/your-feature`
+5. 创建 Pull Request
+
+### 开发规范
+- 使用 TypeScript，保证类型安全
+- 遵循现有代码风格和命名规范
+- 新增组件需在对应目录下创建
+- 保持静态导出配置不变（`output: 'export'`）
+
+## 📧 联系我们
+
+如有问题或建议，欢迎通过以下方式联系：
+
+- GitHub Issues：[提交问题](https://github.com/asandstar/Research-Compass-for-Robotics/issues)
+- 邮件：research-compass@example.com
 
 ## 📝 License
 

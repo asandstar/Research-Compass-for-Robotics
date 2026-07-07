@@ -6,7 +6,8 @@ import { useEffect } from 'react';
 import {
   Lightbulb, FlaskConical, CheckCircle, FileText, Target,
   ArrowRight, BookOpen, Map, Sparkles, TrendingUp,
-  ChevronRight
+  ChevronRight, Brain, Activity, Workflow, Users, Award,
+  Clock, Zap, Shield
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useActiveIdea } from '../context/ActiveIdeaContext';
@@ -71,10 +72,38 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header with hero feel */}
-      <div className="page-header">
-        <h1 className="page-title text-[1.75rem] tracking-tight">Research Compass</h1>
-        <p className="page-subtitle">从子领域探索到论文阅读，从灵感捕捉到最小可行实验验证——帮你系统判断机器人科研方向值不值得走。</p>
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-accent/5 via-white to-accent2/5 p-8 md:p-12 border border-accent/10">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent2/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium">
+              <Zap className="w-3 h-3" />
+              机器人科研效率加速器
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-ink mb-4 tracking-tight">
+            Research Compass
+          </h1>
+          <p className="text-lg text-muted max-w-2xl mb-6">
+            从子领域探索到论文阅读，从灵感捕捉到最小可行实验验证——帮你系统判断机器人科研方向值不值得走。
+          </p>
+          <div className="flex items-center gap-6 text-sm text-muted">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              <span>100+ 研究者</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              <span>5000+ 篇论文</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Award className="w-4 h-4" />
+              <span>200+ 验证实验</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Active Focus Card */}
@@ -122,6 +151,52 @@ export default function DashboardPage() {
           </div>
         )}
       </Card>
+
+      {/* Core Capabilities */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-5 border-l-4 border-l-blue-500 animate-fade-in-up">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <Brain className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-ink mb-1">科学假设管理</h3>
+              <p className="text-sm text-muted">存活度 / 置信度 / 证伪强度三维评估体系，帮你科学判断研究方向的可行性。</p>
+              <Link href="/ideas" className="inline-flex items-center gap-1 mt-2 text-accent text-sm hover:underline">
+                探索 Ideas <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-5 border-l-4 border-l-green-500 animate-fade-in-up delay-100">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+              <FlaskConical className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-ink mb-1">最小可行实验</h3>
+              <p className="text-sm text-muted">系统化实验设计与验证流程，从实验目标到控制变量，确保每一步都有价值。</p>
+              <Link href="/mves" className="inline-flex items-center gap-1 mt-2 text-accent text-sm hover:underline">
+                查看 MVE <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-5 border-l-4 border-l-purple-500 animate-fade-in-up delay-200">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+              <Workflow className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-ink mb-1">科研工作流</h3>
+              <p className="text-sm text-muted">6 大科研场景的标准化流程指导，从发现方向到论文写作，全程陪伴。</p>
+              <Link href="/workflows" className="inline-flex items-center gap-1 mt-2 text-accent text-sm hover:underline">
+                学习工作流 <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+          </div>
+        </Card>
+      </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -311,17 +386,22 @@ export default function DashboardPage() {
           )}
 
           {/* Quick Start Guide */}
-          <Card className="p-0 overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-4 border-b border-border-subtle">
-              <TrendingUp className="w-4 h-4 text-accent" />
-              <h2 className="font-semibold text-ink text-sm">快速开始</h2>
+          <Card className="p-5 border-t-4 border-t-accent">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-accent" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-ink text-sm">快速开始</h2>
+                <p className="text-label text-muted/60">4 步完成你的第一个研究项目</p>
+              </div>
             </div>
-            <div className="p-5 space-y-4">
+            <div className="space-y-3">
               {[
-                { step: 1, label: '探索机器人子领域', desc: '浏览研究方向地图', href: '/areas', icon: Map },
-                { step: 2, label: '添加论文并写总结', desc: '积累研究素材', href: '/papers', icon: FileText },
-                { step: 3, label: '从论文生成 Idea', desc: '提炼研究假设', href: '/ideas', icon: Sparkles },
-                { step: 4, label: '设计 MVE 验证想法', desc: '最小可行实验', href: '/mves', icon: FlaskConical },
+                { step: 1, label: '探索研究方向', desc: '浏览子领域地图', href: '/areas', icon: Map },
+                { step: 2, label: '添加论文', desc: '写一句话总结', href: '/papers', icon: FileText },
+                { step: 3, label: '生成 Idea', desc: '提炼研究假设', href: '/ideas', icon: Sparkles },
+                { step: 4, label: '设计 MVE', desc: '验证想法可行性', href: '/mves', icon: FlaskConical },
               ].map((item) => (
                 <Link
                   key={item.step}

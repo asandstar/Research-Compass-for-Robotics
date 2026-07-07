@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Target, Lightbulb, FileText, FlaskConical, LayoutGrid, Compass, Search, Workflow, GraduationCap, BrainCircuit } from 'lucide-react';
+import { LayoutDashboard, Target, Lightbulb, FileText, FlaskConical, LayoutGrid, Compass, Search, Workflow, GraduationCap, BrainCircuit, Menu, X } from 'lucide-react';
 import { useActiveIdea } from '../context/ActiveIdeaContext';
 import { useApp } from '../context/AppContext';
 import { CommandPalette } from './CommandPalette';
@@ -33,6 +33,7 @@ export function Navbar() {
   const { getIdeaCardById } = useApp();
   const [scrolled, setScrolled] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const activeIdea = activeIdeaId ? getIdeaCardById(activeIdeaId) : null;
 
@@ -133,10 +134,69 @@ export function Navbar() {
               {utilityNav.map((item) => (
                 <NavLink key={item.href} item={item} active={checkActive(item.href)} />
               ))}
+
+              {/* Mobile Menu Button */}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="sm:hidden p-2 rounded-lg text-muted hover:text-ink hover:bg-bg2 transition-fast transition-colors"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
             </div>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="sm:hidden fixed inset-0 z-40 bg-ink/20 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
+          <div className="absolute left-0 right-0 top-14 bg-surface border-b border-border-subtle shadow-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="px-4 py-3 border-b border-border-subtle">
+              <p className="text-xs font-medium text-muted/60 uppercase tracking-wider">工作区</p>
+            </div>
+            <div className="divide-y divide-border-subtle">
+              {workNav.map((item) => {
+                const Icon = item.icon;
+                const isActive = checkActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-fast transition-colors ${
+                      isActive ? 'text-accent bg-accent/5' : 'text-ink hover:bg-bg2'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+            <div className="px-4 py-3 border-t border-border-subtle">
+              <p className="text-xs font-medium text-muted/60 uppercase tracking-wider mb-2">其他</p>
+              {utilityNav.map((item) => {
+                const Icon = item.icon;
+                const isActive = checkActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-fast transition-colors ${
+                      isActive ? 'text-accent bg-accent/5' : 'text-ink hover:bg-bg2'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Command Palette */}
       <CommandPalette
