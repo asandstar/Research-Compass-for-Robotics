@@ -71,8 +71,8 @@ function MvesContent() {
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-amber-600">
-            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
+              <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
             <span className="text-caption font-medium text-muted/70">待实验</span>
           </div>
@@ -80,8 +80,8 @@ function MvesContent() {
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-green-600">
-            <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
-              <CheckCircle className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-950/30 flex items-center justify-center">
+              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
             </div>
             <span className="text-caption font-medium text-muted/70">通过</span>
           </div>
@@ -89,8 +89,8 @@ function MvesContent() {
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-red-600">
-            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-              <XCircle className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+              <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
             </div>
             <span className="text-caption font-medium text-muted/70">失败</span>
           </div>

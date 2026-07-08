@@ -17,13 +17,13 @@ interface MVEGateCardProps {
 function getNodeColor(status: MVE['resultStatus']): string {
   switch (status) {
     case 'passed':
-      return 'bg-green-500';
+      return 'bg-green-500 dark:bg-green-600';
     case 'failed':
-      return 'bg-red-500';
+      return 'bg-red-500 dark:bg-red-600';
     case 'pending':
-      return 'bg-gray-300 animate-pulse';
+      return 'bg-gray-300 dark:bg-gray-600 animate-pulse';
     default:
-      return 'bg-gray-300';
+      return 'bg-gray-300 dark:bg-gray-600';
   }
 }
 

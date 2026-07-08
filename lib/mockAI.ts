@@ -837,6 +837,82 @@ export async function mockFetchArxivPaper(arxivUrl: string): Promise<{
   };
 }
 
+// ── AI Assist Generation ──
+
+const PREDICTION_TEMPLATES = [
+  '在 {scene} 上运行 {method}，观察 {metric} 是否达到 {threshold}',
+  '对比 {methodA} 和 {methodB} 在 {scene} 上的 {metric} 表现',
+  '在 {scene} 中测试 {method} 的泛化能力，特别是 {aspect}',
+];
+
+const EVIDENCE_TEMPLATES = [
+  '{source} 证明 {claim}，这表明 {implication}',
+  '实验结果显示 {result}，支持了 {claim}',
+  '从 {theory} 的角度分析，{reasoning}',
+];
+
+const FAILURE_TEMPLATES = [
+  '如果 {metric} 提升低于 {threshold}，说明改进幅度不足以支撑独立工作',
+  '如果在 {scene} 上性能显著下降，说明方法缺乏 {capability}',
+  '如果 {metric} 超过 {threshold}，说明无法满足 {requirement}',
+];
+
+export async function mockGeneratePrediction(context: string): Promise<string> {
+  await delay(600 + Math.random() * 400);
+  const hash = hashString(context || 'default');
+  const tmpl = PREDICTION_TEMPLATES[hash % PREDICTION_TEMPLATES.length];
+  const scenes = ['标准数据集', '真实机器人场景', '复杂动态环境', '跨域测试集', '长程任务'];
+  const methods = ['改进方案', '基线方法', '消融实验', '对比方法'];
+  const metrics = ['任务成功率', '推理精度', '泛化性能', '实时性指标'];
+  const thresholds = ['85%', '90%', '显著提升', '预期水平'];
+  const aspects = ['动态物体处理', '光照变化鲁棒性', '跨任务迁移能力', '长程规划能力'];
+
+  return tmpl
+    .replace('{scene}', scenes[hash % scenes.length])
+    .replace('{method}', methods[hash % methods.length])
+    .replace('{metric}', metrics[hash % metrics.length])
+    .replace('{threshold}', thresholds[hash % thresholds.length])
+    .replace('{aspect}', aspects[hash % aspects.length]);
+}
+
+export async function mockGenerateEvidence(type: 'supporting' | 'opposing' | 'missing', context: string): Promise<string> {
+  await delay(500 + Math.random() * 300);
+  const hash = hashString(type + context);
+  const tmpl = EVIDENCE_TEMPLATES[hash % EVIDENCE_TEMPLATES.length];
+  const sources = ['已有文献', '先前工作', '相关研究', '实验观察'];
+  const claims = ['该方法的可行性', '改进方向的有效性', '核心假设的合理性', '技术路线的正确性'];
+  const implications = ['该方向值得深入探索', '需要进一步验证', '可作为后续工作的基础', '存在潜在风险'];
+  const results = ['性能有显著提升', '在特定场景下表现优异', '与理论预期一致', '具有较好的泛化能力'];
+  const theories = ['信息论', '优化理论', '概率图模型', '控制理论'];
+  const reasonings = ['该方法利用了问题的内在结构', '改进方案降低了误差累积', '新设计提升了信息利用效率', '策略优化使收敛更快'];
+
+  return tmpl
+    .replace('{source}', sources[hash % sources.length])
+    .replace('{claim}', claims[hash % claims.length])
+    .replace('{implication}', implications[hash % implications.length])
+    .replace('{result}', results[hash % results.length])
+    .replace('{theory}', theories[hash % theories.length])
+    .replace('{reasoning}', reasonings[hash % reasonings.length]);
+}
+
+export async function mockGenerateFailureCondition(context: string): Promise<string> {
+  await delay(500 + Math.random() * 300);
+  const hash = hashString(context || 'default');
+  const tmpl = FAILURE_TEMPLATES[hash % FAILURE_TEMPLATES.length];
+  const metrics = ['精度', '成功率', '推理速度', '内存占用'];
+  const thresholds = ['5%', '10%', '20%', '50%'];
+  const scenes = ['未见过的场景', '极端条件', '真实环境', '大规模测试'];
+  const capabilities = ['泛化能力', '鲁棒性', '实时性', '可扩展性'];
+  const requirements = ['实时控制要求', '部署约束', '精度要求', '稳定性要求'];
+
+  return tmpl
+    .replace('{metric}', metrics[hash % metrics.length])
+    .replace('{threshold}', thresholds[hash % thresholds.length])
+    .replace('{scene}', scenes[hash % scenes.length])
+    .replace('{capability}', capabilities[hash % capabilities.length])
+    .replace('{requirement}', requirements[hash % requirements.length]);
+}
+
 export async function mockGenerateAdversarialReview(ideaCard: IdeaCard): Promise<AdversarialReview> {
   await delay(1000 + Math.random() * 800);
   

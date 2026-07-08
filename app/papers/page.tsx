@@ -127,10 +127,10 @@ function PapersContent() {
         {[
           { label: '总计', value: stats.total, icon: FileText, color: 'text-ink', bg: 'bg-bg2' },
           { label: '待读', value: stats.toRead, icon: BookOpen, color: 'text-muted', bg: 'bg-bg2' },
-          { label: '精读中', value: stats.deepReading, icon: BookOpen, color: 'text-purple-500', bg: 'bg-purple-50' },
-          { label: '已复盘', value: stats.reviewed, icon: BookOpen, color: 'text-green-600', bg: 'bg-green-50' },
-          { label: '灵感来源', value: stats.ideaSource, icon: Sparkles, color: 'text-purple-500', bg: 'bg-purple-50' },
-          { label: '必复盘', value: stats.mustReview, icon: FileText, color: 'text-red-500', bg: 'bg-red-50' },
+          { label: '精读中', value: stats.deepReading, icon: BookOpen, color: 'text-purple-500 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/30' },
+          { label: '已复盘', value: stats.reviewed, icon: BookOpen, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-950/30' },
+          { label: '灵感来源', value: stats.ideaSource, icon: Sparkles, color: 'text-purple-500 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/30' },
+          { label: '必复盘', value: stats.mustReview, icon: FileText, color: 'text-red-500 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-950/30' },
         ].map((s) => (
           <Card key={s.label} className="p-3">
             <div className="flex items-center gap-2">

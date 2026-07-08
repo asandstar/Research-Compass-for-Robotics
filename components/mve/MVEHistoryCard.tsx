@@ -26,10 +26,10 @@ export default function MVEHistoryCard({ mve, ideaTitle, onOpenInFocus }: MVEHis
 
   const nodeConfig =
     mve.resultStatus === 'passed'
-      ? { bg: 'bg-green-500', Icon: CheckCircle }
+      ? { bg: 'bg-green-500 dark:bg-green-600', Icon: CheckCircle }
       : mve.resultStatus === 'failed'
-        ? { bg: 'bg-red-500', Icon: XCircle }
-        : { bg: 'bg-gray-400 animate-pulse', Icon: Clock };
+        ? { bg: 'bg-red-500 dark:bg-red-600', Icon: XCircle }
+        : { bg: 'bg-gray-400 dark:bg-gray-600 animate-pulse', Icon: Clock };
 
   const { bg, Icon } = nodeConfig;
 

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Flame, Compass, Sparkles, BookOpen, ArrowRight } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Tag } from '../ui/Tag';
@@ -26,30 +27,32 @@ export default function QuestionCard({ question }: QuestionCardProps) {
   const TypeIcon = getTypeIcon();
 
   return (
-    <Card interactive className="p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium ${typeLabel.bgColor} ${typeLabel.color}`}>
-              <TypeIcon className="w-3 h-3" />
-              {typeLabel.label}
-            </span>
-            <span className={`text-[10px] font-medium ${difficultyLabel.color}`}>
-              难度: {difficultyLabel.label}
-            </span>
-            <span className={`text-[10px] font-medium ${impactLabel.color}`}>
-              影响: {impactLabel.label}
-            </span>
+    <Link href={`/questions/${question.id}`} className="block no-underline">
+      <Card interactive className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium ${typeLabel.bgColor} ${typeLabel.color}`}>
+                <TypeIcon className="w-3 h-3" />
+                {typeLabel.label}
+              </span>
+              <span className={`text-[10px] font-medium ${difficultyLabel.color}`}>
+                难度: {difficultyLabel.label}
+              </span>
+              <span className={`text-[10px] font-medium ${impactLabel.color}`}>
+                影响: {impactLabel.label}
+              </span>
+            </div>
+            <p className="text-sm font-medium text-ink dark:text-dark-ink leading-relaxed mb-3">
+              {question.text}
+            </p>
+            <p className="text-label text-muted">
+              {question.areaName}
+            </p>
           </div>
-          <p className="text-sm font-medium text-ink leading-relaxed mb-3">
-            {question.text}
-          </p>
-          <p className="text-label text-muted">
-            {question.areaName}
-          </p>
+          <ArrowRight className="w-4 h-4 text-muted/40 flex-shrink-0" />
         </div>
-        <ArrowRight className="w-4 h-4 text-muted/40 flex-shrink-0" />
-      </div>
-    </Card>
+      </Card>
+    </Link>
   );
 }

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Save, Loader2, AlertTriangle, CheckCircle, XCircle, FlaskConical, Lightbulb, Target, Pencil, Plus } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
+import { X, Save, Loader2, AlertTriangle, CheckCircle, XCircle, FlaskConical, Lightbulb, Target, Pencil, Plus, GripVertical } from 'lucide-react';
 import { useActiveIdea } from '../../context/ActiveIdeaContext';
 import { useApp } from '../../context/AppContext';
 import { NextAction, NextActionType } from '../../lib/nextActionCalculator';
 import { MVE } from '../../lib/types';
 import { Button } from '../ui/Button';
+import { InputTemplates, PREDICTION_TEMPLATES, EVIDENCE_TEMPLATES, FAILURE_CONDITION_TEMPLATES, RESEARCH_QUESTION_TEMPLATES, HYPOTHESIS_TEMPLATES } from '../ui/InputTemplates';
+import { mockGeneratePrediction, mockGenerateEvidence, mockGenerateFailureCondition } from '../../lib/mockAI';
 
 
 interface FocusEditPanelProps {
@@ -24,6 +26,34 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // Drag state
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    dragStartRef.current = { x: clientX - dragOffset.x, y: clientY - dragOffset.y };
+  }, [dragOffset]);
+
+  const handleDragMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging) return;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setDragOffset({
+      x: clientX - dragStartRef.current.x,
+      y: clientY - dragStartRef.current.y,
+    });
+  }, [isDragging]);
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
 
   const idea = activeIdeaId ? getIdeaCardById(activeIdeaId) : null;
   const type = directMode || action?.type || 'complete_core_fields';
@@ -135,22 +165,41 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
   const panelDescription = getPanelDescription(type);
 
   return (
-    <div className="fixed inset-0 z-[100] flex justify-end" onClick={handleClose}>
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center"
+      onClick={handleClose}
+      onMouseMove={handleDragMove}
+      onMouseUp={handleDragEnd}
+      onTouchMove={handleDragMove}
+      onTouchEnd={handleDragEnd}
+    >
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] modal-overlay" />
 
       {/* Panel */}
       <div
-        className="relative w-full max-w-md bg-surface border-l border-border-subtle shadow-elevated h-full overflow-y-auto modal-content"
+        ref={panelRef}
+        className="relative w-full max-w-lg max-h-[85vh] bg-surface dark:bg-dark-surface border border-border-subtle dark:border-dark-rule shadow-elevated rounded-xl overflow-hidden modal-content"
+        style={{
+          transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)`,
+          cursor: isDragging ? 'grabbing' : 'default',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle sticky top-0 bg-surface z-10">
-          <div>
-            <h2 className="font-semibold text-ink">{panelTitle}</h2>
-            {panelDescription && (
-              <p className="text-caption text-muted mt-0.5">{panelDescription}</p>
-            )}
+        {/* Header - Draggable */}
+        <div
+          className="flex items-center justify-between px-6 py-4 border-b border-border-subtle dark:border-dark-rule bg-surface dark:bg-dark-surface z-10 cursor-grab active:cursor-grabbing select-none"
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+        >
+          <div className="flex items-center gap-2">
+            <GripVertical className="w-4 h-4 text-muted" />
+            <div>
+              <h2 className="font-semibold text-ink dark:text-dark-ink">{panelTitle}</h2>
+              {panelDescription && (
+                <p className="text-caption text-muted mt-0.5">{panelDescription}</p>
+              )}
+            </div>
           </div>
           <button
             type="button"
@@ -162,7 +211,7 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-6 py-5 space-y-5 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 72px)' }}>
           {/* ── Complete Core Fields ── */}
           {(type === 'complete_core_fields') && (
             <>
@@ -174,6 +223,10 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
                   rows={3}
                   className="w-full px-3 py-2 border border-border-default rounded-lg bg-surface resize-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-fast transition-colors"
                 ></textarea>
+                <InputTemplates
+                  templates={RESEARCH_QUESTION_TEMPLATES}
+                  onSelect={(content) => setResearchQuestion(content)}
+                />
               </FormField>
               <FormField label="核心假设" hint="你的核心主张/假设是什么？">
                 <textarea
@@ -183,6 +236,10 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
                   rows={3}
                   className="w-full px-3 py-2 border border-border-default rounded-lg bg-surface resize-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-fast transition-colors"
                 ></textarea>
+                <InputTemplates
+                  templates={HYPOTHESIS_TEMPLATES}
+                  onSelect={(content) => setCoreHypothesis(content)}
+                />
               </FormField>
               <FormField label="为什么值得做" hint="这个方向的学术和实用价值">
                 <textarea
@@ -192,6 +249,10 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
                   rows={3}
                   className="w-full px-3 py-2 border border-border-default rounded-lg bg-surface resize-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-fast transition-colors"
                 ></textarea>
+                <InputTemplates
+                  templates={[{ label: '价值模板', content: '该方向对 [领域] 具有重要意义，因为 [原因]。现有方法在 [场景] 下存在 [问题]，亟待解决。' }]}
+                  onSelect={(content) => setWhyItMatters(content)}
+                />
               </FormField>
             </>
           )}
@@ -221,6 +282,18 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
                   rows={3}
                   className="w-full px-3 py-2 border border-border-default rounded-lg bg-surface resize-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-fast transition-colors"
                 ></textarea>
+                <InputTemplates
+                  templates={PREDICTION_TEMPLATES}
+                  onSelect={(content) => setPredCondition(content)}
+                  showAIGenerate
+                  aiLoading={aiLoading}
+                  onAIGenerate={async () => {
+                    setAiLoading(true);
+                    const generated = await mockGeneratePrediction(idea?.researchQuestion || '');
+                    setPredCondition(generated);
+                    setAiLoading(false);
+                  }}
+                />
               </FormField>
               <FormField label="预期结果" hint="如果假设成立，预期会观察到什么？">
                 <textarea
@@ -230,6 +303,10 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
                   rows={3}
                   className="w-full px-3 py-2 border border-border-default rounded-lg bg-surface resize-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-fast transition-colors"
                 ></textarea>
+                <InputTemplates
+                  templates={[{ label: '结果模板', content: '预期 [指标] 达到 [数值/水平]，相比基线提升 [百分比]。' }]}
+                  onSelect={(content) => setPredOutcome(content)}
+                />
               </FormField>
             </>
           )}
@@ -258,6 +335,18 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
                   rows={3}
                   className="w-full px-3 py-2 border border-border-default rounded-lg bg-surface resize-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-fast transition-colors"
                 ></textarea>
+                <InputTemplates
+                  templates={FAILURE_CONDITION_TEMPLATES}
+                  onSelect={(content) => setFailureCondition(content)}
+                  showAIGenerate
+                  aiLoading={aiLoading}
+                  onAIGenerate={async () => {
+                    setAiLoading(true);
+                    const generated = await mockGenerateFailureCondition(idea?.coreHypothesis || '');
+                    setFailureCondition(generated);
+                    setAiLoading(false);
+                  }}
+                />
               </FormField>
             </>
           )}
@@ -267,9 +356,9 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
             <>
               <div className="flex gap-2">
                 {([
-                  { key: 'evidenceForHypothesis' as const, label: '支持', color: 'text-green-600', bg: 'bg-green-50 border-green-200' },
-                  { key: 'evidenceAgainstHypothesis' as const, label: '反对', color: 'text-red-500', bg: 'bg-red-50 border-red-200' },
-                  { key: 'falsificationRisks' as const, label: '风险', color: 'text-amber-500', bg: 'bg-amber-50 border-amber-200' },
+                  { key: 'evidenceForHypothesis' as const, label: '支持', color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' },
+                  { key: 'evidenceAgainstHypothesis' as const, label: '反对', color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800' },
+                  { key: 'falsificationRisks' as const, label: '风险', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800' },
                 ]).map(opt => (
                   <button
                     key={opt.key}
@@ -307,6 +396,19 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
                   rows={3}
                   className="w-full px-3 py-2 border border-border-default rounded-lg bg-surface resize-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-fast transition-colors"
                 ></textarea>
+                <InputTemplates
+                  templates={EVIDENCE_TEMPLATES}
+                  onSelect={(content) => setEvidenceText(content)}
+                  showAIGenerate
+                  aiLoading={aiLoading}
+                  onAIGenerate={async () => {
+                    setAiLoading(true);
+                    const typeMap = { evidenceForHypothesis: 'supporting', evidenceAgainstHypothesis: 'opposing', falsificationRisks: 'missing' } as const;
+                    const generated = await mockGenerateEvidence(typeMap[evidenceType], idea?.coreHypothesis || '');
+                    setEvidenceText(generated);
+                    setAiLoading(false);
+                  }}
+                />
               </FormField>
             </>
           )}
@@ -340,7 +442,7 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
                     onClick={() => setMveResult('passed')}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium transition-fast transition-colors ${
                       mveResult === 'passed'
-                        ? 'bg-green-50 border-green-300 text-green-700'
+                        ? 'bg-green-50 dark:bg-green-950/30 border-green-300 dark:border-green-700 text-green-700 dark:text-green-400'
                         : 'bg-bg2 border-border-subtle text-muted hover:border-green-300 hover:text-green-600'
                     }`}
                   >
@@ -352,7 +454,7 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
                     onClick={() => setMveResult('failed')}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium transition-fast transition-colors ${
                       mveResult === 'failed'
-                        ? 'bg-red-50 border-red-300 text-red-700'
+                        ? 'bg-red-50 dark:bg-red-950/30 border-red-300 dark:border-red-700 text-red-700 dark:text-red-400'
                         : 'bg-bg2 border-border-subtle text-muted hover:border-red-300 hover:text-red-600'
                     }`}
                   >
@@ -386,7 +488,7 @@ export function FocusEditPanel({ isOpen, action, onClose, directMode, directMveI
 
           {/* ── Review Failure ── */}
           {type === 'review_failure' && targetMve && (
-            <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+            <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800">
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle className="w-4 h-4 text-red-600" />
                 <span className="text-sm font-medium text-red-700">实验失败</span>

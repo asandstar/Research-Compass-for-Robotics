@@ -8,6 +8,9 @@ export interface ResearchQuestion {
   relatedIdeas?: string[];
   difficulty: 1 | 2 | 3;
   impact: 1 | 2 | 3;
+  description?: string;
+  keyChallenges?: string[];
+  opportunities?: string[];
 }
 
 export interface QuestionCluster {
@@ -27,6 +30,9 @@ export const researchQuestions: ResearchQuestion[] = [
     type: 'gap',
     difficulty: 3,
     impact: 3,
+    description: '当前 VLA 模型（如 RT-2、OpenVLA）主要在特定机器人形态上训练，跨形态迁移能力有限。这限制了 VLA 的通用性——一个真正通用的机器人大脑应该能在不同物理形态的机器人上工作。',
+    keyChallenges: ['不同形态的动作空间差异巨大', '缺乏跨形态的大规模训练数据', '如何提取形态无关的语义动作表示'],
+    opportunities: ['构建统一的动作表示空间', '开发形态自适应的策略网络', '探索元学习在跨形态迁移中的应用'],
   },
   {
     id: 'vla-2',
@@ -36,6 +42,9 @@ export const researchQuestions: ResearchQuestion[] = [
     type: 'hot',
     difficulty: 3,
     impact: 3,
+    description: 'VLA 模型通常基于大型视觉语言模型，推理延迟在秒级，远不能满足机器人实时控制的需求（通常需要 30Hz 以上）。速度瓶颈是 VLA 从实验室走向实际应用的最大障碍之一。',
+    keyChallenges: ['大模型推理固有的计算开销', '视觉编码器与语言解码器的串行依赖', '动作生成的高频需求'],
+    opportunities: ['模型蒸馏与量化技术', '分层动作解码（高层语义+低层轨迹）', '边缘计算优化与专用硬件'],
   },
   {
     id: 'vla-3',
@@ -72,6 +81,9 @@ export const researchQuestions: ResearchQuestion[] = [
     type: 'classic',
     difficulty: 3,
     impact: 3,
+    description: '传统 SLAM 系统假设环境静态，但真实世界充满动态物体（行人、车辆、移动家具）。动态物体上的特征点会严重干扰位姿估计，导致轨迹漂移甚至定位丢失。',
+    keyChallenges: ['动态物体的实时检测与跟踪', '静态与动态特征的可靠区分', '高动态场景下的数据关联'],
+    opportunities: ['结合语义分割的动态物体识别', '基于深度学习的动态特征过滤', '多传感器融合提升鲁棒性'],
   },
   {
     id: 'slam-2',
@@ -360,10 +372,10 @@ export const questionClusters: QuestionCluster[] = [
 ];
 
 export const QUESTION_TYPE_LABELS: Record<ResearchQuestion['type'], { label: string; color: string; bgColor: string }> = {
-  hot: { label: '热门', color: 'text-red-600', bgColor: 'bg-red-50' },
-  gap: { label: '空白', color: 'text-blue-600', bgColor: 'bg-blue-50' },
-  emerging: { label: '新兴', color: 'text-green-600', bgColor: 'bg-green-50' },
-  classic: { label: '经典', color: 'text-purple-600', bgColor: 'bg-purple-50' },
+  hot: { label: '热门', color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-50 dark:bg-red-950/30' },
+  gap: { label: '空白', color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-50 dark:bg-blue-950/30' },
+  emerging: { label: '新兴', color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-950/30' },
+  classic: { label: '经典', color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-50 dark:bg-purple-950/30' },
 };
 
 export const DIFFICULTY_LABELS: Record<number, { label: string; color: string }> = {

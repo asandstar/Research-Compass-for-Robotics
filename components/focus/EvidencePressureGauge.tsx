@@ -24,15 +24,15 @@ export function EvidencePressureGauge({
   const missingPercent = total > 0 ? (missingCount / total) * 100 : 0;
 
   const getScoreColor = (score: number) => {
-    if (score >= 70) return 'bg-green-500';
-    if (score >= 40) return 'bg-amber-500';
-    return 'bg-red-500';
+    if (score >= 70) return 'bg-green-500 dark:bg-green-600';
+    if (score >= 40) return 'bg-amber-500 dark:bg-amber-600';
+    return 'bg-red-500 dark:bg-red-600';
   };
 
   const getScoreTextColor = (score: number) => {
-    if (score >= 70) return 'text-green-600';
-    if (score >= 40) return 'text-amber-600';
-    return 'text-red-600';
+    if (score >= 70) return 'text-green-600 dark:text-green-400';
+    if (score >= 40) return 'text-amber-600 dark:text-amber-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   return (
@@ -44,31 +44,31 @@ export function EvidencePressureGauge({
 
       <div className="h-3 w-full rounded-full overflow-hidden bg-bg2 flex">
         <div
-          className="h-full bg-green-500 transition-all duration-500"
+          className="h-full bg-green-500 dark:bg-green-600 transition-all duration-500"
           style={{ width: `${forPercent}%` }}
         />
         <div
-          className="h-full bg-red-500 transition-all duration-500"
+          className="h-full bg-red-500 dark:bg-red-600 transition-all duration-500"
           style={{ width: `${againstPercent}%` }}
         />
         <div
-          className="h-full bg-amber-500 transition-all duration-500"
+          className="h-full bg-amber-500 dark:bg-amber-600 transition-all duration-500"
           style={{ width: `${missingPercent}%` }}
         />
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="bg-green-50 rounded-lg p-2">
-          <p className="text-lg font-bold text-green-600">{forCount}</p>
-          <p className="text-[10px] text-green-700">支持</p>
+        <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-2">
+          <p className="text-lg font-bold text-green-600 dark:text-green-400">{forCount}</p>
+          <p className="text-[10px] text-green-700 dark:text-green-500">支持</p>
         </div>
-        <div className="bg-red-50 rounded-lg p-2">
-          <p className="text-lg font-bold text-red-600">{againstCount}</p>
-          <p className="text-[10px] text-red-700">反对</p>
+        <div className="bg-red-50 dark:bg-red-950/30 rounded-lg p-2">
+          <p className="text-lg font-bold text-red-600 dark:text-red-400">{againstCount}</p>
+          <p className="text-[10px] text-red-700 dark:text-red-500">反对</p>
         </div>
-        <div className="bg-amber-50 rounded-lg p-2">
-          <p className="text-lg font-bold text-amber-600">{missingCount}</p>
-          <p className="text-[10px] text-amber-700">缺失</p>
+        <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-2">
+          <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{missingCount}</p>
+          <p className="text-[10px] text-amber-700 dark:text-amber-500">缺失</p>
         </div>
       </div>
 

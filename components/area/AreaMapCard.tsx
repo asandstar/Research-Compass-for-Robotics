@@ -14,10 +14,10 @@ interface AreaMapCardProps {
 }
 
 const TREND_CONFIG: Record<NonNullable<ResearchArea['trend']>, { icon: typeof Flame; label: string; bgColor: string; textColor: string }> = {
-  hot: { icon: Flame, label: '热门', bgColor: 'bg-red-50', textColor: 'text-red-600' },
-  trending: { icon: TrendingUp, label: '上升', bgColor: 'bg-green-50', textColor: 'text-green-600' },
-  stable: { icon: Minus, label: '稳定', bgColor: 'bg-gray-50', textColor: 'text-gray-600' },
-  declining: { icon: TrendingDown, label: '下降', bgColor: 'bg-orange-50', textColor: 'text-orange-600' },
+  hot: { icon: Flame, label: '热门', bgColor: 'bg-red-50 dark:bg-red-950/30', textColor: 'text-red-600 dark:text-red-400' },
+  trending: { icon: TrendingUp, label: '上升', bgColor: 'bg-green-50 dark:bg-green-950/30', textColor: 'text-green-600 dark:text-green-400' },
+  stable: { icon: Minus, label: '稳定', bgColor: 'bg-gray-50 dark:bg-gray-800/50', textColor: 'text-gray-600 dark:text-gray-400' },
+  declining: { icon: TrendingDown, label: '下降', bgColor: 'bg-orange-50 dark:bg-orange-950/30', textColor: 'text-orange-600 dark:text-orange-400' },
 };
 
 export default function AreaMapCard({ area, paperCount, ideaCount, mveCount }: AreaMapCardProps) {

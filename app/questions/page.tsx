@@ -46,11 +46,11 @@ export default function QuestionsPage() {
   }), []);
 
   const filterButtons: { type: FilterType; label: string; icon: typeof Flame; color: string; bgColor: string }[] = [
-    { type: 'all', label: '全部', icon: Target, color: 'text-ink', bgColor: 'bg-bg2' },
-    { type: 'hot', label: '热门', icon: Flame, color: 'text-red-600', bgColor: 'bg-red-50' },
-    { type: 'gap', label: '空白', icon: Compass, color: 'text-blue-600', bgColor: 'bg-blue-50' },
-    { type: 'emerging', label: '新兴', icon: Sparkles, color: 'text-green-600', bgColor: 'bg-green-50' },
-    { type: 'classic', label: '经典', icon: BookOpen, color: 'text-purple-600', bgColor: 'bg-purple-50' },
+    { type: 'all', label: '全部', icon: Target, color: 'text-ink dark:text-dark-ink', bgColor: 'bg-bg2 dark:bg-dark-bg2' },
+    { type: 'hot', label: '热门', icon: Flame, color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-50 dark:bg-red-950/30' },
+    { type: 'gap', label: '空白', icon: Compass, color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-50 dark:bg-blue-950/30' },
+    { type: 'emerging', label: '新兴', icon: Sparkles, color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-950/30' },
+    { type: 'classic', label: '经典', icon: BookOpen, color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-50 dark:bg-purple-950/30' },
   ];
 
   return (
@@ -79,39 +79,39 @@ export default function QuestionsPage() {
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 rounded-lg bg-red-50 flex items-center justify-center">
-              <Flame className="w-3.5 h-3.5 text-red-600" />
+            <div className="w-6 h-6 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+              <Flame className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
             </div>
             <span className="text-caption text-muted">热门</span>
           </div>
-          <p className="stat-number text-red-600">{stats.hot}</p>
+          <p className="stat-number text-red-600 dark:text-red-400">{stats.hot}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
-              <Compass className="w-3.5 h-3.5 text-blue-600" />
+            <div className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center">
+              <Compass className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             </div>
             <span className="text-caption text-muted">空白</span>
           </div>
-          <p className="stat-number text-blue-600">{stats.gap}</p>
+          <p className="stat-number text-blue-600 dark:text-blue-400">{stats.gap}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 rounded-lg bg-green-50 flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-green-600" />
+            <div className="w-6 h-6 rounded-lg bg-green-50 dark:bg-green-950/30 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
             </div>
             <span className="text-caption text-muted">新兴</span>
           </div>
-          <p className="stat-number text-green-600">{stats.emerging}</p>
+          <p className="stat-number text-green-600 dark:text-green-400">{stats.emerging}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 rounded-lg bg-purple-50 flex items-center justify-center">
-              <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+            <div className="w-6 h-6 rounded-lg bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center">
+              <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
             </div>
             <span className="text-caption text-muted">经典</span>
           </div>
-          <p className="stat-number text-purple-600">{stats.classic}</p>
+          <p className="stat-number text-purple-600 dark:text-purple-400">{stats.classic}</p>
         </Card>
       </div>
 

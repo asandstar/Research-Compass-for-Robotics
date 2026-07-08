@@ -158,8 +158,8 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-5 border-l-4 border-l-blue-500 animate-fade-in-up">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <Brain className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center flex-shrink-0">
+              <Brain className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
               <h3 className="font-semibold text-ink mb-1">科学假设管理</h3>
@@ -172,8 +172,8 @@ export default function DashboardPage() {
         </Card>
         <Card className="p-5 border-l-4 border-l-green-500 animate-fade-in-up delay-100">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
-              <FlaskConical className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-950/30 flex items-center justify-center flex-shrink-0">
+              <FlaskConical className="w-5 h-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
               <h3 className="font-semibold text-ink mb-1">最小可行实验</h3>
@@ -186,8 +186,8 @@ export default function DashboardPage() {
         </Card>
         <Card className="p-5 border-l-4 border-l-purple-500 animate-fade-in-up delay-200">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
-              <Workflow className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center flex-shrink-0">
+              <Workflow className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
               <h3 className="font-semibold text-ink mb-1">科研工作流</h3>
@@ -213,30 +213,30 @@ export default function DashboardPage() {
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-              <Lightbulb className="w-4 h-4 text-amber-600" />
+            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
+              <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
             <span className="text-caption font-medium text-muted/70">活跃 Idea</span>
           </div>
-          <p className="stat-number text-amber-600 mt-1">{totalIdeas}</p>
+          <p className="stat-number text-amber-600 dark:text-amber-400 mt-1">{totalIdeas}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
-              <CheckCircle className="w-4 h-4 text-green-600" />
+            <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-950/30 flex items-center justify-center">
+              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
             </div>
             <span className="text-caption font-medium text-muted/70">已通过</span>
           </div>
-          <p className="stat-number text-green-600 mt-1">{passedMves}</p>
+          <p className="stat-number text-green-600 dark:text-green-400 mt-1">{passedMves}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-purple-600" />
+            <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center">
+              <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             </div>
             <span className="text-caption font-medium text-muted/70">论文</span>
           </div>
-          <p className="stat-number text-purple-600 mt-1">{totalPapers}</p>
+          <p className="stat-number text-purple-600 dark:text-purple-400 mt-1">{totalPapers}</p>
         </Card>
       </div>
 

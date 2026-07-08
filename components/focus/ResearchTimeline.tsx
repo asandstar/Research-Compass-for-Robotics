@@ -37,8 +37,8 @@ export function ResearchTimeline() {
       description: idea.title,
       timestamp: idea.createdAt,
       icon: Lightbulb,
-      iconColor: 'text-amber-600',
-      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-600 dark:text-amber-400',
+      iconBg: 'bg-amber-50 dark:bg-amber-950/30',
     });
 
     // MVE events
@@ -51,8 +51,8 @@ export function ResearchTimeline() {
         description: mve.experimentGoal,
         timestamp: mve.createdAt,
         icon: FlaskConical,
-        iconColor: 'text-blue-600',
-        iconBg: 'bg-blue-50',
+        iconColor: 'text-blue-600 dark:text-blue-400',
+        iconBg: 'bg-blue-50 dark:bg-blue-950/30',
       });
 
       if (mve.resultStatus === 'passed') {
@@ -63,8 +63,8 @@ export function ResearchTimeline() {
           description: mve.resultNotes || '实验验证成功',
           timestamp: mve.createdAt,
           icon: CheckCircle,
-          iconColor: 'text-green-600',
-          iconBg: 'bg-green-50',
+          iconColor: 'text-green-600 dark:text-green-400',
+          iconBg: 'bg-green-50 dark:bg-green-950/30',
         });
       } else if (mve.resultStatus === 'failed') {
         timelineEvents.push({
@@ -74,8 +74,8 @@ export function ResearchTimeline() {
           description: mve.resultNotes || '实验验证失败',
           timestamp: mve.createdAt,
           icon: XCircle,
-          iconColor: 'text-red-600',
-          iconBg: 'bg-red-50',
+          iconColor: 'text-red-600 dark:text-red-400',
+          iconBg: 'bg-red-50 dark:bg-red-950/30',
         });
       }
     }

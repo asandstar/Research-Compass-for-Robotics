@@ -75,8 +75,8 @@ export default function HypothesisTestingGame() {
         </Link>
 
         <Card className="text-center p-8">
-          <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4">
-            <Trophy className="w-8 h-8 text-amber-500" />
+          <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mx-auto mb-4">
+            <Trophy className="w-8 h-8 text-amber-500 dark:text-amber-400" />
           </div>
           <h1 className="text-2xl font-bold text-ink mb-2">游戏结束</h1>
           <p className="text-lg text-muted mb-2">
@@ -92,13 +92,13 @@ export default function HypothesisTestingGame() {
                 <div
                   key={q.id}
                   className={`flex items-center gap-3 p-3 rounded-lg text-left ${
-                    isCorrect ? 'bg-green-50' : 'bg-red-50'
+                    isCorrect ? 'bg-green-50 dark:bg-green-950/30' : 'bg-red-50 dark:bg-red-950/30'
                   }`}
                 >
                   {isCorrect ? (
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 flex-shrink-0" />
                   ) : (
-                    <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                    <XCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-ink truncate">{idx + 1}. {q.hypothesis.slice(0, 40)}...</p>
@@ -172,19 +172,19 @@ export default function HypothesisTestingGame() {
             const showResult = hasAnswered;
             const isCorrect = option.isCorrect;
 
-            let borderColor = 'border-border-subtle';
+            let borderColor = 'border-border-subtle dark:border-dark-border-subtle';
             let bgColor = '';
             if (showResult) {
               if (isCorrect) {
-                borderColor = 'border-green-400';
-                bgColor = 'bg-green-50';
+                borderColor = 'border-green-400 dark:border-green-600';
+                bgColor = 'bg-green-50 dark:bg-green-950/30';
               } else if (isSelected) {
-                borderColor = 'border-red-400';
-                bgColor = 'bg-red-50';
+                borderColor = 'border-red-400 dark:border-red-600';
+                bgColor = 'bg-red-50 dark:bg-red-950/30';
               }
             } else if (isSelected) {
               borderColor = 'border-accent';
-              bgColor = 'bg-accent/5';
+              bgColor = 'bg-accent/5 dark:bg-accent/10';
             }
 
             return (
@@ -206,7 +206,7 @@ export default function HypothesisTestingGame() {
                     <p className="text-sm text-ink">{option.text}</p>
                     {showResult && (
                       <div className={`mt-2 p-2 rounded text-xs ${
-                        isCorrect ? 'bg-green-100 text-green-800' : isSelected ? 'bg-red-100 text-red-800' : 'text-muted'
+                        isCorrect ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400' : isSelected ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-400' : 'text-muted'
                       }`}>
                         {option.explanation}
                       </div>
@@ -219,9 +219,9 @@ export default function HypothesisTestingGame() {
         </div>
 
         {!hasAnswered && (
-          <div className="mt-4 flex items-start gap-2 p-3 bg-amber-50 rounded-lg">
-            <Lightbulb className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-700">{currentQuestion.hint}</p>
+          <div className="mt-4 flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg">
+            <Lightbulb className="w-4 h-4 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-700 dark:text-amber-400">{currentQuestion.hint}</p>
           </div>
         )}
 

@@ -28,34 +28,34 @@ interface IdeaEvaluationModalProps {
 const RECOMMENDATION_CONFIG = {
   proceed: {
     label: '建议推进',
-    color: 'text-green-700',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200',
+    color: 'text-green-700 dark:text-green-400',
+    bgColor: 'bg-green-50 dark:bg-green-950/30',
+    borderColor: 'border-green-200 dark:border-green-800',
     icon: Check,
-    iconColor: 'text-green-600',
+    iconColor: 'text-green-600 dark:text-green-400',
   },
   revise: {
     label: '建议修订',
-    color: 'text-amber-700',
-    bgColor: 'bg-amber-50',
-    borderColor: 'border-amber-200',
+    color: 'text-amber-700 dark:text-amber-400',
+    bgColor: 'bg-amber-50 dark:bg-amber-950/30',
+    borderColor: 'border-amber-200 dark:border-amber-800',
     icon: AlertTriangle,
-    iconColor: 'text-amber-600',
+    iconColor: 'text-amber-600 dark:text-amber-400',
   },
   drop: {
     label: '建议放弃',
-    color: 'text-red-700',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
+    color: 'text-red-700 dark:text-red-400',
+    bgColor: 'bg-red-50 dark:bg-red-950/30',
+    borderColor: 'border-red-200 dark:border-red-800',
     icon: XCircle,
-    iconColor: 'text-red-600',
+    iconColor: 'text-red-600 dark:text-red-400',
   },
 };
 
 function getScoreColor(score: number): string {
-  if (score >= 7) return 'bg-green-500';
-  if (score >= 4) return 'bg-amber-500';
-  return 'bg-red-500';
+  if (score >= 7) return 'bg-green-500 dark:bg-green-600';
+  if (score >= 4) return 'bg-amber-500 dark:bg-amber-600';
+  return 'bg-red-500 dark:bg-red-600';
 }
 
 export function IdeaEvaluationModal({ isOpen, onClose, loading, result, onAdoptHypothesis }: IdeaEvaluationModalProps) {
@@ -82,13 +82,13 @@ export function IdeaEvaluationModal({ isOpen, onClose, loading, result, onAdoptH
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto modal-content"
+        className="bg-white dark:bg-dark-surface rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto modal-content"
         onClick={e => e.stopPropagation()}
       >
-        <div className="p-5 border-b border-border-subtle flex items-center justify-between sticky top-0 bg-white z-10">
+        <div className="p-5 border-b border-border-subtle flex items-center justify-between sticky top-0 bg-white dark:bg-dark-surface z-10">
           <div className="flex items-center gap-2">
             <ClipboardCheck className="w-5 h-5 text-accent" />
-            <h2 id="idea-evaluation-modal-title" className="text-lg font-semibold text-gray-900">Idea AI 评估</h2>
+            <h2 id="idea-evaluation-modal-title" className="text-lg font-semibold text-gray-900 dark:text-dark-ink">Idea AI 评估</h2>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="关闭">
             <X className="w-5 h-5" />

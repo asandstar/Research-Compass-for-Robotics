@@ -96,30 +96,30 @@ export default function PaperIntelligenceCard({ paper, onSelect, isSelected }: P
       {/* Critical Fields (single column with emphasis) */}
       <div className="space-y-3 mb-4">
         {/* Limitations */}
-        <div className="bg-red-50/40 border-l-4 border-l-red-400 rounded-r-lg p-3">
-          <p className="text-label font-semibold text-red-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+        <div className="bg-red-50/40 dark:bg-red-950/20 border-l-4 border-l-red-400 dark:border-l-red-600 rounded-r-lg p-3">
+          <p className="text-label font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5" />
             局限性
           </p>
-          <p className="text-body text-ink leading-relaxed">{paper.limitations}</p>
+          <p className="text-body text-ink dark:text-dark-ink leading-relaxed">{paper.limitations}</p>
         </div>
 
         {/* Hidden Assumptions */}
-        <div className="bg-amber-50/40 border-l-4 border-l-amber-400 rounded-r-lg p-3">
-          <p className="text-label font-semibold text-amber-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+        <div className="bg-amber-50/40 dark:bg-amber-950/20 border-l-4 border-l-amber-400 dark:border-l-amber-600 rounded-r-lg p-3">
+          <p className="text-label font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <AlertCircle className="w-3.5 h-3.5" />
             隐藏假设
           </p>
-          <p className="text-body text-ink leading-relaxed">{paper.hiddenAssumptions}</p>
+          <p className="text-body text-ink dark:text-dark-ink leading-relaxed">{paper.hiddenAssumptions}</p>
         </div>
 
         {/* Possible Extensions */}
-        <div className="bg-accent/5 border-l-4 border-l-accent rounded-r-lg p-3">
+        <div className="bg-accent/5 dark:bg-accent/10 border-l-4 border-l-accent dark:border-l-accent rounded-r-lg p-3">
           <p className="text-label font-semibold text-accent uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <Lightbulb className="w-3.5 h-3.5" />
             可能的扩展
           </p>
-          <p className="text-body text-ink leading-relaxed">{paper.possibleExtensions}</p>
+          <p className="text-body text-ink dark:text-dark-ink leading-relaxed">{paper.possibleExtensions}</p>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ export default function PaperIntelligenceCard({ paper, onSelect, isSelected }: P
 
       {/* Assumption Thinking Prompts */}
       {paper.assumptionThinkingPrompts && paper.assumptionThinkingPrompts.length > 0 && (
-        <div className="bg-blue-50/40 border-l-4 border-l-blue-400 rounded-r-lg p-3 mt-3">
+        <div className="bg-blue-50/40 dark:bg-blue-950/20 border-l-4 border-l-blue-400 dark:border-l-blue-600 rounded-r-lg p-3 mt-3">
           <div className="flex items-center gap-2 mb-2">
             <BrainCircuit className="w-3.5 h-3.5 text-blue-600" />
             <p className="text-label font-semibold text-blue-700 uppercase tracking-wider">假设思考引导</p>
@@ -159,7 +159,7 @@ export default function PaperIntelligenceCard({ paper, onSelect, isSelected }: P
 
       {/* Gap Thinking Prompts */}
       {paper.gapThinkingPrompts && paper.gapThinkingPrompts.length > 0 && (
-        <div className="bg-purple-50/40 border-l-4 border-l-purple-400 rounded-r-lg p-3 mt-3">
+        <div className="bg-purple-50/40 dark:bg-purple-950/20 border-l-4 border-l-purple-400 dark:border-l-purple-600 rounded-r-lg p-3 mt-3">
           <div className="flex items-center gap-2 mb-2">
             <Compass className="w-3.5 h-3.5 text-purple-600" />
             <p className="text-label font-semibold text-purple-700 uppercase tracking-wider">缺口探索引导</p>

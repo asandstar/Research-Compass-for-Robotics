@@ -147,32 +147,32 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
               {expanded && (
                 <div className="space-y-4 mt-4 pt-4 border-t border-gray-100">
                   {paper.problem && (
-                    <div className="bg-blue-50 rounded-lg p-3">
+                    <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <Target className="w-4 h-4 text-blue-600" />
-                        <span className="text-xs font-medium text-blue-700">问题定义</span>
+                        <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-xs font-medium text-blue-700 dark:text-blue-400">问题定义</span>
                       </div>
-                      <p className="text-sm text-gray-700">{paper.problem}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{paper.problem}</p>
                     </div>
                   )}
 
                   {paper.coreContribution && (
-                    <div className="bg-green-50 rounded-lg p-3">
+                    <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        <span className="text-xs font-medium text-green-700">核心贡献</span>
+                        <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                        <span className="text-xs font-medium text-green-700 dark:text-green-400">核心贡献</span>
                       </div>
-                      <p className="text-sm text-gray-700">{paper.coreContribution}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{paper.coreContribution}</p>
                     </div>
                   )}
 
                   {paper.methodSketch && (
-                    <div className="bg-purple-50 rounded-lg p-3">
+                    <div className="bg-purple-50 dark:bg-purple-950/20 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <BookOpen className="w-4 h-4 text-purple-600" />
-                        <span className="text-xs font-medium text-purple-700">方法概述</span>
+                        <BookOpen className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <span className="text-xs font-medium text-purple-700 dark:text-purple-400">方法概述</span>
                       </div>
-                      <p className="text-sm text-gray-700 whitespace-pre-line">{paper.methodSketch}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">{paper.methodSketch}</p>
                     </div>
                   )}
 
@@ -181,14 +181,14 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                     Boolean(paper.evidence?.metrics?.length) ||
                     Boolean(paper.evidence?.keyResults?.length)) && (
                     <div>
-                      <p className="text-xs font-medium text-gray-500 mb-2">证据信息</p>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">证据信息</p>
                       <div className="grid grid-cols-2 gap-3">
                         {paper.evidence?.tasks?.length > 0 && (
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <p className="text-xs text-gray-500 mb-1">测试任务</p>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">测试任务</p>
                             <div className="flex flex-wrap gap-1">
                               {paper.evidence.tasks.map((t, i) => (
-                                <span key={i} className="text-xs bg-white px-2 py-0.5 rounded text-gray-600">
+                                <span key={i} className="text-xs bg-white dark:bg-dark-surface px-2 py-0.5 rounded text-gray-600 dark:text-gray-300">
                                   {t}
                                 </span>
                               ))}
@@ -196,11 +196,11 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                           </div>
                         )}
                         {paper.evidence?.baselines?.length > 0 && (
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <p className="text-xs text-gray-500 mb-1">基线方法</p>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">基线方法</p>
                             <div className="flex flex-wrap gap-1">
                               {paper.evidence.baselines.map((b, i) => (
-                                <span key={i} className="text-xs bg-white px-2 py-0.5 rounded text-gray-600">
+                                <span key={i} className="text-xs bg-white dark:bg-dark-surface px-2 py-0.5 rounded text-gray-600 dark:text-gray-300">
                                   {b}
                                 </span>
                               ))}
@@ -208,11 +208,11 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                           </div>
                         )}
                         {paper.evidence?.metrics?.length > 0 && (
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <p className="text-xs text-gray-500 mb-1">评估指标</p>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">评估指标</p>
                             <div className="flex flex-wrap gap-1">
                               {paper.evidence.metrics.map((m, i) => (
-                                <span key={i} className="text-xs bg-white px-2 py-0.5 rounded text-gray-600">
+                                <span key={i} className="text-xs bg-white dark:bg-dark-surface px-2 py-0.5 rounded text-gray-600 dark:text-gray-300">
                                   {m}
                                 </span>
                               ))}
@@ -220,11 +220,11 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                           </div>
                         )}
                         {paper.evidence?.keyResults?.length > 0 && (
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <p className="text-xs text-gray-500 mb-1">关键结果</p>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">关键结果</p>
                             <div className="flex flex-wrap gap-1">
                               {paper.evidence.keyResults.map((r, i) => (
-                                <span key={i} className="text-xs bg-white px-2 py-0.5 rounded text-gray-600">
+                                <span key={i} className="text-xs bg-white dark:bg-dark-surface px-2 py-0.5 rounded text-gray-600 dark:text-gray-300">
                                   {r}
                                 </span>
                               ))}
@@ -250,22 +250,22 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
                   )}
 
                   {(paper.limitations?.length || paper.limitationsOrQuestions) && (
-                    <div className="bg-amber-50 rounded-lg p-3">
+                    <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <AlertTriangle className="w-4 h-4 text-amber-600" />
-                        <span className="text-xs font-medium text-amber-700">局限与疑问</span>
+                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <span className="text-xs font-medium text-amber-700 dark:text-amber-400">局限与疑问</span>
                       </div>
                       {paper.limitations?.length ? (
                         <ul className="space-y-1">
                           {paper.limitations.map((l, i) => (
-                            <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                            <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
                               <span className="text-amber-400 mt-0.5">•</span>
                               {l}
                             </li>
                           ))}
                         </ul>
                       ) : paper.limitationsOrQuestions ? (
-                        <p className="text-sm text-gray-700">{paper.limitationsOrQuestions}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{paper.limitationsOrQuestions}</p>
                       ) : null}
                     </div>
                   )}
@@ -375,7 +375,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
             {onExtractAssumptions && (
               <button
                 onClick={() => onExtractAssumptions(paper)}
-                className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded flex items-center gap-1"
+                className="px-2 py-1 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded flex items-center gap-1"
                 title="提取假设"
               >
                 <Microscope className="w-3.5 h-3.5" />
@@ -385,7 +385,7 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
             {onExtractGaps && (
               <button
                 onClick={() => onExtractGaps(paper)}
-                className="px-2 py-1 text-xs text-purple-600 hover:bg-purple-50 rounded flex items-center gap-1"
+                className="px-2 py-1 text-xs text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/30 rounded flex items-center gap-1"
                 title="分析缺口"
               >
                 <Search className="w-3.5 h-3.5" />
