@@ -3,6 +3,7 @@
 import { useActiveIdea } from '../../context/ActiveIdeaContext';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../ui/Card';
+import { RadarChart } from './RadarChart';
 
 const CIRCUMFERENCE = 2 * Math.PI * 28; // ~175.93
 
@@ -57,12 +58,14 @@ export function ScoreMeter() {
   return (
     <Card>
       <h3 className="font-semibold text-ink mb-4">Idea 健康度</h3>
-      <div className="grid grid-cols-3 gap-4">
-        <Gauge score={idea.survivalScore} label="存活度" color="#3b82f6" />
-        <Gauge score={idea.confidenceScore} label="置信度" color="#22c55e" />
-        <Gauge score={idea.falsificationStrength} label="证伪强度" color="#f59e0b" />
+      <div className="flex flex-col items-center">
+        <RadarChart
+          survivalScore={idea.survivalScore}
+          confidenceScore={idea.confidenceScore}
+          falsificationStrength={idea.falsificationStrength}
+        />
       </div>
-      <div className="border-t border-rule mt-4 pt-3">
+      <div className="border-t border-rule dark:border-dark-rule mt-4 pt-3">
         <p className="text-label text-muted text-center">
           预测: {idea.predictions.length} | 失败条件: {idea.failureConditions.length} | 支持证据: {idea.evidenceForHypothesis.length} | 反对证据: {idea.evidenceAgainstHypothesis.length}
         </p>

@@ -28,7 +28,7 @@ export function Input({
       onKeyPress={onKeyPress}
       disabled={disabled}
       autoFocus={autoFocus}
-      className={`px-3 py-2 border border-border-default rounded-lg text-sm bg-surface transition-fast transition-colors focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-muted/60 disabled:bg-bg2 disabled:cursor-not-allowed ${className}`}
+      className={`px-3 py-2 border border-border-default dark:border-dark-border-default rounded-lg text-sm bg-surface dark:bg-dark-surface text-ink dark:text-dark-ink transition-fast transition-colors focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-muted/60 disabled:bg-bg2 dark:disabled:bg-dark-bg2 disabled:cursor-not-allowed ${className}`}
     />
   );
 }

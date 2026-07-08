@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -20,6 +21,17 @@ module.exports = {
         'border-subtle': 'rgba(0,0,0,0.06)',
         'border-default': 'rgba(0,0,0,0.09)',
         'border-strong': 'rgba(0,0,0,0.15)',
+        dark: {
+          bg: '#1c1917',
+          bg2: '#292524',
+          ink: '#e7e5e4',
+          muted: '#a8a29e',
+          rule: '#44403c',
+          surface: '#292524',
+          'border-subtle': 'rgba(255,255,255,0.06)',
+          'border-default': 'rgba(255,255,255,0.09)',
+          'border-strong': 'rgba(255,255,255,0.15)',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', 'sans-serif'],

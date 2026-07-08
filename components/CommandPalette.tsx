@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Search, LayoutDashboard, Target, Lightbulb, FileText,
-  FlaskConical, LayoutGrid, ArrowRight, Workflow, GraduationCap, BrainCircuit
+  FlaskConical, LayoutGrid, ArrowRight, Workflow, GraduationCap, BrainCircuit, Gamepad2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useActiveIdea } from '../context/ActiveIdeaContext';
@@ -38,9 +38,11 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     { id: 'nav-papers', label: '论文信号流', group: '导航', icon: FileText, action: () => router.push('/papers') },
     { id: 'nav-mves', label: '验证记录', group: '导航', icon: FlaskConical, action: () => router.push('/mves') },
     { id: 'nav-areas', label: '研究领域地图', group: '导航', icon: LayoutGrid, action: () => router.push('/areas') },
+    { id: 'nav-questions', label: '研究问题空间', group: '导航', icon: Target, action: () => { router.push('/questions'); onClose(); } },
     { id: 'nav-workflows', label: 'AI Research Workflows · 工作流', group: '导航', icon: Workflow, action: () => { router.push('/workflows'); onClose(); } },
     { id: 'nav-learning', label: 'Learning Paths · 学习路径', group: '导航', icon: GraduationCap, action: () => { router.push('/learning'); onClose(); } },
     { id: 'nav-intelligence', label: 'Paper Intelligence · 论文智识', group: '导航', icon: BrainCircuit, action: () => { router.push('/papers/intelligence'); onClose(); } },
+    { id: 'nav-games', label: '科研训练游戏', group: '导航', icon: Gamepad2, action: () => { router.push('/games'); onClose(); } },
   ], [router, onClose]);
 
   const ideaCommands: CommandItem[] = useMemo(() =>

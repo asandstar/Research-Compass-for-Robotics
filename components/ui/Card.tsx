@@ -7,7 +7,7 @@ interface CardProps {
 
 export function Card({ children, className = '', interactive = false, hoverable = false }: CardProps) {
   return (
-    <div className={`bg-surface border border-border-subtle rounded-lg shadow-card p-4 transition-all duration-200 ease-out ${interactive ? 'card-interactive cursor-pointer' : ''} ${hoverable ? 'hover:-translate-y-0.5 hover:shadow-md hover:border-border-default' : ''} ${className}`}>
+    <div className={`bg-surface dark:bg-dark-surface border border-border-subtle dark:border-dark-border-subtle rounded-lg shadow-card dark:shadow-none p-4 transition-all duration-200 ease-out ${interactive ? 'card-interactive cursor-pointer' : ''} ${hoverable ? 'hover:-translate-y-0.5 hover:shadow-md hover:border-border-default dark:hover:border-dark-border-default' : ''} ${className}`}>
       {children}
     </div>
   );

@@ -39,6 +39,7 @@ export interface ResearchArea {
   isHidden: boolean;
   createdAt: string;
   updatedAt: string;
+  trend?: 'hot' | 'trending' | 'stable' | 'declining';
 }
 
 export interface PaperEvidence {

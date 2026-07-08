@@ -3,15 +3,17 @@
 import { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Search, Sparkles, ArrowLeft } from 'lucide-react';
+import { Search, Sparkles, ArrowLeft, Network, List } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useActiveIdea } from '../../context/ActiveIdeaContext';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { EmptyState } from '../../components/ui/EmptyState';
 import IdeaSelectionCard from '../../components/idea/IdeaSelectionCard';
 import { CreateIdeaModal } from '../../components/idea/CreateIdeaModal';
+import { IdeaGraph } from '../../components/idea/IdeaGraph';
 
 function IdeasContent() {
   const searchParams = useSearchParams();
@@ -22,6 +24,7 @@ function IdeasContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showCreateIdea, setShowCreateIdea] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'graph'>('list');
 
   const statusOptions = [
     { value: 'all', label: '全部状态' },
@@ -74,8 +77,8 @@ function IdeasContent() {
       </div>
 
       {/* Filters row */}
-      <div className="flex gap-4 items-center">
-        <div className="flex-1 relative">
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex-1 min-w-[200px] relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
             type="text"
@@ -90,8 +93,32 @@ function IdeasContent() {
           value={statusFilter}
           onChange={(value) => setStatusFilter(value)}
           placeholder="筛选状态"
-          width="180px"
+          width="160px"
         />
+        <div className="flex items-center bg-bg2 rounded-lg p-0.5">
+          <button
+            onClick={() => setViewMode('list')}
+            className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-fast ${
+              viewMode === 'list'
+                ? 'bg-white text-ink shadow-sm'
+                : 'text-muted hover:text-ink'
+            }`}
+            title="列表视图"
+          >
+            <List className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('graph')}
+            className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-fast ${
+              viewMode === 'graph'
+                ? 'bg-white text-ink shadow-sm'
+                : 'text-muted hover:text-ink'
+            }`}
+            title="图谱视图"
+          >
+            <Network className="w-4 h-4" />
+          </button>
+        </div>
         {isActive && (
           <Link href="/focus" className="no-underline hover:no-underline flex-shrink-0">
             <Button variant="secondary">
@@ -102,25 +129,38 @@ function IdeasContent() {
         )}
       </div>
 
-      {/* Idea list */}
-      <div className="space-y-3">
-        {filteredIdeas.length === 0 ? (
-          <Card className="py-16 px-8 text-center">
-            <Sparkles className="w-12 h-12 text-muted/40 mx-auto mb-3 empty-state-icon" />
-            <p className="text-muted">暂无匹配的 Idea</p>
-          </Card>
-        ) : (
-          filteredIdeas.map((idea) => (
-            <IdeaSelectionCard
-              key={idea.id}
-              idea={idea}
-              isActive={idea.id === activeIdeaId}
-              areaNames={getAreaNames(idea.areaIds)}
-              onFocus={setActiveIdea}
+      {/* Idea content */}
+      {viewMode === 'graph' ? (
+        <IdeaGraph />
+      ) : (
+        <div className="space-y-3">
+          {filteredIdeas.length === 0 ? (
+            <EmptyState
+              icon={<Sparkles className="w-8 h-8 text-muted/60" />}
+              title="暂无匹配的 Idea"
+              description={searchQuery || statusFilter !== 'all' ? '尝试调整筛选条件或搜索关键词' : '创建你的第一个研究方向，开始探索机器人科研领域'}
+              action={
+                !searchQuery && statusFilter === 'all' ? (
+                  <Button onClick={() => setShowCreateIdea(true)}>
+                    <Sparkles className="w-4 h-4" />
+                    新建 Idea
+                  </Button>
+                ) : undefined
+              }
             />
-          ))
-        )}
-      </div>
+          ) : (
+            filteredIdeas.map((idea) => (
+              <IdeaSelectionCard
+                key={idea.id}
+                idea={idea}
+                isActive={idea.id === activeIdeaId}
+                areaNames={getAreaNames(idea.areaIds)}
+                onFocus={setActiveIdea}
+              />
+            ))
+          )}
+        </div>
+      )}
 
       <CreateIdeaModal
         isOpen={showCreateIdea}

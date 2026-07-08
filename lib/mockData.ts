@@ -11,6 +11,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-07-02T00:00:00Z',
+    trend: 'stable',
   },
   {
     id: 'area-state-estimation',
@@ -26,6 +27,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-07-02T10:00:00Z',
+    trend: 'stable',
   },
   {
     id: 'area-slam',
@@ -41,6 +43,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-07-03T00:00:00Z',
+    trend: 'stable',
   },
   {
     id: 'area-vslam',
@@ -52,6 +55,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-28T00:00:00Z',
+    trend: 'stable',
   },
   {
     id: 'area-vio',
@@ -67,6 +71,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-07-01T00:00:00Z',
+    trend: 'stable',
   },
   {
     id: 'area-msf',
@@ -82,6 +87,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-30T00:00:00Z',
+    trend: 'trending',
   },
   {
     id: 'area-3d-perception',
@@ -93,6 +99,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-25T00:00:00Z',
+    trend: 'trending',
   },
   {
     id: 'area-dynamic-scene',
@@ -104,6 +111,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-20T00:00:00Z',
+    trend: 'trending',
   },
   {
     id: 'area-semantic-mapping',
@@ -115,6 +123,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-18T00:00:00Z',
+    trend: 'stable',
   },
   {
     id: 'area-robot-learning',
@@ -126,6 +135,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-22T00:00:00Z',
+    trend: 'trending',
   },
   {
     id: 'area-imitation',
@@ -137,6 +147,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-23T00:00:00Z',
+    trend: 'stable',
   },
   {
     id: 'area-diffusion-policy',
@@ -152,6 +163,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-07-02T15:00:00Z',
+    trend: 'hot',
   },
   {
     id: 'area-vla',
@@ -168,6 +180,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-07-03T09:00:00Z',
+    trend: 'hot',
   },
   {
     id: 'area-world-models',
@@ -183,6 +196,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-07-01T14:00:00Z',
+    trend: 'hot',
   },
   {
     id: 'area-embodied-ai',
@@ -194,6 +208,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-29T00:00:00Z',
+    trend: 'hot',
   },
   {
     id: 'area-foundation',
@@ -205,6 +220,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-27T00:00:00Z',
+    trend: 'trending',
   },
   {
     id: 'area-dexterous',
@@ -216,6 +232,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-21T00:00:00Z',
+    trend: 'trending',
   },
   {
     id: 'area-sim2real',
@@ -227,6 +244,7 @@ export const mockResearchAreas: ResearchArea[] = [
     isHidden: false,
     createdAt: '2026-06-01T00:00:00Z',
     updatedAt: '2026-06-24T00:00:00Z',
+    trend: 'stable',
   },
 ];
 

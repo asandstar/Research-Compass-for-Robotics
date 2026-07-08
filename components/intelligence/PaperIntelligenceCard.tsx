@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, HelpCircle, AlertCircle, Lightbulb } from 'lucide-react';
+import { AlertTriangle, HelpCircle, AlertCircle, Lightbulb, ExternalLink, CheckCircle, BrainCircuit, Compass } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Tag } from '../ui/Tag';
 import type { PaperIntelligence } from '../../lib/intelligence/paperIntelligence';
@@ -31,14 +31,32 @@ export default function PaperIntelligenceCard({ paper }: PaperIntelligenceCardPr
       <div className="mb-4 pb-3 border-b border-border-subtle">
         <div className="flex items-start justify-between gap-2 flex-wrap">
           <h3 className="text-h2 font-semibold text-ink leading-snug flex-1 min-w-0">{paper.title}</h3>
-          <Tag variant="soft" size="sm" color="#d97706">
-            Draft · 待核验
-          </Tag>
+          {paper.verified ? (
+            <Tag variant="soft" size="sm" color="#059669">
+              <CheckCircle className="w-3 h-3 inline mr-1" />
+              已核验
+            </Tag>
+          ) : (
+            <Tag variant="soft" size="sm" color="#d97706">
+              Draft · 待核验
+            </Tag>
+          )}
         </div>
-        <div className="mt-2">
+        <div className="mt-2 flex items-center gap-2 flex-wrap">
           <Tag variant="soft" size="sm" color="#0d9488">
             {paper.area}
           </Tag>
+          {paper.arxivUrl && (
+            <a
+              href={paper.arxivUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-accent/30 text-caption text-accent hover:text-accent/80 hover:border-accent/50 hover:bg-accent/5 transition-fast transition-colors"
+            >
+              arXiv
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
         </div>
       </div>
 
@@ -99,6 +117,42 @@ export default function PaperIntelligenceCard({ paper }: PaperIntelligenceCardPr
           ))}
         </ol>
       </div>
+
+      {/* Assumption Thinking Prompts */}
+      {paper.assumptionThinkingPrompts && paper.assumptionThinkingPrompts.length > 0 && (
+        <div className="bg-blue-50/40 border-l-4 border-l-blue-400 rounded-r-lg p-3 mt-3">
+          <div className="flex items-center gap-2 mb-2">
+            <BrainCircuit className="w-3.5 h-3.5 text-blue-600" />
+            <p className="text-label font-semibold text-blue-700 uppercase tracking-wider">假设思考引导</p>
+          </div>
+          <ol className="space-y-1.5">
+            {paper.assumptionThinkingPrompts.map((prompt, idx) => (
+              <li key={idx} className="text-caption text-ink leading-relaxed flex items-start gap-2">
+                <span className="text-blue-600 font-semibold flex-shrink-0 mt-0.5">{idx + 1}.</span>
+                <span>{prompt}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      {/* Gap Thinking Prompts */}
+      {paper.gapThinkingPrompts && paper.gapThinkingPrompts.length > 0 && (
+        <div className="bg-purple-50/40 border-l-4 border-l-purple-400 rounded-r-lg p-3 mt-3">
+          <div className="flex items-center gap-2 mb-2">
+            <Compass className="w-3.5 h-3.5 text-purple-600" />
+            <p className="text-label font-semibold text-purple-700 uppercase tracking-wider">缺口探索引导</p>
+          </div>
+          <ol className="space-y-1.5">
+            {paper.gapThinkingPrompts.map((prompt, idx) => (
+              <li key={idx} className="text-caption text-ink leading-relaxed flex items-start gap-2">
+                <span className="text-purple-600 font-semibold flex-shrink-0 mt-0.5">{idx + 1}.</span>
+                <span>{prompt}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </Card>
   );
 }

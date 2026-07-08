@@ -11,8 +11,10 @@ import { EvidencePressurePanel } from '../../components/focus/EvidencePressurePa
 import { NextActionCard } from '../../components/focus/NextActionCard';
 import { MVEGateCard } from '../../components/focus/MVEGateCard';
 import { FocusEditPanel } from '../../components/focus/FocusEditPanel';
+import { ResearchTimeline } from '../../components/focus/ResearchTimeline';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { NextAction, NextActionType } from '../../lib/nextActionCalculator';
 
 export default function FocusPage() {
@@ -58,18 +60,16 @@ function FocusContent() {
   // Empty state: no active idea
   if (!isActive || !activeIdeaId || !getIdeaCardById(activeIdeaId)) {
     return (
-      <Card className="py-16 px-8 text-center">
-        <div className="empty-state-icon mx-auto mb-4">
-          <Target className="w-12 h-12 text-muted/40" />
-        </div>
-        <h2 className="text-h3 text-ink">选择一个研究方向进入聚焦模式</h2>
-        <p className="text-caption text-muted mt-2 mb-6">
-          从你的 Idea 列表中选择一个方向，进入深度聚焦工作区
-        </p>
-        <Link href="/ideas" className="no-underline hover:no-underline">
-          <Button variant="primary">选择研究方向</Button>
-        </Link>
-      </Card>
+      <EmptyState
+        icon={<Target className="w-8 h-8 text-muted/60" />}
+        title="选择一个研究方向进入聚焦模式"
+        description="从你的 Idea 列表中选择一个方向，进入深度聚焦工作区"
+        action={
+          <Link href="/ideas" className="no-underline hover:no-underline">
+            <Button variant="primary">选择研究方向</Button>
+          </Link>
+        }
+      />
     );
   }
 
@@ -159,6 +159,9 @@ function FocusContent() {
           </button>
         </div>
       </Card>
+
+      {/* Research Timeline */}
+      <ResearchTimeline />
 
       {/* Edit Panel */}
       <FocusEditPanel

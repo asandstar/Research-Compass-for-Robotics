@@ -4,9 +4,7 @@ import { useState, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import {
   Plus, Search, Filter, FileText, BookOpen, Sparkles, ExternalLink,
-  Edit, Lightbulb, TriangleAlert, ChevronDown, ChevronUp, Target, Eye,
-  Database, Cpu, BarChart3, FlaskConical, HelpCircle, AlertCircle,
-  Globe, FileDown, Github, Microscope
+  Edit, ChevronDown, ChevronUp, Globe, FileDown, Github, AlertCircle
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useActiveIdea } from '../../context/ActiveIdeaContext';
@@ -16,15 +14,13 @@ import { Card } from '../../components/ui/Card';
 import { Tag } from '../../components/ui/Tag';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { AddPaperModal } from '../../components/paper/AddPaperModal';
-import { AnalysisResultModal } from '../../components/paper/AnalysisResultModal';
 
 function PapersContent() {
   const {
     state,
     createIdeaFromPaper,
-    extractAssumptions,
-    extractGaps,
     getResearchAreaById,
   } = useApp();
   const { activeIdeaId, setActiveIdea } = useActiveIdea();
@@ -38,13 +34,6 @@ function PapersContent() {
   const [filterJudgement, setFilterJudgement] = useState('all');
   const [filterArea, setFilterArea] = useState('all');
   const [expandedPaperId, setExpandedPaperId] = useState<string | null>(null);
-
-  // Analysis modal state
-  const [analysisModal, setAnalysisModal] = useState<{ type: 'assumptions' | 'gaps'; paper: Paper } | null>(null);
-  const [analysisLoading, setAnalysisLoading] = useState(false);
-  // Paper-level cached results: paperId -> result
-  const [assumptionResults, setAssumptionResults] = useState<Record<string, any>>({});
-  const [gapResults, setGapResults] = useState<Record<string, any>>({});
 
   const filteredPapers = useMemo(() => {
     return state.papers.filter((paper) => {
@@ -91,32 +80,6 @@ function PapersContent() {
       setActiveIdea(idea.id);
     } catch (error) {
       console.error('Failed to generate idea:', error);
-    }
-  };
-
-  const handleExtractAssumptions = async (paper: Paper) => {
-    setAnalysisModal({ type: 'assumptions', paper });
-    setAnalysisLoading(true);
-    try {
-      const result = await extractAssumptions(paper);
-      setAssumptionResults(prev => ({ ...prev, [paper.id]: result }));
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setAnalysisLoading(false);
-    }
-  };
-
-  const handleExtractGaps = async (paper: Paper) => {
-    setAnalysisModal({ type: 'gaps', paper });
-    setAnalysisLoading(true);
-    try {
-      const result = await extractGaps(paper);
-      setGapResults(prev => ({ ...prev, [paper.id]: result }));
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setAnalysisLoading(false);
     }
   };
 
@@ -232,15 +195,17 @@ function PapersContent() {
       {/* Paper list */}
       <div className="space-y-3">
         {filteredPapers.length === 0 ? (
-          <Card className="py-16 px-8 text-center">
-            <FileText className="w-12 h-12 text-muted/40 mx-auto mb-3 empty-state-icon" />
-            <p className="text-muted">暂无论文</p>
-            <p className="text-sm text-gray-400 mb-4">添加第一篇论文开始研究</p>
-            <Button variant="secondary" onClick={() => { setEditingPaper(null); setShowAddModal(true); }}>
-              <Plus className="w-4 h-4" />
-              添加论文
-            </Button>
-          </Card>
+          <EmptyState
+            icon={<FileText className="w-8 h-8 text-muted/60" />}
+            title="暂无论文"
+            description="添加你的第一篇论文，开始构建个人研究文献库"
+            action={
+              <Button variant="secondary" onClick={() => { setEditingPaper(null); setShowAddModal(true); }}>
+                <Plus className="w-4 h-4" />
+                添加论文
+              </Button>
+            }
+          />
         ) : (
           filteredPapers.map((paper) => (
             <ExpandablePaperCard
@@ -252,10 +217,6 @@ function PapersContent() {
               onEdit={handleEdit}
               onGenerateIdea={handleGenerateIdea}
               isGenerating={state.isGeneratingIdeaFromPaper}
-              onExtractAssumptions={handleExtractAssumptions}
-              onExtractGaps={handleExtractGaps}
-              cachedAssumptions={assumptionResults[paper.id] || null}
-              cachedGaps={gapResults[paper.id] || null}
             />
           ))
         )}
@@ -266,33 +227,15 @@ function PapersContent() {
         onClose={() => { setShowAddModal(false); setEditingPaper(null); }}
         editingPaper={editingPaper}
       />
-
-      <AnalysisResultModal
-        isOpen={!!analysisModal}
-        onClose={() => setAnalysisModal(null)}
-        type={analysisModal?.type || 'assumptions'}
-        loading={analysisLoading}
-        assumptions={analysisModal ? assumptionResults[analysisModal.paper.id] || null : null}
-        gaps={analysisModal ? gapResults[analysisModal.paper.id] || null : null}
-      />
     </div>
   );
 }
 
 /* ───────── Expandable Paper Card ───────── */
 
-const ASSUMPTION_STYLES: Record<string, { label: string; icon: any; color: string; bg: string }> = {
-  taskAssumptions: { label: '任务假设', icon: Target, color: '#991b1b', bg: '#fee2e2' },
-  sensingAssumptions: { label: '感知假设', icon: Eye, color: '#1e40af', bg: '#dbeafe' },
-  dataAssumptions: { label: '数据假设', icon: Database, color: '#065f46', bg: '#d1fae5' },
-  robotAssumptions: { label: '机器人假设', icon: Cpu, color: '#7c3aed', bg: '#ede9fe' },
-  evaluationAssumptions: { label: '评估假设', icon: BarChart3, color: '#92400e', bg: '#fef3c7' },
-};
-
 function ExpandablePaperCard({
   paper, areaNames, isExpanded, onToggle,
-  onEdit, onGenerateIdea, isGenerating, onExtractAssumptions, onExtractGaps,
-  cachedAssumptions, cachedGaps,
+  onEdit, onGenerateIdea, isGenerating,
 }: {
   paper: Paper;
   areaNames: string[];
@@ -301,10 +244,6 @@ function ExpandablePaperCard({
   onEdit: (paper: Paper) => void;
   onGenerateIdea: (paperId: string) => void;
   isGenerating: boolean;
-  onExtractAssumptions: (paper: Paper) => void;
-  onExtractGaps: (paper: Paper) => void;
-  cachedAssumptions: any;
-  cachedGaps: any;
 }) {
   const readingInfo = READING_STATUS_LABELS[paper.readingStatus];
   const judgementInfo = JUDGEMENT_LABELS[paper.judgementLevel];
@@ -353,14 +292,6 @@ function ExpandablePaperCard({
             <Sparkles className="w-3 h-3" />
             生成想法
           </Button>
-          <Button variant="ghost" className="text-xs py-1 px-2" onClick={() => onExtractAssumptions(paper)}>
-            <Lightbulb className="w-3 h-3" />
-            提取假设
-          </Button>
-          <Button variant="ghost" className="text-xs py-1 px-2" onClick={() => onExtractGaps(paper)}>
-            <TriangleAlert className="w-3 h-3" />
-            分析缺口
-          </Button>
           <div className="flex-1" />
           {/* External links */}
           {paper.arxivUrl && (
@@ -403,27 +334,6 @@ function ExpandablePaperCard({
             </Section>
           )}
 
-          {/* Assumptions — colored categories */}
-          {paper.assumptions && paper.assumptions.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Lightbulb className="w-4 h-4 text-purple-500" />
-                <h4 className="text-sm font-semibold text-ink">假设前提</h4>
-                <span className="text-xs text-muted">{paper.assumptions.length} 条</span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {paper.assumptions.map((a, i) => (
-                  <div key={i} className="bg-white rounded-lg p-3 border border-rule/30 flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
-                      {i + 1}
-                    </span>
-                    <span className="text-sm text-gray-700 leading-relaxed">{a}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Limitations */}
           {paper.limitations && paper.limitations.length > 0 && (
             <Section title="局限与疑问" icon={AlertCircle} color="#b45309">
@@ -434,87 +344,6 @@ function ExpandablePaperCard({
                 </div>
               ))}
             </Section>
-          )}
-
-          {/* Extracted assumptions by category (if assumptionsResult exists from extraction) */}
-          {cachedAssumptions && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Microscope className="w-4 h-4 text-accent" />
-                <h4 className="text-sm font-semibold text-ink">AI 提取的假设分类</h4>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {Object.entries(ASSUMPTION_STYLES).map(([key, style]) => {
-                  const items = (cachedAssumptions as any)?.[key];
-                  if (!items?.length) return null;
-                  const Icon = style.icon;
-                  return (
-                    <div key={key} className="rounded-lg p-3 border-l-4" style={{ borderLeftColor: style.color, backgroundColor: style.bg + '44' }}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Icon className="w-3.5 h-3.5" style={{ color: style.color }} />
-                        <span className="text-xs font-bold" style={{ color: style.color }}>{style.label}</span>
-                        <span className="text-xs text-muted">({items.length})</span>
-                      </div>
-                      <ul className="space-y-1">
-                        {items.map((item: string, idx: number) => (
-                          <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
-                            <span className="text-gray-400 mt-0.5">&#8226;</span>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                })}
-              </div>
-              {/* Verification questions */}
-              {(cachedAssumptions as any)?.verificationQuestions?.length > 0 && (
-                <div className="mt-3 bg-accent/[0.06] rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <HelpCircle className="w-3.5 h-3.5 text-accent" />
-                    <span className="text-xs font-bold text-accent">待验证问题 ({(cachedAssumptions as any).verificationQuestions.length})</span>
-                  </div>
-                  <ul className="space-y-1">
-                    {(cachedAssumptions as any).verificationQuestions.map((q: string, i: number) => (
-                      <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                        <HelpCircle className="w-3.5 h-3.5 text-accent/50 flex-shrink-0 mt-0.5" />
-                        {q}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Gap analysis results */}
-          {cachedGaps && (cachedGaps as any)?.gaps?.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Search className="w-4 h-4 text-red-500" />
-                <h4 className="text-sm font-semibold text-ink">研究缺口分析 ({(cachedGaps as any).gaps.length})</h4>
-              </div>
-              <div className="space-y-3">
-                {(cachedGaps as any).gaps.map((gap: any, i: number) => (
-                  <div key={i} className="bg-white rounded-lg p-4 border border-red-100">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">Gap {i + 1}</span>
-                      <span className="text-sm font-medium text-gray-900">{gap.description}</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                      <div className="bg-green-50 rounded p-2">
-                        <p className="text-xs text-green-700 font-medium mb-1">支撑证据</p>
-                        <p className="text-sm text-gray-600">{gap.evidenceFor}</p>
-                      </div>
-                      <div className="bg-amber-50 rounded p-2">
-                        <p className="text-xs text-amber-700 font-medium mb-1">弱点 / 风险</p>
-                        <p className="text-sm text-gray-600">{gap.whyWeak}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           )}
 
           {/* External links detail */}

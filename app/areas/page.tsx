@@ -10,6 +10,7 @@ import { Card } from '../../components/ui/Card';
 import { Tag } from '../../components/ui/Tag';
 import { Select } from '../../components/ui/Select';
 import { Input } from '../../components/ui/Input';
+import { EmptyState } from '../../components/ui/EmptyState';
 import AreaMapCard from '../../components/area/AreaMapCard';
 
 export default function AreasPage() {
@@ -136,19 +137,21 @@ export default function AreasPage() {
 
       {/* Grouped areas */}
       {visibleAreas.length === 0 ? (
-        <Card className="py-16 px-8 text-center">
-          <Map className="w-12 h-12 text-muted/40 mx-auto mb-3 empty-state-icon" />
-          <p className="text-muted">暂无研究领域</p>
-          <p className="text-muted/70 mb-4">创建第一个研究领域开始探索</p>
-          <Button variant="secondary" onClick={() => {
-            setEditingArea(null);
-            setFormData({ name: '', description: '', category: '感知', keywords: '', focusQuestions: '' });
-            setShowAddModal(true);
-          }}>
-            <Plus className="w-4 h-4" />
-            新增子领域
-          </Button>
-        </Card>
+        <EmptyState
+          icon={<Map className="w-8 h-8 text-muted/60" />}
+          title="暂无研究领域"
+          description="创建你的第一个研究领域，开始系统探索机器人科研方向"
+          action={
+            <Button variant="secondary" onClick={() => {
+              setEditingArea(null);
+              setFormData({ name: '', description: '', category: '感知', keywords: '', focusQuestions: '' });
+              setShowAddModal(true);
+            }}>
+              <Plus className="w-4 h-4" />
+              新增子领域
+            </Button>
+          }
+        />
       ) : (
         groupedAreas.categories.map((category) => (
           <div key={category} className="space-y-4">

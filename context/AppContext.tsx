@@ -11,8 +11,6 @@ import {
   mockGenerateIdeaFromPaper,
   mockGenerateRoboticsMVE,
   mockFetchArxivPaper,
-  mockExtractAssumptions,
-  mockExtractGaps,
   mockEvaluateIdea,
   mockGenerateAdversarialReview,
   mockAnalyzeFailure,
@@ -356,21 +354,6 @@ interface AppContextType {
     limitations: string[];
     questionsToVerify: string[];
   } | null>;
-  extractAssumptions: (paper: Paper) => Promise<{
-    taskAssumptions: string[];
-    sensingAssumptions: string[];
-    dataAssumptions: string[];
-    robotAssumptions: string[];
-    evaluationAssumptions: string[];
-    verificationQuestions: string[];
-  }>;
-  extractGaps: (paper: Paper) => Promise<{
-    gaps: {
-      description: string;
-      evidenceFor: string;
-      whyWeak: string;
-    }[];
-  }>;
   evaluateIdea: (idea: {
     title: string;
     researchQuestion: string;
@@ -388,6 +371,7 @@ interface AppContextType {
     revisedHypothesis?: string;
   }>;
   resetAllData: () => void;
+  exportData: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -814,14 +798,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const extractAssumptions = async (paper: Paper) => {
-    return await mockExtractAssumptions(paper);
-  };
-
-  const extractGaps = async (paper: Paper) => {
-    return await mockExtractGaps(paper);
-  };
-
   const evaluateIdea = async (idea: {
     title: string;
     researchQuestion: string;
@@ -852,6 +828,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isInitialized: true,
       },
     });
+  };
+
+  const exportData = () => {
+    const exportData = {
+      observations: state.observations,
+      ideaCards: state.ideaCards,
+      ideaRelationships: state.ideaRelationships,
+      mves: state.mves,
+      researchAreas: state.researchAreas,
+      papers: state.papers,
+      exportTime: new Date().toISOString(),
+      version: '1.0',
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `research-compass-export-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -887,10 +886,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         generateOneSentenceSummary,
         createIdeaFromPaper,
         fetchArxivPaper,
-        extractAssumptions,
-        extractGaps,
         evaluateIdea,
         resetAllData,
+        exportData,
       }}
     >
       {children}

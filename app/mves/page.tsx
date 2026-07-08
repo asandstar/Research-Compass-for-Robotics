@@ -10,6 +10,7 @@ import { MVE_RESULT_LABELS } from '../../lib/types';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Tag } from '../../components/ui/Tag';
+import { EmptyState } from '../../components/ui/EmptyState';
 import MVEHistoryCard from '../../components/mve/MVEHistoryCard';
 
 function MvesContent() {
@@ -99,14 +100,16 @@ function MvesContent() {
 
       {/* Timeline */}
       {sortedMves.length === 0 ? (
-        <Card className="py-16 px-8 text-center">
-          <FlaskConical className="w-12 h-12 text-muted/40 mx-auto mb-3 empty-state-icon" />
-          <p className="text-muted mb-1">暂无验证实验</p>
-          <p className="text-sm text-gray-400 mb-4">在聚焦工作区中生成第一个验证实验</p>
-          <Link href="/focus" className="no-underline hover:no-underline">
-            <Button variant="secondary">返回聚焦工作区</Button>
-          </Link>
-        </Card>
+        <EmptyState
+          icon={<FlaskConical className="w-8 h-8 text-muted/60" />}
+          title="暂无验证实验"
+          description="在聚焦工作区中为你的 Idea 设计并执行第一个最小可行实验"
+          action={
+            <Link href="/focus" className="no-underline hover:no-underline">
+              <Button variant="secondary">返回聚焦工作区</Button>
+            </Link>
+          }
+        />
       ) : (
         <div className="relative">
           {/* Timeline vertical line */}

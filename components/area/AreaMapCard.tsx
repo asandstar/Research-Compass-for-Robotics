@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FileText, Lightbulb, FlaskConical } from 'lucide-react';
+import { FileText, Lightbulb, FlaskConical, TrendingUp, TrendingDown, Flame, Minus } from 'lucide-react';
 import { ResearchArea } from '../../lib/types';
 import { Card } from '../ui/Card';
 import { Tag } from '../ui/Tag';
@@ -13,13 +13,30 @@ interface AreaMapCardProps {
   mveCount: number;
 }
 
+const TREND_CONFIG: Record<NonNullable<ResearchArea['trend']>, { icon: typeof Flame; label: string; bgColor: string; textColor: string }> = {
+  hot: { icon: Flame, label: '热门', bgColor: 'bg-red-50', textColor: 'text-red-600' },
+  trending: { icon: TrendingUp, label: '上升', bgColor: 'bg-green-50', textColor: 'text-green-600' },
+  stable: { icon: Minus, label: '稳定', bgColor: 'bg-gray-50', textColor: 'text-gray-600' },
+  declining: { icon: TrendingDown, label: '下降', bgColor: 'bg-orange-50', textColor: 'text-orange-600' },
+};
+
 export default function AreaMapCard({ area, paperCount, ideaCount, mveCount }: AreaMapCardProps) {
+  const trendConfig = area.trend ? TREND_CONFIG[area.trend] : null;
+
   return (
     <Link href={`/ideas?areaId=${area.id}`} className="group no-underline hover:no-underline block">
       <Card interactive className="h-full">
-        <h3 className="font-medium text-ink group-hover:text-accent transition-colors truncate">
-          {area.name}
-        </h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-medium text-ink group-hover:text-accent transition-colors truncate flex-1">
+            {area.name}
+          </h3>
+          {trendConfig && (
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${trendConfig.bgColor} ${trendConfig.textColor} flex-shrink-0`}>
+              <trendConfig.icon className="w-3 h-3" />
+              {trendConfig.label}
+            </span>
+          )}
+        </div>
         <p className="line-clamp-2 text-sm text-muted mt-1">{area.description}</p>
 
         {area.keywords.length > 0 && (

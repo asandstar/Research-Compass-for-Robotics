@@ -7,10 +7,11 @@ import {
   Lightbulb, FlaskConical, CheckCircle, FileText, Target,
   ArrowRight, BookOpen, Map, Sparkles, TrendingUp,
   ChevronRight, Brain, Activity, Workflow, Users, Award,
-  Clock, Zap, Shield
+  Clock, Zap, Shield, Download
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useActiveIdea } from '../context/ActiveIdeaContext';
+import { useToast } from '../context/ToastContext';
 import {
   IDEA_STATUS_LABELS, READING_STATUS_LABELS,
   JUDGEMENT_LABELS
@@ -22,8 +23,9 @@ import { Tag } from '../components/ui/Tag';
 export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { state, getIdeaCardById } = useApp();
+  const { state, getIdeaCardById, exportData } = useApp();
   const { activeIdeaId, isActive, setActiveIdea } = useActiveIdea();
+  const { showToast } = useToast();
 
   useEffect(() => {
     const redirectPath = searchParams.get('r');
@@ -199,7 +201,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card className="p-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
@@ -438,6 +440,21 @@ export default function DashboardPage() {
               </Link>
             </Card>
           )}
+
+          {/* Data Export */}
+          <Card className="p-4">
+            <button
+              type="button"
+              onClick={() => {
+                exportData();
+                showToast('数据导出成功！', 'success');
+              }}
+              className="w-full flex items-center justify-center gap-2 text-sm text-muted hover:text-accent hover:bg-accent/5 rounded-lg py-2 transition-fast transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              导出数据（JSON）
+            </button>
+          </Card>
         </div>
       </div>
     </div>

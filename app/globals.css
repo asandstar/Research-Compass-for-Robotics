@@ -21,6 +21,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.dark body {
+  color: #e7e5e4;
+  background: #1c1917;
+}
+
 /* ===== Typography Scale ===== */
 h1, .heading-1 {
   font-size: 1.5rem;
@@ -310,10 +315,88 @@ button:focus-visible,
   animation: fadeInUp 0.4s ease-out;
 }
 
+/* ===== Route Transition ===== */
+.route-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.route-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.route-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.route-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 200ms ease-in, transform 200ms ease-in;
+}
+
 .card-enter {
   animation: scaleIn 0.3s ease-out;
 }
 
 .fade-in {
   animation: fadeInUp 0.3s ease-out;
+}
+
+/* ===== Dark Mode Styles ===== */
+.dark h1, .dark h2, .dark h3, .dark h4,
+.dark .heading-1, .dark .heading-2, .dark .heading-3, .dark .heading-4 {
+  color: #fafaf9;
+}
+
+.dark .page-title {
+  color: #fafaf9;
+}
+
+.dark .page-subtitle {
+  color: #a8a29e;
+}
+
+.dark a {
+  color: #2dd4bf;
+}
+
+.dark a:hover {
+  color: #14b8a6;
+}
+
+.dark input:focus-visible,
+.dark textarea:focus-visible,
+.dark select:focus-visible,
+.dark button:focus-visible,
+.dark [tabindex]:focus-visible {
+  outline-color: #2dd4bf;
+}
+
+.dark ::selection {
+  background: rgba(45, 212, 191, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #44403c;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #57534e;
+}
+
+.dark .card-interactive:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.dark .timeline-line {
+  background: linear-gradient(to bottom, #44403c, #57534e);
+}
+
+.dark .timeline-node:hover {
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
 }

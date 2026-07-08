@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Target, Lightbulb, FileText, FlaskConical, LayoutGrid, Compass, Search, Workflow, GraduationCap, BrainCircuit, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Target, Lightbulb, FileText, FlaskConical, LayoutGrid, Compass, Search, Workflow, GraduationCap, BrainCircuit, Menu, X, Moon, Sun, Gamepad2 } from 'lucide-react';
 import { useActiveIdea } from '../context/ActiveIdeaContext';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import { CommandPalette } from './CommandPalette';
 
 const coreNav = [
@@ -23,7 +24,9 @@ const workNav = [
 
 const utilityNav = [
   { href: '/areas', label: '子领域', icon: LayoutGrid, iconOnly: true },
+  { href: '/questions', label: '研究问题', icon: Target, iconOnly: true },
   { href: '/papers/intelligence', label: '论文智识', icon: BrainCircuit, iconOnly: true },
+  { href: '/games', label: '科研游戏', icon: Gamepad2, iconOnly: true },
 ];
 
 export function Navbar() {
@@ -31,6 +34,7 @@ export function Navbar() {
   const router = useRouter();
   const { activeIdeaId, isActive } = useActiveIdea();
   const { getIdeaCardById } = useApp();
+  const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -135,11 +139,21 @@ export function Navbar() {
                 <NavLink key={item.href} item={item} active={checkActive(item.href)} />
               ))}
 
+              {/* Theme Toggle */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                title={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
+                className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-muted hover:text-ink hover:bg-bg2 transition-fast transition-colors"
+              >
+                {theme === 'dark' ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
+              </button>
+
               {/* Mobile Menu Button */}
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="sm:hidden p-2 rounded-lg text-muted hover:text-ink hover:bg-bg2 transition-fast transition-colors"
+                className="sm:hidden w-10 h-10 flex items-center justify-center rounded-lg text-muted hover:text-ink hover:bg-bg2 transition-fast transition-colors"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
