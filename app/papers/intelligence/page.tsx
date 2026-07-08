@@ -154,22 +154,12 @@ export default function PaperIntelligencePage() {
       {/* Paper Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {paperIntelligenceList.map((p) => (
-          <div key={p.id} className="relative">
-            {/* Selection Checkbox */}
-            <button
-              onClick={() => toggleSelect(p.id)}
-              className={`absolute top-3 left-3 z-10 w-6 h-6 rounded border-2 flex items-center justify-center transition-fast ${
-                isSelected(p.id)
-                  ? 'bg-accent border-accent'
-                  : 'bg-surface border-border-default hover:border-accent/50'
-              }`}
-            >
-              {isSelected(p.id) && (
-                <CheckCircle className="w-4 h-4 text-white" />
-              )}
-            </button>
-            <PaperIntelligenceCard paper={p} />
-          </div>
+          <PaperIntelligenceCard
+            key={p.id}
+            paper={p}
+            onSelect={() => toggleSelect(p.id)}
+            isSelected={isSelected(p.id)}
+          />
         ))}
       </div>
 

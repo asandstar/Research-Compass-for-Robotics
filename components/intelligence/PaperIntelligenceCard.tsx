@@ -7,6 +7,8 @@ import type { PaperIntelligence } from '../../lib/intelligence/paperIntelligence
 
 interface PaperIntelligenceCardProps {
   paper: PaperIntelligence;
+  onSelect?: () => void;
+  isSelected?: boolean;
 }
 
 interface FieldDef {
@@ -14,7 +16,7 @@ interface FieldDef {
   value: string;
 }
 
-export default function PaperIntelligenceCard({ paper }: PaperIntelligenceCardProps) {
+export default function PaperIntelligenceCard({ paper, onSelect, isSelected }: PaperIntelligenceCardProps) {
   // Main fields: 2-column grid
   const mainFields: FieldDef[] = [
     { label: '解决的问题', value: paper.problem },
@@ -30,7 +32,26 @@ export default function PaperIntelligenceCard({ paper }: PaperIntelligenceCardPr
       {/* Header */}
       <div className="mb-4 pb-3 border-b border-border-subtle">
         <div className="flex items-start justify-between gap-2 flex-wrap">
-          <h3 className="text-h2 font-semibold text-ink leading-snug flex-1 min-w-0">{paper.title}</h3>
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            {onSelect && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect();
+                }}
+                className={`flex-shrink-0 mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-fast ${
+                  isSelected
+                    ? 'bg-accent border-accent'
+                    : 'bg-surface border-border-default hover:border-accent/50'
+                }`}
+              >
+                {isSelected && (
+                  <CheckCircle className="w-3.5 h-3.5 text-white" />
+                )}
+              </button>
+            )}
+            <h3 className="text-h2 font-semibold text-ink leading-snug flex-1 min-w-0">{paper.title}</h3>
+          </div>
           {paper.verified ? (
             <Tag variant="soft" size="sm" color="#059669">
               <CheckCircle className="w-3 h-3 inline mr-1" />
