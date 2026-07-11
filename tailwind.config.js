@@ -31,6 +31,9 @@ module.exports = {
           'border-subtle': 'rgba(255,255,255,0.06)',
           'border-default': 'rgba(255,255,255,0.09)',
           'border-strong': 'rgba(255,255,255,0.15)',
+          accent: '#2dd4bf',
+          'accent-hover': '#14b8a6',
+          accent2: '#f59e0b',
         },
       },
       fontFamily: {

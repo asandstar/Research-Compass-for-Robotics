@@ -241,14 +241,14 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col modal-content"
+        className="bg-surface dark:bg-dark-surface rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col modal-content"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-5 border-b border-border-subtle flex-shrink-0">
-          <h2 id="add-paper-modal-title" className="text-lg font-semibold">
+          <h2 id="add-paper-modal-title" className="text-lg font-semibold text-ink dark:text-dark-ink">
             {editingPaper ? '编辑论文' : '添加论文'}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-muted" aria-label="关闭">
+          <button onClick={onClose} className="text-muted hover:text-ink dark:hover:text-dark-ink" aria-label="关闭">
             <X className="w-5 h-5" />
           </button>
         </div>

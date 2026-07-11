@@ -43,10 +43,10 @@ export function EvidenceList({ title, evidence, color, bgColor, onRemove, onAdd 
         {evidence.map((ev) => (
           <div key={ev.id} className="flex items-start justify-between gap-2">
             <div className="flex-1">
-              <div className="text-xs">{ev.content}</div>
-              <div className="text-xs opacity-60">{ev.source}</div>
+              <div className="text-xs text-ink dark:text-dark-ink">{ev.content}</div>
+              <div className="text-xs text-muted/60">{ev.source}</div>
               {ev.isAIGenerated && (
-                <span className="inline-block ml-1 px-1 py-0.5 rounded text-[10px] bg-white/50 opacity-80">AI</span>
+                <span className="inline-block ml-1 px-1 py-0.5 rounded text-[10px] bg-surface/50 dark:bg-dark-surface/50 opacity-80">AI</span>
               )}
             </div>
             {onRemove && (
@@ -61,20 +61,20 @@ export function EvidenceList({ title, evidence, color, bgColor, onRemove, onAdd 
           </div>
         ))}
         {evidence.length === 0 && !isAdding && (
-          <div className="text-xs opacity-60">暂无证据</div>
+          <div className="text-xs text-muted/60">暂无证据</div>
         )}
       </div>
 
       {isAdding && (
         <div className="mt-2 space-y-2">
           <textarea
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-            className="w-full px-2 py-1.5 text-xs border border-border-default rounded resize-none focus:outline-none focus:ring-1 focus:ring-accent/30"
-            rows={2}
-            placeholder="输入证据内容..."
-            autoFocus
-          />
+              value={newContent}
+              onChange={(e) => setNewContent(e.target.value)}
+              className="w-full px-2 py-1.5 text-xs border border-border-default dark:border-dark-border-default rounded resize-none focus:outline-none focus:ring-1 focus:ring-accent/30 bg-surface dark:bg-dark-surface text-ink dark:text-dark-ink"
+              rows={2}
+              placeholder="输入证据内容..."
+              autoFocus
+            />
           <div className="flex gap-1.5">
             <button
               onClick={handleAdd}
@@ -85,7 +85,7 @@ export function EvidenceList({ title, evidence, color, bgColor, onRemove, onAdd 
             </button>
             <button
               onClick={() => { setIsAdding(false); setNewContent(''); }}
-              className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700"
+              className="px-2 py-1 text-xs text-muted hover:text-ink dark:hover:text-dark-ink"
             >
               取消
             </button>

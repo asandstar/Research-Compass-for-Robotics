@@ -360,6 +360,22 @@ button:focus-visible,
   color: #a8a29e;
 }
 
+.dark .text-ink {
+  color: #e7e5e4;
+}
+
+.dark .text-muted {
+  color: #a8a29e;
+}
+
+.dark .text-accent {
+  color: #2dd4bf;
+}
+
+.dark .text-accent-hover {
+  color: #14b8a6;
+}
+
 .dark a {
   color: #2dd4bf;
 }

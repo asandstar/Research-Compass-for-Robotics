@@ -5,9 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   Lightbulb, FlaskConical, CheckCircle, FileText, Target,
-  ArrowRight, BookOpen, Map, Sparkles, TrendingUp,
-  ChevronRight, Brain, Activity, Workflow, Users, Award,
-  Clock, Zap, Shield, Download
+  ArrowRight, BookOpen, Map, Sparkles,
+  ChevronRight, Users, Award,
+  Zap, Download
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useActiveIdea } from '../context/ActiveIdeaContext';
@@ -19,6 +19,9 @@ import {
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Tag } from '../components/ui/Tag';
+import { OnboardingProgress } from '../components/dashboard/OnboardingProgress';
+import { BackupManager } from '../components/backup/BackupManager';
+import { WelcomeWizard } from '../components/onboarding/WelcomeWizard';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -74,6 +77,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <WelcomeWizard />
       {/* Hero Section */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-accent/5 via-white to-accent2/5 p-8 md:p-12 border border-accent/10">
         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -109,6 +113,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Active Focus Card */}
+      <OnboardingProgress />
       <Card className="p-5 border-l-4 border-l-accent">
         {isActive && activeIdea && statusLabel ? (
           <div className="flex items-start justify-between gap-4">
@@ -153,52 +158,6 @@ export default function DashboardPage() {
           </div>
         )}
       </Card>
-
-      {/* Core Capabilities */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-5 border-l-4 border-l-blue-500 animate-fade-in-up">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center flex-shrink-0">
-              <Brain className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-ink mb-1">科学假设管理</h3>
-              <p className="text-sm text-muted">存活度 / 置信度 / 证伪强度三维评估体系，帮你科学判断研究方向的可行性。</p>
-              <Link href="/ideas" className="inline-flex items-center gap-1 mt-2 text-accent text-sm hover:underline">
-                探索 Ideas <ChevronRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-5 border-l-4 border-l-green-500 animate-fade-in-up delay-100">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-950/30 flex items-center justify-center flex-shrink-0">
-              <FlaskConical className="w-5 h-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-ink mb-1">最小可行实验</h3>
-              <p className="text-sm text-muted">系统化实验设计与验证流程，从实验目标到控制变量，确保每一步都有价值。</p>
-              <Link href="/mves" className="inline-flex items-center gap-1 mt-2 text-accent text-sm hover:underline">
-                查看 MVE <ChevronRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-5 border-l-4 border-l-purple-500 animate-fade-in-up delay-200">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center flex-shrink-0">
-              <Workflow className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-ink mb-1">科研工作流</h3>
-              <p className="text-sm text-muted">6 大科研场景的标准化流程指导，从发现方向到论文写作，全程陪伴。</p>
-              <Link href="/workflows" className="inline-flex items-center gap-1 mt-2 text-accent text-sm hover:underline">
-                学习工作流 <ChevronRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-        </Card>
-      </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -387,42 +346,6 @@ export default function DashboardPage() {
             </Card>
           )}
 
-          {/* Quick Start Guide */}
-          <Card className="p-5 border-t-4 border-t-accent">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-accent" />
-              </div>
-              <div>
-                <h2 className="font-semibold text-ink text-sm">快速开始</h2>
-                <p className="text-label text-muted/60">4 步完成你的第一个研究项目</p>
-              </div>
-            </div>
-            <div className="space-y-3">
-              {[
-                { step: 1, label: '探索研究方向', desc: '浏览子领域地图', href: '/areas', icon: Map },
-                { step: 2, label: '添加论文', desc: '写一句话总结', href: '/papers', icon: FileText },
-                { step: 3, label: '生成 Idea', desc: '提炼研究假设', href: '/ideas', icon: Sparkles },
-                { step: 4, label: '设计 MVE', desc: '验证想法可行性', href: '/mves', icon: FlaskConical },
-              ].map((item) => (
-                <Link
-                  key={item.step}
-                  href={item.href}
-                  className="flex items-center gap-3 group no-underline hover:no-underline"
-                >
-                  <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-fast transition-colors">
-                    <span className="text-caption font-bold text-accent">{item.step}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-ink group-hover:text-accent transition-fast transition-colors">{item.label}</p>
-                    <p className="text-label text-muted/60">{item.desc}</p>
-                  </div>
-                  <ChevronRight className="w-3.5 h-3.5 text-muted/30 group-hover:text-accent/50 transition-fast transition-colors" />
-                </Link>
-              ))}
-            </div>
-          </Card>
-
           {/* Pending MVEs alert */}
           {pendingMves > 0 && (
             <Card className="p-4 border-l-4 border-l-accent2">
@@ -441,20 +364,8 @@ export default function DashboardPage() {
             </Card>
           )}
 
-          {/* Data Export */}
-          <Card className="p-4">
-            <button
-              type="button"
-              onClick={() => {
-                exportData();
-                showToast('数据导出成功！', 'success');
-              }}
-              className="w-full flex items-center justify-center gap-2 text-sm text-muted hover:text-accent hover:bg-accent/5 rounded-lg py-2 transition-fast transition-colors"
-            >
-              <Download className="w-4 h-4" />
-              导出数据（JSON）
-            </button>
-          </Card>
+          {/* Data Export & Backup */}
+          <BackupManager />
         </div>
       </div>
     </div>

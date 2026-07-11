@@ -7,6 +7,7 @@ import { ActiveIdeaProvider } from '../context/ActiveIdeaContext';
 import { ThemeProvider } from '../context/ThemeContext';
 import { ToastProvider } from '../context/ToastContext';
 import { Navbar } from '../components/Navbar';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 function AnimatedContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -40,9 +41,11 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
           <ActiveIdeaProvider>
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-              <Suspense fallback={<div className="text-center py-20 text-gray-500 dark:text-gray-400">加载中...</div>}>
-                <AnimatedContent>{children}</AnimatedContent>
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<div className="text-center py-20 text-gray-500 dark:text-gray-400">加载中...</div>}>
+                  <AnimatedContent>{children}</AnimatedContent>
+                </Suspense>
+              </ErrorBoundary>
             </main>
           </ActiveIdeaProvider>
         </AppProvider>

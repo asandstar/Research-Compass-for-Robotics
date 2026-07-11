@@ -151,6 +151,10 @@ export default function AreasPage() {
               新增子领域
             </Button>
           }
+          tips={[
+            { label: '研究问题空间', href: '/questions' },
+            { label: '学习路径', href: '/learning' },
+          ]}
         />
       ) : (
         groupedAreas.categories.map((category) => (

@@ -67,8 +67,8 @@ function IdeasContent() {
       {/* Header */}
       <div className="page-header flex items-center justify-between">
         <div>
-          <h1 className="page-title">选择研究方向</h1>
-          <p className="page-subtitle">选择一个方向进入聚焦模式</p>
+          <h1 className="page-title">研究方向</h1>
+          <p className="page-subtitle">管理和选择你的研究方向，进入聚焦模式深入探索</p>
         </div>
         <Button onClick={() => setShowCreateIdea(true)}>
           <Sparkles className="w-4 h-4" />
@@ -146,6 +146,14 @@ function IdeasContent() {
                     新建 Idea
                   </Button>
                 ) : undefined
+              }
+              tips={
+                !searchQuery && statusFilter === 'all'
+                  ? [
+                      { label: '三维评估体系说明', href: '/learning' },
+                      { label: '从论文生成 Idea', href: '/papers' },
+                    ]
+                  : undefined
               }
             />
           ) : (

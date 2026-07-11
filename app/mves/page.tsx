@@ -109,6 +109,10 @@ function MvesContent() {
               <Button variant="secondary">返回聚焦工作区</Button>
             </Link>
           }
+          tips={[
+            { label: '什么是 MVE？', href: '/workflows' },
+            { label: '假设检验游戏', href: '/games/hypothesis-testing' },
+          ]}
         />
       ) : (
         <div className="relative">

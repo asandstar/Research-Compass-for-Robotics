@@ -16,6 +16,8 @@ import {
   mockAnalyzeFailure,
 } from '../lib/mockAI';
 import { calculateIdeaState, updateIdeaCardWithCalculatedState } from '../lib/stateCalculator';
+import { autoBackup, listBackups, getBackup, removeBackup, exportBackupAsJson } from '../lib/backup';
+import { addBackup, BackupEntry } from '../lib/storage/indexedDB';
 
 interface AppState {
   observations: Observation[];
@@ -370,14 +372,19 @@ interface AppContextType {
     recommendationReason: string;
     revisedHypothesis?: string;
   }>;
-  resetAllData: () => void;
+  resetAllData: () => Promise<void>;
   exportData: () => void;
+  listBackups: () => Promise<BackupEntry[]>;
+  restoreBackup: (backupId: number) => Promise<void>;
+  deleteBackup: (backupId: number) => Promise<void>;
+  exportBackup: (backup: BackupEntry) => void;
+  createManualBackup: (label?: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
 
 let hasInitialized = false;
-let initDataCache: ReturnType<typeof initializeData> | null = null;
+let initDataCache: Awaited<ReturnType<typeof initializeData>> | null = null;
 
 function assertUniqueIds<T extends { id: string }>(items: T[], label: string) {
   const ids = new Set<string>();
@@ -420,44 +427,58 @@ export function AppProvider({ children }: { children: ReactNode }) {
     initRef.current = true;
 
     if (hasInitialized && initDataCache) {
+      dispatchRef.current({
+        type: 'INIT_DATA',
+        payload: initDataCache,
+      });
       return;
     }
 
-    const data = initializeData();
-    
-    assertUniqueIds(data.researchAreas, 'researchAreas');
-    assertUniqueIds(data.papers, 'papers');
-    assertUniqueIds(data.observations, 'observations');
-    assertUniqueIds(data.ideaCards, 'ideaCards');
-    assertUniqueIds(data.mves, 'mves');
+    (async () => {
+      const data = await initializeData();
 
-    initDataCache = {
-      observations: deduplicateById(data.observations),
-      ideaCards: deduplicateById(data.ideaCards),
-      ideaRelationships: deduplicateById((data as any).ideaRelationships || []),
-      mves: deduplicateById(data.mves),
-      researchAreas: deduplicateById(data.researchAreas),
-      papers: deduplicateById(data.papers),
-    };
+      assertUniqueIds(data.researchAreas, 'researchAreas');
+      assertUniqueIds(data.papers, 'papers');
+      assertUniqueIds(data.observations, 'observations');
+      assertUniqueIds(data.ideaCards, 'ideaCards');
+      assertUniqueIds(data.mves, 'mves');
 
-    hasInitialized = true;
+      initDataCache = {
+        observations: deduplicateById(data.observations),
+        ideaCards: deduplicateById(data.ideaCards),
+        ideaRelationships: deduplicateById((data as any).ideaRelationships || []),
+        mves: deduplicateById(data.mves),
+        researchAreas: deduplicateById(data.researchAreas),
+        papers: deduplicateById(data.papers),
+      };
 
-    dispatchRef.current({
-      type: 'INIT_DATA',
-      payload: initDataCache,
-    });
+      hasInitialized = true;
+
+      dispatchRef.current({
+        type: 'INIT_DATA',
+        payload: initDataCache,
+      });
+    })();
   }, []);
 
+  const isFirstRun = useRef(true);
   useEffect(() => {
-    persistData({
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
+    }
+    if (!state.isInitialized) return;
+    const data = {
       observations: state.observations,
       ideaCards: state.ideaCards,
       ideaRelationships: state.ideaRelationships,
       mves: state.mves,
       researchAreas: state.researchAreas,
       papers: state.papers,
-    });
-  }, [state.observations, state.ideaCards, state.ideaRelationships, state.mves, state.researchAreas, state.papers]);
+    };
+    persistData(data);
+    autoBackup(data);
+  }, [state.observations, state.ideaCards, state.ideaRelationships, state.mves, state.researchAreas, state.papers, state.isInitialized]);
 
   const addObservation = async (content: string): Promise<Observation> => {
     dispatch({ type: 'SET_ANALYZING', payload: true });
@@ -808,8 +829,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return await mockEvaluateIdea(idea);
   };
 
-  const resetAllData = () => {
-    const freshData = resetDemoData();
+  const resetAllData = async () => {
+    const freshData = await resetDemoData();
     dispatch({
       type: 'RESET_DATA',
       payload: {
@@ -853,6 +874,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
     URL.revokeObjectURL(url);
   };
 
+  const handleListBackups = async (): Promise<BackupEntry[]> => {
+    return listBackups();
+  };
+
+  const handleRestoreBackup = async (backupId: number): Promise<void> => {
+    const backup = await getBackup(backupId);
+    if (!backup || !backup.data) return;
+
+    const data = backup.data as any;
+    const backupData = {
+      observations: deduplicateById((data.observations || []) as Observation[]),
+      ideaCards: deduplicateById((data.ideaCards || []) as any[]),
+      ideaRelationships: deduplicateById((data.ideaRelationships || []) as IdeaRelationship[]),
+      mves: deduplicateById((data.mves || []) as any[]),
+      researchAreas: deduplicateById((data.researchAreas || []) as ResearchArea[]),
+      papers: deduplicateById((data.papers || []) as Paper[]),
+    };
+
+    dispatch({
+      type: 'RESET_DATA',
+      payload: {
+        ...backupData,
+        isAnalyzing: false,
+        isGeneratingEvidence: false,
+        isGeneratingMVE: false,
+        isGeneratingSummary: false,
+        isGeneratingIdeaFromPaper: false,
+        isParsingArxiv: false,
+        isInitialized: true,
+      },
+    });
+  };
+
+  const handleDeleteBackup = async (backupId: number): Promise<void> => {
+    await removeBackup(backupId);
+  };
+
+  const handleExportBackup = (backup: BackupEntry): void => {
+    exportBackupAsJson(backup);
+  };
+
+  const handleCreateManualBackup = async (label?: string): Promise<void> => {
+    const data = {
+      observations: state.observations,
+      ideaCards: state.ideaCards,
+      ideaRelationships: state.ideaRelationships,
+      mves: state.mves,
+      researchAreas: state.researchAreas,
+      papers: state.papers,
+    };
+    await addBackup(data, label || '手动备份');
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -889,6 +963,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         evaluateIdea,
         resetAllData,
         exportData,
+        listBackups: handleListBackups,
+        restoreBackup: handleRestoreBackup,
+        deleteBackup: handleDeleteBackup,
+        exportBackup: handleExportBackup,
+        createManualBackup: handleCreateManualBackup,
       }}
     >
       {children}

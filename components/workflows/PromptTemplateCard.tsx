@@ -21,7 +21,7 @@ export default function PromptTemplateCard({ template }: PromptTemplateCardProps
           → {template.outputSink}
         </Tag>
       </div>
-      <div className="font-mono text-caption text-ink bg-surface p-3 rounded border border-border-subtle overflow-x-auto whitespace-pre-wrap break-words leading-relaxed" style={{ overflowWrap: 'anywhere' }}>
+      <div className="font-mono text-caption text-ink dark:text-dark-ink bg-surface dark:bg-dark-surface p-3 rounded border border-border-subtle dark:border-dark-border-subtle overflow-x-auto whitespace-pre-wrap break-words leading-relaxed" style={{ overflowWrap: 'anywhere' }}>
         {template.prompt}
       </div>
     </Card>

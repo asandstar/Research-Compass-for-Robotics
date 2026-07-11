@@ -205,6 +205,10 @@ function PapersContent() {
                 添加论文
               </Button>
             }
+            tips={[
+              { label: '如何高效读论文？', href: '/workflows' },
+              { label: '论文智识卡片', href: '/papers/intelligence' },
+            ]}
           />
         ) : (
           filteredPapers.map((paper) => (

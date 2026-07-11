@@ -58,17 +58,17 @@ export function EvidencePressureGauge({
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-2">
-          <p className="text-lg font-bold text-green-600 dark:text-green-400">{forCount}</p>
-          <p className="text-[10px] text-green-700 dark:text-green-500">支持</p>
+        <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-2">
+          <p className="text-lg font-bold text-green-600 dark:text-green-300">{forCount}</p>
+          <p className="text-[10px] text-green-700 dark:text-green-400">支持</p>
         </div>
-        <div className="bg-red-50 dark:bg-red-950/30 rounded-lg p-2">
-          <p className="text-lg font-bold text-red-600 dark:text-red-400">{againstCount}</p>
-          <p className="text-[10px] text-red-700 dark:text-red-500">反对</p>
+        <div className="bg-red-50 dark:bg-red-900/30 rounded-lg p-2">
+          <p className="text-lg font-bold text-red-600 dark:text-red-300">{againstCount}</p>
+          <p className="text-[10px] text-red-700 dark:text-red-400">反对</p>
         </div>
-        <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-2">
-          <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{missingCount}</p>
-          <p className="text-[10px] text-amber-700 dark:text-amber-500">缺失</p>
+        <div className="bg-amber-50 dark:bg-amber-900/30 rounded-lg p-2">
+          <p className="text-lg font-bold text-amber-600 dark:text-amber-300">{missingCount}</p>
+          <p className="text-[10px] text-amber-700 dark:text-amber-400">缺失</p>
         </div>
       </div>
 

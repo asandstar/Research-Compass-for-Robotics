@@ -1,7 +1,14 @@
 import { Observation, IdeaCard, MVE, ResearchArea, Paper, IdeaRelationship, LEGACY_STATUS_MAP } from './types';
 import { mockObservations, mockIdeaCards, mockMVEs, mockResearchAreas, mockPapers } from './mockData';
+import {
+  getMainData,
+  setMainData,
+  addBackup,
+  isIndexedDBAvailable,
+} from './storage/indexedDB';
 
 const STORAGE_KEY = 'research-compass-data-v14';
+const MIGRATION_FLAG_KEY = 'rc-migrated-to-idb';
 
 interface StoredData {
   observations: Observation[];
@@ -87,69 +94,132 @@ function deduplicateById<T extends { id: string }>(items: T[]): T[] {
   });
 }
 
-function loadFromStorage(): StoredData {
+function parseStoredData(parsed: any, hasStorageKey: boolean): StoredData {
+  const rawResearchAreas = (parsed.researchAreas && Array.isArray(parsed.researchAreas))
+    ? parsed.researchAreas as ResearchArea[]
+    : [];
+  const rawPapers = (parsed.papers && Array.isArray(parsed.papers))
+    ? parsed.papers as Paper[]
+    : [];
+  const rawObservations = (parsed.observations && Array.isArray(parsed.observations))
+    ? parsed.observations as Observation[]
+    : [];
+  const rawIdeaCards = (parsed.ideaCards && Array.isArray(parsed.ideaCards))
+    ? parsed.ideaCards as any[]
+    : [];
+  const rawMves = (parsed.mves && Array.isArray(parsed.mves))
+    ? parsed.mves as any[]
+    : [];
+  const rawIdeaRelationships = (parsed.ideaRelationships && Array.isArray(parsed.ideaRelationships))
+    ? parsed.ideaRelationships as IdeaRelationship[]
+    : [];
+
+  const researchAreas: ResearchArea[] = hasStorageKey
+    ? deduplicateById(rawResearchAreas.map(addDefaultAreaFields))
+    : [...mockResearchAreas];
+  const papers: Paper[] = hasStorageKey
+    ? deduplicateById(rawPapers)
+    : [...mockPapers];
+  const observations: Observation[] = deduplicateById(rawObservations);
+  const ideaCards: IdeaCard[] = deduplicateById(rawIdeaCards.map(addDefaultIdeaFields));
+  const mves: MVE[] = deduplicateById(rawMves.map(addDefaultMVEFields));
+  const ideaRelationships: IdeaRelationship[] = deduplicateById(rawIdeaRelationships);
+
+  return {
+    observations,
+    ideaCards,
+    ideaRelationships,
+    mves,
+    researchAreas,
+    papers,
+  };
+}
+
+function getInitialMockData(): StoredData {
+  return {
+    observations: [...mockObservations],
+    ideaCards: [...mockIdeaCards],
+    ideaRelationships: [],
+    mves: [...mockMVEs],
+    researchAreas: [...mockResearchAreas],
+    papers: [...mockPapers],
+  };
+}
+
+async function loadFromIDB(): Promise<StoredData | null> {
+  if (!isIndexedDBAvailable()) return null;
+  try {
+    const data = await getMainData<any>();
+    if (!data) return null;
+
+    const hasStorageKey = true;
+    const result = parseStoredData(data, hasStorageKey);
+
+    const needsRepair =
+      result.observations.length !== (data.observations?.length ?? 0) ||
+      result.ideaCards.length !== (data.ideaCards?.length ?? 0) ||
+      result.ideaRelationships.length !== (data.ideaRelationships?.length ?? 0) ||
+      result.mves.length !== (data.mves?.length ?? 0) ||
+      result.researchAreas.length !== (data.researchAreas?.length ?? 0) ||
+      result.papers.length !== (data.papers?.length ?? 0);
+
+    if (needsRepair) {
+      await saveToIDB(result);
+    }
+
+    return result;
+  } catch (e) {
+    console.error('Failed to load from IndexedDB:', e);
+    return null;
+  }
+}
+
+async function saveToIDB(data: StoredData): Promise<void> {
+  if (!isIndexedDBAvailable()) {
+    saveToLocalStorage(data);
+    return;
+  }
+  try {
+    await setMainData(data);
+    saveToLocalStorage(data);
+  } catch (e) {
+    console.error('Failed to save to IndexedDB, falling back to localStorage:', e);
+    saveToLocalStorage(data);
+  }
+}
+
+function saveToLocalStorage(data: StoredData): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error('Failed to save to localStorage:', e);
+  }
+}
+
+function loadFromLocalStorage(): StoredData {
   const hasUserKey = typeof window !== 'undefined' && localStorage.getItem(STORAGE_KEY) !== null;
   try {
     const data = hasUserKey ? localStorage.getItem(STORAGE_KEY) : null;
     if (data) {
       const parsed = JSON.parse(data);
-      const rawResearchAreas = (parsed.researchAreas && Array.isArray(parsed.researchAreas))
-        ? parsed.researchAreas as ResearchArea[]
-        : [];
-      const rawPapers = (parsed.papers && Array.isArray(parsed.papers))
-        ? parsed.papers as Paper[]
-        : [];
-      const rawObservations = (parsed.observations && Array.isArray(parsed.observations))
-        ? parsed.observations as Observation[]
-        : [];
-      const rawIdeaCards = (parsed.ideaCards && Array.isArray(parsed.ideaCards))
-        ? parsed.ideaCards as any[]
-        : [];
-      const rawMves = (parsed.mves && Array.isArray(parsed.mves))
-        ? parsed.mves as any[]
-        : [];
-      const rawIdeaRelationships = (parsed.ideaRelationships && Array.isArray(parsed.ideaRelationships))
-        ? parsed.ideaRelationships as IdeaRelationship[]
-        : [];
-
-      // 尊重用户的空数组(主动清空),仅在首次访问(STORAGE_KEY 不存在)时回退到 mock
       const hasStorageKey = localStorage.getItem(STORAGE_KEY) !== null;
-      const researchAreas: ResearchArea[] = hasStorageKey
-        ? deduplicateById(rawResearchAreas.map(addDefaultAreaFields))
-        : [...mockResearchAreas];
-      const papers: Paper[] = hasStorageKey
-        ? deduplicateById(rawPapers)
-        : [...mockPapers];
-      const observations: Observation[] = deduplicateById(rawObservations);
-      const ideaCards: IdeaCard[] = deduplicateById(rawIdeaCards.map(addDefaultIdeaFields));
-      const mves: MVE[] = deduplicateById(rawMves.map(addDefaultMVEFields));
-      const ideaRelationships: IdeaRelationship[] = deduplicateById(rawIdeaRelationships);
-
-      const result: StoredData = {
-        observations,
-        ideaCards,
-        ideaRelationships,
-        mves,
-        researchAreas,
-        papers,
-      };
+      const result = parseStoredData(parsed, hasStorageKey);
 
       const needsRepair =
-        observations.length !== rawObservations.length ||
-        ideaCards.length !== rawIdeaCards.length ||
-        ideaRelationships.length !== rawIdeaRelationships.length ||
-        mves.length !== rawMves.length ||
-        researchAreas.length !== rawResearchAreas.length ||
-        papers.length !== rawPapers.length;
+        result.observations.length !== parsed.observations?.length ||
+        result.ideaCards.length !== parsed.ideaCards?.length ||
+        result.ideaRelationships.length !== parsed.ideaRelationships?.length ||
+        result.mves.length !== parsed.mves?.length ||
+        result.researchAreas.length !== parsed.researchAreas?.length ||
+        result.papers.length !== parsed.papers?.length;
 
       if (needsRepair) {
-        saveToStorage(result);
+        saveToLocalStorage(result);
       }
 
       return result;
     }
 
-    // 首次访问:无 STORAGE_KEY,加载 mock 数据并初始化
     const legacyData = localStorage.getItem('research-compass-data');
     if (legacyData) {
       const parsed = JSON.parse(legacyData);
@@ -161,30 +231,19 @@ function loadFromStorage(): StoredData {
         researchAreas: [...mockResearchAreas].map(addDefaultAreaFields),
         papers: [...mockPapers],
       };
-      saveToStorage(migrated);
+      saveToLocalStorage(migrated);
       return migrated;
     }
 
-    // 完全新用户:加载完整 mock 数据
-    return {
-      observations: [...mockObservations],
-      ideaCards: [...mockIdeaCards],
-      ideaRelationships: [],
-      mves: [...mockMVEs],
-      researchAreas: [...mockResearchAreas],
-      papers: [...mockPapers],
-    };
+    return getInitialMockData();
   } catch (e) {
-    console.error('Failed to load from storage:', e);
-    // 备份损坏的原始数据,以便用户后续恢复
+    console.error('Failed to load from localStorage:', e);
     try {
       const rawData = localStorage.getItem(STORAGE_KEY);
       if (rawData) {
         localStorage.setItem(STORAGE_KEY + '-backup-' + Date.now(), rawData);
       }
     } catch {}
-    // 返回空数据(observations/ideaCards/mves),避免 mock 覆盖用户可能可恢复的数据
-    // researchAreas/papers 返回 mock 作为基础结构
     return {
       observations: [],
       ideaCards: [],
@@ -196,24 +255,57 @@ function loadFromStorage(): StoredData {
   }
 }
 
-function saveToStorage(data: StoredData): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.error('Failed to save to storage:', e);
+export async function initializeData(): Promise<StoredData> {
+  if (!isIndexedDBAvailable()) {
+    return loadFromLocalStorage();
   }
+
+  const idbData = await loadFromIDB();
+  if (idbData) {
+    localStorage.setItem(MIGRATION_FLAG_KEY, '1');
+    return idbData;
+  }
+
+  const lsData = loadFromLocalStorage();
+  const hasUserKey = localStorage.getItem(STORAGE_KEY) !== null;
+
+  try {
+    await setMainData(lsData);
+    if (hasUserKey) {
+      await addBackup(lsData, '迁移前备份');
+    }
+    localStorage.setItem(MIGRATION_FLAG_KEY, '1');
+  } catch (e) {
+    console.error('Migration to IndexedDB failed:', e);
+  }
+
+  return lsData;
 }
 
-export function initializeData(): StoredData {
-  return loadFromStorage();
+export async function persistData(data: StoredData): Promise<void> {
+  await saveToIDB(data);
 }
 
-export function persistData(data: StoredData): void {
-  saveToStorage(data);
-}
-
-export function resetDemoData(): StoredData {
+export async function resetDemoData(): Promise<StoredData> {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem('research-compass-data');
-  return loadFromStorage();
+  localStorage.removeItem(MIGRATION_FLAG_KEY);
+
+  if (isIndexedDBAvailable()) {
+    try {
+      const { openDB } = await import('./storage/indexedDB');
+      const db = await openDB();
+      const tx = db.transaction(['data', 'backups'], 'readwrite');
+      tx.objectStore('data').clear();
+      tx.objectStore('backups').clear();
+    } catch (e) {
+      console.error('Failed to clear IndexedDB:', e);
+    }
+  }
+
+  return initializeData();
+}
+
+export function hasMigratedToIDB(): boolean {
+  return localStorage.getItem(MIGRATION_FLAG_KEY) === '1';
 }

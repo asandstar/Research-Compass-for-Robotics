@@ -15,7 +15,7 @@ const coreNav = [
 ];
 
 const workNav = [
-  { href: '/ideas', label: '选择方向', icon: Lightbulb },
+  { href: '/ideas', label: '研究方向', icon: Lightbulb },
   { href: '/papers', label: '论文', icon: FileText },
   { href: '/mves', label: '验证记录', icon: FlaskConical },
   { href: '/workflows', label: '工作流', icon: Workflow },
@@ -24,8 +24,7 @@ const workNav = [
 
 const utilityNav = [
   { href: '/areas', label: '子领域', icon: LayoutGrid, iconOnly: true },
-  { href: '/questions', label: '研究问题', icon: Target, iconOnly: true },
-  { href: '/papers/intelligence', label: '论文智识', icon: BrainCircuit, iconOnly: true },
+  { href: '/questions', label: '研究问题', icon: BrainCircuit, iconOnly: true },
   { href: '/games', label: '科研游戏', icon: Gamepad2, iconOnly: true },
 ];
 
@@ -109,17 +108,6 @@ export function Navbar() {
 
             {/* ── Right: Actions ── */}
             <div className="flex items-center gap-2.5 flex-shrink-0">
-
-              {/* Active Idea Pill (conditional) */}
-              {isActive && activeIdea && (
-                <Link
-                  href="/focus"
-                  className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-accent/8 text-accent rounded-full text-[12px] font-medium max-w-[200px] hover:bg-accent/15 transition-fast transition-colors no-underline hover:no-underline"
-                >
-                  <Target className="w-3 h-3 flex-shrink-0" />
-                  <span className="truncate">{activeIdea.title}</span>
-                </Link>
-              )}
 
               {/* Search Trigger */}
               <button

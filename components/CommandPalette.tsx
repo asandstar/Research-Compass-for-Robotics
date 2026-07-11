@@ -168,7 +168,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
       {/* Panel */}
       <div
-        className="relative w-full max-w-lg bg-surface border border-border-subtle rounded-xl shadow-elevated overflow-hidden modal-content"
+        className="relative w-full max-w-lg bg-surface dark:bg-dark-surface border border-border-subtle dark:border-dark-border-subtle rounded-xl shadow-elevated overflow-hidden modal-content"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search input */}

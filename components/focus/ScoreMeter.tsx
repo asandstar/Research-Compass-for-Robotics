@@ -25,6 +25,7 @@ function Gauge({ score, label, color }: GaugeProps) {
           r="28"
           fill="none"
           stroke="#e7e5e4"
+          className="dark:stroke-[#44403c]"
           strokeWidth="4"
         />
         <circle

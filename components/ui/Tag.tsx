@@ -12,7 +12,7 @@ export function Tag({ children, color, bgColor, size = 'md', variant = 'solid', 
 
   if (variant === 'secondary') {
     return (
-      <span className={`inline-block rounded-full font-medium ${sizeClasses} bg-bg2 text-muted ${className}`}>
+      <span className={`inline-block rounded-full font-medium ${sizeClasses} bg-bg2 dark:bg-dark-bg2 text-muted dark:text-dark-muted ${className}`}>
         {children}
       </span>
     );

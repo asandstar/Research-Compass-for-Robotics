@@ -60,14 +60,14 @@ export function Select({ value, onChange, options, className = '', size = 'md', 
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         style={{ width }}
-        className={`flex items-center justify-between gap-2 ${paddingX} ${paddingY} ${textSize} border border-border-default rounded-lg bg-surface hover:border-border-strong focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-accent transition-fast transition-colors ${width ? '' : 'w-full'}`}
+        className={`flex items-center justify-between gap-2 ${paddingX} ${paddingY} ${textSize} border border-border-default dark:border-dark-border-default rounded-lg bg-surface dark:bg-dark-surface text-ink dark:text-dark-ink hover:border-border-strong dark:hover:border-dark-border-strong focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-accent transition-fast transition-colors ${width ? '' : 'w-full'}`}
       >
         <span className="text-ink truncate">{selectedOption?.label || placeholder || '请选择'}</span>
         <ChevronDown className={`w-4 h-4 text-muted flex-shrink-0 transition-fast transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border-subtle rounded-lg shadow-elevated z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-surface dark:bg-dark-surface border border-border-subtle dark:border-dark-border-subtle rounded-lg shadow-elevated z-50 overflow-hidden">
           <div
             ref={listRef}
             className="overflow-y-auto py-1"
@@ -81,8 +81,8 @@ export function Select({ value, onChange, options, className = '', size = 'md', 
                   type="button"
                   data-selected={isSelected}
                   onClick={() => handleSelect(option.value)}
-                  className={`w-full text-left px-3 py-2 ${textSize} flex items-center justify-between gap-2 hover:bg-accent/[0.06] transition-fast transition-colors ${
-                    isSelected ? 'bg-accent/10 text-accent font-medium' : 'text-ink'
+                  className={`w-full text-left px-3 py-2 ${textSize} flex items-center justify-between gap-2 hover:bg-accent/[0.06] dark:hover:bg-accent/[0.04] transition-fast transition-colors ${
+                    isSelected ? 'bg-accent/10 text-accent font-medium' : 'text-ink dark:text-dark-ink'
                   }`}
                 >
                   <span className="truncate">{option.label}</span>

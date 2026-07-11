@@ -64,11 +64,11 @@ export function CreateIdeaModal({ isOpen, onClose, preselectedAreaId, onCreated 
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto modal-content"
+        className="bg-surface dark:bg-dark-surface rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto modal-content"
         onClick={e => e.stopPropagation()}
       >
         <div className="p-5 border-b border-border-subtle flex items-center justify-between">
-          <h2 id="create-idea-modal-title" className="text-lg font-semibold text-gray-900">新增 Idea</h2>
+          <h2 id="create-idea-modal-title" className="text-lg font-semibold text-ink dark:text-dark-ink">新增 Idea</h2>
           <button onClick={onClose} className="text-muted hover:text-ink" aria-label="关闭">
             <X className="w-5 h-5" />
           </button>
