@@ -416,3 +416,101 @@ button:focus-visible,
 .dark .timeline-node:hover {
   box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
 }
+
+/* ===== Dark Mode Global Color Overrides ===== */
+/* These override custom Tailwind color classes that don't auto-map to dark variants */
+
+.dark .bg-bg,
+.dark .hover\:bg-bg2:hover {
+  background-color: #1c1917;
+}
+
+.dark .bg-bg2,
+.dark .hover\:bg-bg2\/50:hover,
+.dark .hover\:bg-bg2\/70:hover {
+  background-color: #292524;
+}
+
+.dark .bg-surface,
+.dark .bg-surface\/80,
+.dark .bg-surface\/90 {
+  background-color: #292524;
+}
+
+.dark .bg-surface\/80 {
+  background-color: rgba(41, 37, 36, 0.8);
+}
+
+.dark .border-border-subtle,
+.dark .border-b-border-subtle,
+.dark .border-t-border-subtle,
+.dark .border-l-border-subtle,
+.dark .border-r-border-subtle {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .border-border-default {
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.dark .border-border-strong {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark .divide-border-subtle > * + * {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .bg-border-subtle {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .hover\:border-border-default:hover,
+.dark .hover\:border-border-default\/50:hover {
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+/* Hero gradient fix */
+.dark .via-white {
+  --tw-gradient-via: #1c1917;
+}
+
+/* Shadow adjustments for dark mode */
+.dark .shadow-card,
+.dark .shadow-navbar,
+.dark .shadow-md {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Prevent light flash: hide content until theme is determined */
+html:not(.dark):not(.light) body {
+  visibility: hidden;
+}
+
+/* ===== Standard Tailwind Color Overrides for Dark Mode ===== */
+.dark .bg-white,
+.dark .hover\:bg-white:hover {
+  background-color: #292524;
+}
+
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover {
+  background-color: #1c1917;
+}
+
+.dark .bg-gray-200,
+.dark .hover\:bg-gray-200:hover {
+  background-color: #44403c;
+}
+
+/* Disabled state backgrounds */
+.dark .disabled\:bg-gray-100:disabled,
+.dark .disabled\:bg-gray-300:disabled {
+  background-color: #44403c;
+}

@@ -25,11 +25,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     localStorage.setItem('research-compass-theme', theme);
+    const root = document.documentElement;
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
+      root.classList.remove('light');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
+      root.classList.add('light');
     }
+    root.style.colorScheme = theme;
   }, [theme]);
 
   const toggleTheme = () => {
