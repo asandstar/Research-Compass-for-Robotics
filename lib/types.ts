@@ -75,6 +75,9 @@ export interface Paper {
   limitationsOrQuestions: string;
   judgementLevel: 'background' | 'useful' | 'idea_source' | 'must_review';
   inspiredIdeaIds: string[];
+  metadataStatus?: 'manual' | 'available' | 'unavailable';
+  verificationStatus?: 'verified' | 'unverified';
+  dataProvenance?: 'manual' | 'link_only' | 'legacy_mock' | 'demo';
   createdAt: string;
   updatedAt: string;
 }
