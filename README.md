@@ -13,17 +13,9 @@
 
 ## 🎨 界面预览
 
-| Dashboard 总览 | 论文库 | Idea 聚焦 |
-|---------------|--------|-----------|
-| ![Dashboard](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/a1b2c3d4-e5f6-7890-abcd-ef1234567890) | ![Papers](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/b1c2d3e4-f5a6-7890-bcde-fa1234567890) | ![Focus](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/c1d2e3f4-a5b6-7890-cdef-ab1234567890) |
-
-| AI 科研工作流 | 学习路径 | 论文智识 |
-|-------------|---------|---------|
-| ![Workflows](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/d1e2f3a4-b5c6-7890-defa-bc1234567890) | ![Learning](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/e1f2a3b4-c5d6-7890-efab-cd1234567890) | ![Intelligence](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/f1a2b3c4-d5e6-7890-fabc-de1234567890) |
-
-| Idea 关联图谱 | 研究问题空间 | 假设检验游戏 |
-|-------------|-------------|-------------|
-| ![Idea Graph](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/g1h2i3j4-k5l6-7890-ghij-kl1234567890) | ![Questions](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/h1i2j3k4-l5m6-7890-hijk-lm1234567890) | ![Game](https://github.com/asandstar/Research-Compass-for-Robotics/assets/12345678/i1j2k3l4-m5n6-7890-ijkl-mn1234567890) |
+> 🚀 **在线体验**：[https://asandstar.github.io/Research-Compass-for-Robotics/](https://asandstar.github.io/Research-Compass-for-Robotics/)
+>
+> 截图待补充，请直接访问在线体验查看界面效果。
 
 ## 💡 使用场景
 
