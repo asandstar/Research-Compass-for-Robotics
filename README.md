@@ -14,8 +14,7 @@
 ## 🎨 界面预览
 
 > 🚀 **在线体验**：[https://asandstar.github.io/Research-Compass-for-Robotics/](https://asandstar.github.io/Research-Compass-for-Robotics/)
->
-> 截图待补充，请直接访问在线体验查看界面效果。
+
 
 ## 💡 使用场景
 
@@ -379,7 +378,6 @@ npm run start
 如有问题或建议，欢迎通过以下方式联系：
 
 - GitHub Issues：[提交问题](https://github.com/asandstar/Research-Compass-for-Robotics/issues)
-- 邮件：research-compass@example.com
 
 ## 📝 License
 
