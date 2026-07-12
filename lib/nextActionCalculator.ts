@@ -1,4 +1,5 @@
 import { IdeaCard, MVE } from './types';
+import { getLatestCompletedMVE, getNextPendingMVE } from './stateCalculator';
 
 export type NextActionType =
   | 'complete_core_fields'
@@ -33,8 +34,8 @@ export function calculateNextAction(idea: IdeaCard, mves: MVE[]): NextAction {
   const hasPredictions = idea.predictions.length > 0;
   const hasFailureConditions = idea.failureConditions.length > 0;
   const hasEnoughEvidence = idea.evidenceForHypothesis.length >= 2;
-  const pendingMVEs = ideaMves.filter(m => m.resultStatus === 'pending');
-  const latestMve = ideaMves.length > 0 ? ideaMves[ideaMves.length - 1] : null;
+  const latestFailedMve = getLatestCompletedMVE(idea.id, mves);
+  const nextPendingMve = getNextPendingMVE(idea.id, mves);
 
   // Priority 10: Complete core fields
   if (!hasCoreFields) {
@@ -49,11 +50,11 @@ export function calculateNextAction(idea: IdeaCard, mves: MVE[]): NextAction {
   }
 
   // Priority 9: Review latest failure
-  if (latestMve && latestMve.resultStatus === 'failed') {
+  if (latestFailedMve && latestFailedMve.resultStatus === 'failed') {
     candidates.push({
       type: 'review_failure',
       label: '查看失败分析',
-      description: `最近一次实验（${latestMve.mveType}）失败，需要分析原因并更新假设。`,
+      description: `最近一次实验（${latestFailedMve.mveType}）失败，需要分析原因并更新假设。`,
       priority: 9,
       actionPath: '/focus',
       actionLabel: '查看分析',
@@ -61,12 +62,11 @@ export function calculateNextAction(idea: IdeaCard, mves: MVE[]): NextAction {
   }
 
   // Priority 8: Execute pending MVE
-  if (pendingMVEs.length > 0) {
-    const nextPending = pendingMVEs[0];
+  if (nextPendingMve) {
     candidates.push({
       type: 'execute_pending_mve',
       label: '执行待验证实验',
-      description: nextPending.experimentGoal || `有一个 ${nextPending.mveType} 类型的实验等待执行。`,
+      description: nextPendingMve.experimentGoal || `有一个 ${nextPendingMve.mveType} 类型的实验等待执行。`,
       priority: 8,
       actionPath: '/focus',
       actionLabel: '执行实验',

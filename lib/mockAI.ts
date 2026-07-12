@@ -1,11 +1,8 @@
 import { Observation, Evidence, IdeaCard, MVE, ResearchArea, Paper, AdversarialReview, FailureAnalysis, FailureMode } from './types';
+import { generateId } from './id';
 
 function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function generateId(): string {
-  return Math.random().toString(36).substring(2, 15);
 }
 
 const perceptionTemplates = {
@@ -607,7 +604,7 @@ export async function mockGenerateIdeaFromPaper(
 
 export function parseArxivUrl(url: string): { arxivId?: string; arxivUrl?: string; pdfUrl?: string } {
   const absMatch = url.match(/arxiv\.org\/abs\/([\w.\/-]+)/);
-  const pdfMatch = url.match(/arxiv\.org\/pdf\/([\w.\/-]+)(\.pdf)?/);
+  const pdfMatch = url.match(/arxiv\.org\/pdf\/([\w.\/-]+?)(\.pdf)?$/);
   
   let arxivId: string | undefined;
   if (absMatch) {
@@ -649,114 +646,30 @@ export function detectLinkType(url: string): {
   return { type: 'other' };
 }
 
-const ARXIV_PAPER_TEMPLATES = [
-  {
-    titlePrefix: 'Efficient',
-    titles: [
-      'Vision-Language-Action Models via Hierarchical Decoding',
-      'Visual SLAM with Dynamic Object Removal',
-      'Diffusion Policy for Robotic Manipulation',
-      'Multi-Sensor Fusion with Factor Graphs',
-      '3D Object Detection from Point Clouds',
-      'Visual-Inertial Odometry for Agile Flight',
-    ],
-    authors: [
-      'Wei Zhang, Yuxin Chen, Hao Wang',
-      'Jian Li, Mingyu Zhao, Xiaoming Liu',
-      'Sarah Chen, David Kim, Michael Brown',
-      'Alex Yang, Lisa Wang, Tom Zhang',
-    ],
-    venues: ['ICRA', 'IROS', 'CVPR', 'NeurIPS', 'CoRL', 'RSS'],
-    keywords: [
-      ['VLA', 'hierarchical decoding', 'efficient inference'],
-      ['SLAM', 'dynamic scenes', 'motion removal'],
-      ['diffusion model', 'policy learning', 'manipulation'],
-      ['sensor fusion', 'factor graph', 'optimization'],
-      ['3D detection', 'point cloud', 'transformer'],
-      ['VIO', 'agile flight', 'visual-inertial'],
-    ],
-    summaries: [
-      '提出分层动作解码策略，将VLA推理速度提升3倍，同时保持95%以上的任务成功率。',
-      '在动态环境中实现鲁棒的视觉SLAM，通过语义分割和运动一致性检测移除动态物体。',
-      '将扩散模型应用于机器人策略学习，在复杂操作任务上超越行为克隆和强化学习方法。',
-      '基于因子图的多传感器融合框架，支持激光、视觉、IMU等多种传感器的灵活组合。',
-      '基于Transformer的三维目标检测方法，在点云数据上实现SOTA的检测精度和速度。',
-      '面向敏捷飞行的视觉惯性里程计算法，在高速运动下仍能保持低漂移。',
-    ],
-  },
-  {
-    titlePrefix: 'Scaling',
-    titles: [
-      'Robotics Foundation Models with 1000 Tasks',
-      'Sim-to-Real Transfer with Domain Randomization',
-      'Dexterous Manipulation via Tactile Feedback',
-      'Embodied AI for Long-Horizon Tasks',
-      'Semantic SLAM with Foundation Models',
-      'World Models for Model-Based RL',
-    ],
-    authors: [
-      'Emily Park, John Smith, Anna Lee',
-      'Mohamed Ali, Sara Jones, Ryan Moore',
-      'Kevin Zhang, Nicole Wang, James Liu',
-      'Rachel Brown, Tom Wilson, Emma Davis',
-      'Frank Miller, Sophia Chen, Daniel Lee',
-      'Grace Zhao, Adam Wright, Olivia Sun',
-    ],
-    venues: ['Science Robotics', 'Nature Machine Intelligence', 'ICML', 'ICRA', 'IROS', 'RSS'],
-    keywords: [
-      ['foundation model', 'scaling', 'multi-task'],
-      ['sim-to-real', 'domain randomization', 'transfer learning'],
-      ['dexterous manipulation', 'tactile sensing', 'multi-finger'],
-      ['embodied AI', 'long-horizon', 'planning'],
-      ['semantic SLAM', 'foundation model', 'mapping'],
-      ['world model', 'model-based RL', 'planning'],
-    ],
-    summaries: [
-      '在1000个机器人任务上训练的基础模型，展示了强大的零样本泛化能力。',
-      '通过大规模域随机化实现从仿真到现实的零样本迁移，成功率达到87%。',
-      '结合触觉反馈的灵巧操作方法，在复杂物体操作任务上表现出色。',
-      '面向长周期任务的具身智能系统，能够完成需要多步推理的复杂操作。',
-      '利用基础模型构建语义SLAM系统，实现了对动态环境的语义理解和建图。',
-      '基于世界模型的强化学习方法，显著提升了样本效率和策略性能。',
-    ],
-  },
-  {
-    titlePrefix: 'Learning',
-    titles: [
-      'Imitation Learning from Suboptimal Demonstrations',
-      'Reinforcement Learning with Sparse Rewards',
-      'Offline RL for Robot Navigation',
-      'Inverse Reinforcement Learning from Observations',
-      'Meta-Learning for Fast Adaptation',
-      'Self-Supervised Representation Learning',
-    ],
-    authors: [
-      'David Kim, Jennifer Lee, Robert Chen',
-      'Michael Wang, Lisa Zhang, William Brown',
-      'Emma Davis, Alex Wilson, Sarah Miller',
-      'James Liu, Rachel Green, Kevin White',
-      'Olivia Sun, Frank Black, Sophia Gray',
-      'Daniel Lee, Grace Wilson, Adam Taylor',
-    ],
-    venues: ['ICML', 'NeurIPS', 'ICLR', 'CoRL', 'AAAI', 'IROS'],
-    keywords: [
-      ['imitation learning', 'suboptimal demo', 'behavior cloning'],
-      ['reinforcement learning', 'sparse reward', 'exploration'],
-      ['offline RL', 'navigation', 'batch learning'],
-      ['inverse RL', 'apprenticeship', 'reward learning'],
-      ['meta-learning', 'few-shot', 'fast adaptation'],
-      ['self-supervised', 'representation', 'pretraining'],
-    ],
-    summaries: [
-      '从次优演示中学习的模仿学习方法，能够超越演示者的性能水平。',
-      '面向稀疏奖励的强化学习算法，通过内在奖励驱动有效探索。',
-      '离线强化学习在机器人导航中的应用，利用历史数据训练策略。',
-      '仅从观测中学习奖励函数的逆强化学习方法，无需动作标签。',
-      '元学习框架使机器人能够在少量样本下快速适应新任务。',
-      '自监督表示学习为机器人感知和控制任务提供通用特征。',
-    ],
-  },
-];
+export interface ArxivParseResult {
+  arxivId: string;
+  arxivUrl: string;
+  pdfUrl: string;
+  metadataStatus: 'unavailable';
+  verificationStatus: 'unverified';
+}
+
+export async function mockFetchArxivPaper(arxivUrl: string): Promise<ArxivParseResult | null> {
+  const parsed = parseArxivUrl(arxivUrl);
+  if (!parsed.arxivId || !parsed.arxivUrl || !parsed.pdfUrl) return null;
+
+  await delay(300);
+
+  return {
+    arxivId: parsed.arxivId,
+    arxivUrl: parsed.arxivUrl,
+    pdfUrl: parsed.pdfUrl,
+    metadataStatus: 'unavailable',
+    verificationStatus: 'unverified',
+  };
+}
+
+// ── AI Assist Generation ──
 
 function hashString(str: string): number {
   let hash = 0;
@@ -767,77 +680,6 @@ function hashString(str: string): number {
   }
   return Math.abs(hash);
 }
-
-export async function mockFetchArxivPaper(arxivUrl: string): Promise<{
-  title: string;
-  authors: string;
-  year: number;
-  venue: string;
-  arxivUrl: string;
-  pdfUrl: string;
-  methodKeywords: string[];
-  oneSentenceSummary: string;
-  problem: string;
-  coreContribution: string;
-  methodSketch: string;
-  evidence: {
-    tasks: string[];
-    baselines: string[];
-    metrics: string[];
-    keyResults: string[];
-  };
-  assumptions: string[];
-  limitations: string[];
-  questionsToVerify: string[];
-} | null> {
-  const parsed = parseArxivUrl(arxivUrl);
-  if (!parsed.arxivId) return null;
-
-  await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
-
-  const arxivId = parsed.arxivId;
-  const hash = hashString(arxivId);
-  const templateIdx = hash % ARXIV_PAPER_TEMPLATES.length;
-  const template = ARXIV_PAPER_TEMPLATES[templateIdx];
-  const paperIdx = hash % template.titles.length;
-
-  const idNumMatch = arxivId.match(/^(\d{4})\.?\d+/);
-  let year = new Date().getFullYear();
-  if (idNumMatch) {
-    const yy = parseInt(idNumMatch[1].slice(0, 2));
-    year = yy >= 90 ? 1900 + yy : 2000 + yy;
-  }
-
-  const venueIdx = hash % template.venues.length;
-
-  const summary = template.summaries[paperIdx];
-  const keywords = template.keywords[paperIdx].slice(0, 3).join('、');
-
-  return {
-    title: template.titles[paperIdx],
-    authors: template.authors[paperIdx % template.authors.length],
-    year,
-    venue: template.venues[venueIdx],
-    arxivUrl: parsed.arxivUrl!,
-    pdfUrl: parsed.pdfUrl!,
-    methodKeywords: template.keywords[paperIdx],
-    oneSentenceSummary: summary,
-    problem: `${keywords}在实际应用中面临性能瓶颈或泛化能力不足的问题。`,
-    coreContribution: `提出了一种基于${keywords}的新方法，通过${['分层设计', '优化算法', '数据增强', '模型蒸馏'][hash % 4]}策略，在相关任务上实现了性能提升。`,
-    methodSketch: `1) ${['数据预处理', '特征提取', '模型训练', '推理优化'][hash % 4]}；2) ${['关键模块设计', '损失函数优化', '架构调整', '训练策略改进'][hash % 4]}；3) ${['实验验证', '结果分析', '对比实验', '消融实验'][hash % 4]}；4) ${['性能评估', '泛化测试', '鲁棒性验证', '效率分析'][hash % 4]}。`,
-    evidence: {
-      tasks: ['标准基准任务', '复杂场景任务', '泛化测试任务'],
-      baselines: ['传统方法', 'SOTA方法', '简化方法'],
-      metrics: ['准确率/成功率', '推理速度', '内存占用'],
-      keyResults: ['性能提升15-20%', '推理速度提升2-3倍', '泛化能力增强'],
-    },
-    assumptions: ['训练数据分布与测试数据一致', '传感器噪声在可接受范围内', '计算资源充足'],
-    limitations: ['在极端场景下性能下降', '计算开销较大', '需要进一步验证泛化能力'],
-    questionsToVerify: ['在真实机器人环境中表现如何？', '与其他方法的对比如何？', '长期运行的稳定性？'],
-  };
-}
-
-// ── AI Assist Generation ──
 
 const PREDICTION_TEMPLATES = [
   '在 {scene} 上运行 {method}，观察 {metric} 是否达到 {threshold}',

@@ -46,9 +46,11 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
     judgementLevel: 'background' as Paper['judgementLevel'],
   });
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
+  const [arxivRecognized, setArxivRecognized] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
+      setArxivRecognized(false);
       if (editingPaper) {
         setFormData({
           title: editingPaper.title,
@@ -114,7 +116,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
   const handleLinkPaste = (field: string, value: string) => {
     const detection = detectLinkType(value);
     
-    let updates: Record<string, string> = { [field]: value };
+    const updates: Record<string, string> = { [field]: value };
     
     if (detection.type === 'arxiv') {
       const parsed = parseArxivUrl(value);
@@ -136,29 +138,13 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
       if (result) {
         setFormData(prev => ({
           ...prev,
-          title: result.title,
-          authors: result.authors,
-          year: result.year,
-          venue: result.venue,
           arxivUrl: result.arxivUrl,
           pdfUrl: result.pdfUrl,
-          methodKeywords: result.methodKeywords.join(', '),
-          oneSentenceSummary: result.oneSentenceSummary,
-          problem: result.problem,
-          coreContribution: result.coreContribution,
-          methodSketch: result.methodSketch,
-          evidenceTasks: result.evidence.tasks.join(', '),
-          evidenceBaselines: result.evidence.baselines.join(', '),
-          evidenceMetrics: result.evidence.metrics.join(', '),
-          evidenceKeyResults: result.evidence.keyResults.join(', '),
-          assumptions: result.assumptions.join(', '),
-          limitations: result.limitations.join(', '),
-          questionsToVerify: result.questionsToVerify.join(', '),
         }));
+        setArxivRecognized(true);
       }
     } catch (error) {
       console.error('Failed to parse arxiv:', error);
-      alert('解析 arXiv 失败,请重试');
     }
   };
 
@@ -314,7 +300,7 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                     className="text-xs text-accent hover:text-accent disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    {isParsingArxiv ? '解析中...' : '自动解析论文信息'}
+                    {isParsingArxiv ? '识别中...' : '识别链接'}
                   </button>
                 </div>
                 <div className="relative">
@@ -327,6 +313,11 @@ export function AddPaperModal({ isOpen, onClose, preselectedAreaId, editingPaper
                     placeholder="https://arxiv.org/abs/xxxx.xxxxx"
                   />
                 </div>
+                {arxivRecognized && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                    已识别 arXiv 链接。当前版本无法可靠获取论文元信息，请手动填写标题、作者和论文分析内容。
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">PDF 链接</label>

@@ -1,8 +1,121 @@
 import { IdeaCard, MVE } from './types';
 
-export type IdeaStatus = IdeaCard['status'];
+export function calculateSurvivalScore(card: IdeaCard, mves: MVE[]): number {
+  const ideaMves = mves.filter(m => m.ideaCardId === card.id);
+  const passedMves = ideaMves.filter(m => m.resultStatus === 'passed');
+  const failedMves = ideaMves.filter(m => m.resultStatus === 'failed');
 
-export function calculateIdeaState(card: IdeaCard): IdeaStatus {
+  const supporting = card.evidenceForHypothesis?.length || 0;
+  const opposing = card.evidenceAgainstHypothesis?.length || 0;
+  const totalEvidence = supporting + opposing;
+
+  let score = 50;
+
+  if (totalEvidence > 0 || ideaMves.length > 0) {
+    score += passedMves.length * 15;
+    score -= failedMves.length * 20;
+    score += supporting * 3;
+    score -= opposing * 5;
+  } else {
+    score = Math.min(70, 50 + supporting * 5 - opposing * 10);
+  }
+
+  return Math.max(0, Math.min(100, score));
+}
+
+export function calculateConfidenceScore(card: IdeaCard): number {
+  const supporting = card.evidenceForHypothesis?.length || 0;
+  const opposing = card.evidenceAgainstHypothesis?.length || 0;
+  const totalEvidence = supporting + opposing;
+  const evidenceRatio = totalEvidence > 0 ? supporting / totalEvidence : 0;
+
+  let score = 50;
+  score += evidenceRatio * 40;
+  score += Math.min(totalEvidence * 2, 10);
+  score += (card.predictions?.length || 0) * 2;
+  score += (card.failureConditions?.length || 0) * 2;
+  score += card.falsificationStrength * 0.1;
+
+  return Math.max(0, Math.min(100, score));
+}
+
+export function calculateFalsificationStrength(card: IdeaCard): number {
+  let strength = 0;
+
+  if (card.failureConditions && card.failureConditions.length > 0) {
+    strength += 30;
+  }
+  if (card.confounders && card.confounders.length > 0) {
+    strength += 20;
+  }
+  if (card.predictions && card.predictions.length > 0) {
+    strength += 25;
+  }
+  if (card.evidenceAgainstHypothesis && card.evidenceAgainstHypothesis.length > 0) {
+    strength += 25;
+  }
+
+  return Math.max(0, Math.min(100, strength));
+}
+
+export function getLatestMVE(ideaId: string, mves: MVE[]): MVE | null {
+  const ideaMves = mves.filter(m => m.ideaCardId === ideaId);
+  if (ideaMves.length === 0) return null;
+
+  const sorted = [...ideaMves].sort((a, b) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  return sorted[0];
+}
+
+export function getLatestCompletedMVE(ideaId: string, mves: MVE[]): MVE | null {
+  const ideaMves = mves.filter(
+    m => m.ideaCardId === ideaId && (m.resultStatus === 'passed' || m.resultStatus === 'failed')
+  );
+  if (ideaMves.length === 0) return null;
+
+  const sorted = [...ideaMves].sort((a, b) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  return sorted[0];
+}
+
+export function getNextPendingMVE(ideaId: string, mves: MVE[]): MVE | null {
+  const pendingMves = mves.filter(m => m.ideaCardId === ideaId && m.resultStatus === 'pending');
+  if (pendingMves.length === 0) return null;
+
+  const sorted = [...pendingMves].sort((a, b) =>
+    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+  return sorted[0];
+}
+
+export function getMVEEffectOnSurvival(
+  card: IdeaCard,
+  mves: MVE[]
+): { scoreChange: number; statusEffect: string } {
+  const passed = mves.filter(m => m.ideaCardId === card.id && m.resultStatus === 'passed').length;
+  const failed = mves.filter(m => m.ideaCardId === card.id && m.resultStatus === 'failed').length;
+
+  const scoreChange = passed * 15 - failed * 20;
+
+  let statusEffect = '实验结果支撑当前假设';
+  if (failed > passed) {
+    statusEffect = '实验结果对假设构成压力';
+  } else if (passed > 0 && failed === 0) {
+    statusEffect = '实验通过增强了假设信心';
+  } else if (passed === 0 && failed === 0) {
+    statusEffect = '尚无实验结果，建议尽快设计 MVE';
+  }
+
+  return { scoreChange, statusEffect };
+}
+
+export function getLatestMVEResult(card: IdeaCard, mves: MVE[]): MVE | null {
+  return getLatestCompletedMVE(card.id, mves);
+}
+
+export function calculateIdeaStatus(card: IdeaCard): IdeaCard['status'] {
   const { survivalScore, confidenceScore } = card;
 
   if (survivalScore >= 70 && confidenceScore >= 60) {
@@ -17,111 +130,33 @@ export function calculateIdeaState(card: IdeaCard): IdeaStatus {
   if (survivalScore < 50 || confidenceScore < 30) {
     return 'unstable';
   }
-
   return 'active';
 }
 
-export function calculateSurvivalScore(card: IdeaCard, mves: MVE[]): number {
-  const ideaMves = mves.filter(m => m.ideaCardId === card.id);
-  
-  if (ideaMves.length === 0) {
-    return Math.min(70, 50 + card.evidenceForHypothesis.length * 5 - card.evidenceAgainstHypothesis.length * 10);
-  }
-
-  const passedCount = ideaMves.filter(m => m.resultStatus === 'passed').length;
-  const failedCount = ideaMves.filter(m => m.resultStatus === 'failed').length;
-  const pendingCount = ideaMves.filter(m => m.resultStatus === 'pending').length;
-
-  let score = 50;
-  score += passedCount * 15;
-  score -= failedCount * 20;
-  score += pendingCount * 5;
-  score += card.evidenceForHypothesis.length * 3;
-  score -= card.evidenceAgainstHypothesis.length * 5;
-
-  return Math.max(0, Math.min(100, score));
-}
-
-export function calculateConfidenceScore(card: IdeaCard): number {
-  const evidenceRatio = card.evidenceForHypothesis.length / 
-    Math.max(1, card.evidenceForHypothesis.length + card.evidenceAgainstHypothesis.length);
-  
-  let score = 50;
-  score += evidenceRatio * 30;
-  score += card.falsificationStrength;
-  score += card.predictions.length * 5;
-  score += card.failureConditions.length * 5;
-
-  return Math.max(0, Math.min(100, score));
-}
-
-export function calculateFalsificationStrength(card: IdeaCard): number {
-  const hasFailureConditions = card.failureConditions.length > 0;
-  const hasConfounders = card.confounders.length > 0;
-  const hasPredictions = card.predictions.length > 0;
-  const hasAgainstEvidence = card.evidenceAgainstHypothesis.length > 0;
-
-  let score = 0;
-  score += hasFailureConditions ? 30 : 0;
-  score += hasConfounders ? 20 : 0;
-  score += hasPredictions ? 25 : 0;
-  score += hasAgainstEvidence ? 25 : 0;
-
-  return score;
-}
-
-export function updateIdeaCardWithCalculatedState(card: IdeaCard, mves: MVE[]): IdeaCard {
+export function updateIdeaCardWithCalculatedState(
+  card: IdeaCard,
+  mves: MVE[]
+): IdeaCard {
   const falsificationStrength = calculateFalsificationStrength(card);
-  const confidenceScore = calculateConfidenceScore({ ...card, falsificationStrength });
   const survivalScore = calculateSurvivalScore(card, mves);
-  const status = calculateIdeaState({ 
-    ...card, 
-    survivalScore, 
-    confidenceScore,
-    falsificationStrength 
-  });
+  const confidenceScore = calculateConfidenceScore({ ...card, falsificationStrength });
 
-  return {
+  const updatedCard = {
     ...card,
+    falsificationStrength,
     survivalScore,
     confidenceScore,
-    falsificationStrength,
+  };
+
+  const status = calculateIdeaStatus(updatedCard);
+
+  return {
+    ...updatedCard,
     status,
     updatedAt: new Date().toISOString(),
   };
 }
 
-export function getEvidenceBalance(card: IdeaCard): { support: number; oppose: number; missing: number; ratio: number } {
-  const support = card.evidenceForHypothesis.length;
-  const oppose = card.evidenceAgainstHypothesis.length;
-  const missing = card.falsificationRisks.length;
-  const total = support + oppose + missing;
-  const ratio = total > 0 ? support / total : 0;
-  return { support, oppose, missing, ratio };
-}
-
-export function getActiveMVE(ideaId: string, mves: MVE[]): MVE | null {
-  return mves.find(m => m.ideaCardId === ideaId && m.resultStatus === 'pending') || null;
-}
-
-export function getLatestMVEResult(ideaId: string, mves: MVE[]): MVE | null {
-  const ideaMves = mves.filter(m => m.ideaCardId === ideaId && m.resultStatus !== 'pending');
-  if (ideaMves.length === 0) return null;
-  return ideaMves[ideaMves.length - 1];
-}
-
-export function calculateMVEImpactOnIdea(card: IdeaCard, mve: MVE): Partial<IdeaCard> {
-  if (mve.resultStatus === 'passed') {
-    return {
-      survivalScore: Math.min(100, card.survivalScore + 15),
-      confidenceScore: Math.min(100, card.confidenceScore + 10),
-    };
-  }
-  if (mve.resultStatus === 'failed') {
-    return {
-      survivalScore: Math.max(0, card.survivalScore - 20),
-      confidenceScore: Math.max(0, card.confidenceScore - 15),
-    };
-  }
-  return {};
+export function recalculateIdea(idea: IdeaCard, allMves: MVE[]): IdeaCard {
+  return updateIdeaCardWithCalculatedState(idea, allMves);
 }
