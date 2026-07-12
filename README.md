@@ -3,18 +3,13 @@
 > 🚀 **在线体验**：[https://asandstar.github.io/Research-Compass-for-Robotics/](https://asandstar.github.io/Research-Compass-for-Robotics/)
 
 [![GitHub Pages Deploy](https://github.com/asandstar/Research-Compass-for-Robotics/actions/workflows/deploy.yml/badge.svg)](https://github.com/asandstar/Research-Compass-for-Robotics/actions/workflows/deploy.yml)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Tech Stack](https://img.shields.io/badge/Next.js-14-blue?style=flat&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 
 面向机器人领域科研人员的研究工作流管理工具，帮助你从论文阅读到 Idea 孵化再到实验验证，形成完整的科研闭环。
 
 > 🎯 **定位**：不是文献管理工具，而是你的「科研决策辅助工作台」——帮你把读过的论文转化为可验证的研究 Idea。
-
-## 🎨 界面预览
-
-> 🚀 **在线体验**：[https://asandstar.github.io/Research-Compass-for-Robotics/](https://asandstar.github.io/Research-Compass-for-Robotics/)
-
 
 ## 💡 使用场景
 
@@ -54,6 +49,7 @@
 - 关联飞书笔记、代码仓库等外部链接
 - `metadataStatus` 标记：`manual`（手动填写）/ `unavailable`（仅解析链接）
 - `verificationStatus` 标记：`unverified` / `verified`
+- 旧版模拟数据自动检测并标注提示
 
 ### 🧠 论文智识
 - 9 维度论文深度分析：问题定义、动机、核心思想、方法、证据、局限性、隐藏假设、重要性、扩展方向
@@ -73,11 +69,13 @@
 - **手动补充证据**：支持在证据（支持/反对/证伪风险）中手动添加新证据
 - 证据字段：`evidenceForHypothesis` / `evidenceAgainstHypothesis` / `falsificationRisks`
 - Idea 状态：`rough` / `active` / `promising` / `inconclusive` / `falsified` / `abandoned`
+- 添加证据、编辑 Idea、创建 MVE 后自动重算评分和状态
 
 ### 🧪 MVE（Minimum Viable Experiment）
 - 从 Idea 一键生成最小可行实验设计
 - 包含实验目标、变量定义、对照组设置、预期结果、失败信号、时间成本估算
 - 追踪实验结果（通过 / 失败 / 进行中）
+- Pending 状态的 MVE 不影响评分，仅通过/失败才更新存活度
 
 ### 📊 证据压力可视化
 - **证据分布条形图**：直观展示支持/反对/缺失证据的比例
@@ -113,6 +111,11 @@
 - 全局视角看所有研究方向的进展
 - 论文阅读进度、Idea 状态分布、MVE 进行情况一目了然
 
+### 🌙 深色主题
+- 一键切换深色/浅色模式，localStorage 持久化主题偏好
+- 防闪烁加载，避免首次加载时的主题闪烁
+- 全局色彩映射，确保所有组件在暗黑模式下可读
+
 ## 🛠 技术栈
 
 | 类别 | 选型 |
@@ -122,8 +125,9 @@
 | UI | Tailwind CSS + lucide-react |
 | 状态管理 | React Context API |
 | 数据存储 | IndexedDB（主） + localStorage（辅助/降级） |
-| 测试 | Vitest |
+| 测试 | Vitest（76 个测试用例） |
 | 部署 | 静态导出 + GitHub Pages |
+| CI/CD | GitHub Actions（typecheck → lint → test → build → deploy） |
 
 > **设计原则**：纯前端、无登录、无数据库、无真实 API 调用——打开即用，数据存在你自己的浏览器里。
 
@@ -204,6 +208,7 @@ npm run validate
 │   │   └── ResearchTimeline.tsx  # 研究进度时间线
 │   ├── intelligence/             # 论文智识组件
 │   ├── questions/                # 研究问题组件
+│   ├── backup/                   # 数据备份恢复组件
 │   ├── ui/                       # 基础 UI 组件
 │   │   ├── Card.tsx
 │   │   ├── Button.tsx
@@ -211,25 +216,25 @@ npm run validate
 │   │   ├── Select.tsx
 │   │   ├── Tag.tsx
 │   │   └── EmptyState.tsx        # 统一空状态组件
+│   ├── AppShell.tsx              # 应用外壳布局
 │   └── Navbar.tsx                # 导航栏
 ├── context/
 │   ├── AppContext.tsx            # 全局状态管理
+│   ├── appReducer.ts             # Reducer 逻辑（可测试）
 │   ├── ActiveIdeaContext.tsx     # 当前聚焦 Idea
 │   ├── ThemeContext.tsx          # 深色主题管理
 │   └── ToastContext.tsx          # Toast 通知系统
 ├── lib/
 │   ├── types.ts                  # TypeScript 类型定义
+│   ├── id.ts                     # 集中化 ID 生成
 │   ├── mockData.ts               # 种子数据
 │   ├── mockAI.ts                 # Mock AI 函数
-│   ├── storage.ts                # localStorage 封装
-│   ├── stateCalculator.ts        # 状态计算引擎
+│   ├── storage.ts                # IndexedDB + localStorage 封装
+│   ├── stateCalculator.ts        # 状态计算引擎（统一评分）
 │   ├── nextActionCalculator.ts   # 下一步行动推荐
 │   ├── intelligence/             # 论文智识数据
-│   │   └── paperIntelligence.ts
 │   ├── questions/                # 研究问题数据
-│   │   └── researchQuestions.ts
 │   └── games/                    # 游戏题库
-│       └── hypothesisTesting.ts
 └── .github/workflows/deploy.yml  # GitHub Pages 自动部署
 ```
 
@@ -244,6 +249,7 @@ npm run validate
 - 基本信息：标题、作者、年份、会议、链接
 - 阅读管理：`readingStatus`（待读/泛读/精读中/已复盘/暂停）
 - 价值判断：`judgementLevel`（背景资料/有用/灵感来源/必复盘）
+- 数据来源：`dataProvenance`（`manual` / `link_only` / `legacy_mock` / `demo`）
 - 结构化内容：
   - `oneSentenceSummary` — 你的一句话判断
   - `problem` — 解决什么问题
@@ -258,14 +264,17 @@ npm run validate
 ### IdeaCard（想法卡片）
 - `researchQuestion` / `coreHypothesis` / `whyItMatters`
 - 证据：`supportingEvidence` / `opposingEvidence` / `missingEvidence`
+- 证据可手动添加：`evidenceForHypothesis` / `evidenceAgainstHypothesis` / `falsificationRisks`
 - 状态：`rough` → `researching` → `mve_running` → `promising` / `abandoned`
 - 机器人专属：`roboticsTask` / `datasetOrScenario` / `baseline` / `evaluationMetric`
+- 评分通过 `updateIdeaCardWithCalculatedState` 统一重算
 
 ### MVE（最小可行实验）
 - `experimentGoal` / `minimalDesign`
 - `keyVariables`（自变量/因变量）
 - `controlGroups` / `expectedOutcome` / `failureSignals`
 - `resultStatus`：`pending` / `passed` / `failed`
+- 按 `createdAt` 时间戳判断最新 MVE
 
 ## 🤖 Mock AI 功能
 
@@ -295,6 +304,7 @@ npm run validate
 - **数据规范化**：加载和恢复时自动进行引用完整性检查和修复
 - **存储版本**：版本号用于数据迁移，确保旧数据兼容加载
 - **包含去重机制**，防止 React Strict Mode 下的重复初始化
+- **备份恢复报告**：恢复时显示修复摘要（如修复无效引用、移除孤立实验等）
 - 首次访问会加载种子数据（18 个子领域 + 8 篇示例论文）
 
 ## 📦 部署
@@ -302,6 +312,10 @@ npm run validate
 ### GitHub Pages
 
 项目已配置好 GitHub Actions 自动部署工作流（`.github/workflows/deploy.yml`），使用 `peaceiris/actions-gh-pages` 将构建产物推送到 `gh-pages` 分支。
+
+CI 流程：`npm ci` → `npm run typecheck` → `npm run lint` → `npm run test:run` → `npm run build` → 部署到 gh-pages。
+
+Pull Request 提交时会自动运行验证（typecheck、lint、test、build），确保代码质量。仅 push 到 main 分支才会触发部署。
 
 启用方式：
 1. 推送代码到 GitHub
@@ -316,45 +330,22 @@ npm run validate
 2. 构建命令：`npm run build`
 3. 输出目录：`out`
 
-## 🚀 新增功能（2026.07）
+## 🔒 可靠性保障
 
-### Phase 1：研究问题与论文对比
+### 数据完整性
+- 停止编造 arXiv 元数据，仅规范化链接地址
+- 旧版模拟数据保守检测并标注提示，不自动删除
+- 数据加载时通过 `normalizeStoredData` 进行验证和修复
+- 删除操作自动级联清理关联引用
 
-- **研究问题空间探索器**：30+ 个机器人领域的研究问题，涵盖热门、空白、新兴、经典四种类型，支持按类型和领域筛选
-- **论文对比功能**：支持选择 2-3 篇论文进行关键维度并排对比
-- **品牌化 404 页面**：搜索功能 + 快速导航链接，提升用户体验
+### 状态一致性
+- Idea 评分和状态通过 `updateIdeaCardWithCalculatedState` 统一重算
+- Pending MVE 不影响评分，仅通过/失败才更新存活度
+- MVE 按 `createdAt` 时间戳判断最新状态
 
-### Phase 2：可视化与交互增强
-
-- **证据压力可视化面板**：证据分布条形图 + 三维评分进度条，直观展示支持/反对/缺失证据的比例
-- **Idea 关联图谱**：力导向布局展示 Idea 之间的关系网络（改进/矛盾/依赖/衍生），支持缩放和悬停高亮
-- **科研决策雷达图**：SVG 可视化展示 Idea 的存活度/置信度/证伪强度三维评分
-- **Toast 通知系统**：轻量级通知组件，支持 success/error/info 三种类型，3 秒自动消失
-- **深色主题**：一键切换深色/浅色模式，localStorage 持久化主题偏好
-
-### Phase 3：科研训练与体验优化
-
-- **假设检验游戏**：6 道专业题目，交互式学习如何设计对照实验，验证科研假设，详细解析每个选项的正误原因
-- **研究进度时间线**：自动收集 Idea 创建、MVE 设计、实验通过/失败等事件，按时间倒序排列
-- **统一空状态组件**：友好的空数据引导，每个空状态都有明确的下一步操作
-- **数据导出功能**：支持将所有数据导出为 JSON 文件，方便备份和迁移
-
-### AI 科研工作流
-- 6 大科研场景的标准化流程指导
-- 每个工作流包含目标、步骤、推荐工具组合
-- 工具标签支持直接点击跳转到官方网站
-
-### 学习路径
-- 11 条机器人领域学习路径，覆盖入门到高级
-- 5 个学习等级（Level 0-4），循序渐进
-- 每条路径推荐经典论文和实用工具，工具标签支持直接点击跳转
-
-### 论文智识
-- 9 维度论文深度分析：问题定义、动机、核心思想、方法、证据、局限性、隐藏假设、重要性、扩展方向
-- **假设思考引导**：帮助读者自行提取论文中的隐藏假设
-- **缺口探索引导**：引导式思考研究空白与潜在机会
-- 标注「Draft · 待核验」提示，避免用户误信模拟内容
-- 前沿论文可点击跳转到 PDF 直接阅读
+### 测试覆盖
+- 76 个测试用例覆盖 reducer 动作、arXiv 解析、数据迁移、删除级联等
+- Reducer 逻辑提取到独立文件，支持直接测试
 
 ## 🌟 项目亮点
 
@@ -368,12 +359,13 @@ npm run validate
 - **响应式布局**：完美适配桌面端和移动端
 - **微动画效果**：卡片 hover、按钮波纹、页面过渡
 - **语义化色彩**：颜色传递功能信息，提升可读性
-- **深色主题**：一键切换深色/浅色模式，localStorage 持久化主题偏好
+- **深色主题**：一键切换深色/浅色模式，防闪烁加载
 
 ### 数据安全
-- 所有数据存储在用户浏览器 localStorage 中
+- 所有数据存储在用户浏览器 IndexedDB 和 localStorage 中
 - 无任何数据上传到服务器
 - 数据版本化管理，支持迁移
+- 支持手动备份和恢复
 
 ## 🤝 贡献指南
 
@@ -390,12 +382,14 @@ npm run validate
 3. 提交代码：`git commit -m "feat: add your feature"`
 4. 推送分支：`git push origin feature/your-feature`
 5. 创建 Pull Request
+6. 等待 CI 检查通过（typecheck、lint、test、build）
 
 ### 开发规范
 - 使用 TypeScript，保证类型安全
 - 遵循现有代码风格和命名规范
 - 新增组件需在对应目录下创建
 - 保持静态导出配置不变（`output: 'export'`）
+- 新增功能需附带测试用例
 
 ## 📧 联系我们
 
@@ -405,4 +399,4 @@ npm run validate
 
 ## 📝 License
 
-MIT
+Apache License 2.0，详见 [LICENSE](LICENSE)。
