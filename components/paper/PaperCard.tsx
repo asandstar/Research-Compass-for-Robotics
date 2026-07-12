@@ -35,6 +35,11 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
               {paper.oneSentenceSummary}
             </p>
           )}
+          {paper.dataProvenance === 'legacy_mock' && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+              该记录可能来自旧版模拟解析，请核验论文信息。
+            </p>
+          )}
         </div>
           <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
             <Tag
@@ -111,6 +116,11 @@ export function PaperCard({ paper, getAreaName, onEdit, onGenerateIdea, isGenera
           {paper.oneSentenceSummary && (
             <p className="text-sm text-ink dark:text-dark-ink mt-3 bg-bg2 dark:bg-dark-bg2 p-3 rounded-lg border-l-2 border-accent/40">
               {paper.oneSentenceSummary}
+            </p>
+          )}
+          {paper.dataProvenance === 'legacy_mock' && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+              该记录可能来自旧版模拟解析，请核验论文信息。
             </p>
           )}
 

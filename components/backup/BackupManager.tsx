@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Clock, Plus, Download, RotateCcw, Trash2, ChevronDown, ChevronUp, Database, X } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { Clock, Plus, Download, RotateCcw, Trash2, ChevronUp, Database, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import type { BackupEntry } from '../../lib/storage/indexedDB';
+import { isRepairReportEmpty, formatRepairReport } from '../../lib/storage';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 
@@ -35,7 +36,7 @@ export function BackupManager({ compact = false }: BackupManagerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [restoringId, setRestoringId] = useState<number | null>(null);
 
-  const loadBackups = async () => {
+  const loadBackups = useCallback(async () => {
     setIsLoading(true);
     try {
       const list = await listBackups();
@@ -45,11 +46,11 @@ export function BackupManager({ compact = false }: BackupManagerProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [listBackups]);
 
   useEffect(() => {
     loadBackups();
-  }, []);
+  }, [loadBackups]);
 
   const handleCreateBackup = async () => {
     try {
@@ -70,8 +71,13 @@ export function BackupManager({ compact = false }: BackupManagerProps) {
 
     setRestoringId(backup.id);
     try {
-      await restoreBackup(backup.id);
-      showToast('备份恢复成功', 'success');
+      const report = await restoreBackup(backup.id);
+      if (!isRepairReportEmpty(report)) {
+        const message = formatRepairReport(report);
+        showToast(`备份已恢复，${message}`, 'info');
+      } else {
+        showToast('备份恢复成功', 'success');
+      }
       loadBackups();
     } catch (e) {
       showToast('恢复备份失败', 'error');
